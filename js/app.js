@@ -1,7 +1,6 @@
 import { fetchPokemon } from "./api.js";
 
-//test
-
+//test API
 async function testAPI(nameOrID) {
     try{
         const pokemon = await fetchPokemon(nameOrID);
@@ -11,4 +10,4 @@ async function testAPI(nameOrID) {
     }
 }
 
-testAPI(1000);
+testAPI('Kogre');

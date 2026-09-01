@@ -34,7 +34,7 @@ export async function fetchPokemon(nameOrId) {
 
 
     } catch(error) {
-        console.error('API ErrorL', error.message);
+        console.error('API Error', error.message);
         throw error;
     }
 }
