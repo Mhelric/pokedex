@@ -1,12 +1,11 @@
 /** 
  * Generates an HTML card string for a single normalized Pokémon object. 
 */
-
 export function createPokemonCard(pokemon) {
-    const formattedId = `#${String(pokemon.id).padStart(3, '0')}}`;
+    const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
 
     const typeBadges = pokemon.types
-        .map(type => `<span class="type-badge type-${type}">${type}</span>`).join('');
+        .map(type => `<span class="type-badge type-${type}">${type}</span>`).join(' ');
 
     return `
         <article class="pokemon-card" data-id="${pokemon.id}>
