@@ -1,3 +1,5 @@
+//MINIGAME JS
+
 import { fetchPokemon } from './api.js';
 
 let currentTarget = null;

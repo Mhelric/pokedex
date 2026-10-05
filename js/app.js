@@ -1,3 +1,5 @@
+//APP JS
+
 import { fetchPokemon } from "./api.js";
 import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from './team.js';

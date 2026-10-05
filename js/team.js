@@ -1,3 +1,5 @@
+//TEAM JS
+
 // Storage key for localStorage
 const STORAGE_KEY = 'pokedex_team';
 

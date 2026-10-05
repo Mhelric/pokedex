@@ -1,36 +1,43 @@
+//UI JS
+
 /** 
  * Generates an HTML card string for a single normalized Pokémon object. 
 */
 export function createPokemonCard(pokemon) {
-    const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+  const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
 
-    const typeBadges = pokemon.types
-        .map(type => `<span class="type-badge type-${type}">${type}</span>`).join('');
+  const typeBadges = pokemon.types
+    .map((type) => `<span class="type-badge type-${type}">${type}</span>`)
+    .join('');
 
-    // Render audio cry button if URL exists
-    const cryButtonHtml = pokemon.cry
-        ? `<button class="cry-btn" data-cry="${pokemon.cry}">🔊</button>`
-        : '';
+  const cryButtonHtml = pokemon.cry
+    ? `<button class="cry-btn" data-cry="${pokemon.cry}">🔊</button>`
+    : '';
 
-    return `
-        <article class="pokemon-card" data-id="${pokemon.id}>
-            <span class="card-id">${formattedId}</span>
-            <img src="${pokemon.image}" alt="${pokemon.name}" class="card-image" loading="lazy">
-            <h3>${pokemon.name}</h3>
-            <div class="card-types"> 
-                ${typeBadges} 
-            </div>
-            <div> 
-                <p>HP: ${pokemon.stats.hp || 'N/A'}</p> 
-                <p>ATK: ${pokemon.stats.attack || 'N/A'}</p> 
-                <p>DEF: ${pokemon.stats.defense || 'N/A'}</p>
-            </div>
-            <div class="card-actions">
-                ${cryButtonHtml}
-                <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
-            </div>
-        </article>
-    `;
+  return `
+    <article class="pokemon-card" data-id="${pokemon.id}">
+      <span class="card-id">${formattedId}</span>
+      <img src="${pokemon.image}" alt="${pokemon.name}" class="card-image" loading="lazy" />
+      <h3>${pokemon.name}</h3>
+
+      <div class="card-types">
+        ${typeBadges}
+      </div>
+
+      <div class="card-stats">
+        <p>HP: ${pokemon.stats?.hp || 'N/A'}</p>
+        <p>ATK: ${pokemon.stats?.attack || 'N/A'}</p>
+        <p>DEF: ${pokemon.stats?.defense || 'N/A'}</p>
+      </div>
+
+      <p class="pokemon-description">"${pokemon.description || 'No description available.'}"</p>
+
+      <div class="card-actions">
+        ${cryButtonHtml}
+        <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
+      </div>
+    </article>
+  `;
 }
 
 /**

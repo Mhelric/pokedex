@@ -1,3 +1,5 @@
+/* MAIN CSS */
+
 /* Base Styling & Layout */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -241,4 +243,18 @@ header {
 
 .cry-btn:active { 
     transform: scale(0.95); 
+}
+
+/* Pokédex Entry Flavor Text */
+.pokemon-description {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #495057;
+  background-color: #f8f9fa;
+  border-left: 3px solid #ef5350;
+  padding: 8px 10px;
+  margin: 10px 0;
+  border-radius: 0 6px 6px 0;
+  line-height: 1.4;
+  text-align: left;
 }
