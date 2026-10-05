@@ -1,0 +1,79 @@
+/* Base Styling & Layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9; 
+    margin: 0; 
+    padding: 0;
+}
+
+header { 
+    background-color: #ef5350; /*Pokedex RED*/
+    color: white; 
+    text-align: center; 
+    padding: 1.5rem; 
+}
+
+/* 1D Flexbox for Form Controls */ 
+.controls { 
+    display: flex; 
+    justify-content: center; 
+    padding: 1.5rem; 
+}
+
+.controls form { 
+    display: flex; 
+    gap: 10px; 
+    width: 100%; 
+    max-width: 500px; 
+}
+
+.controls input { 
+    flex: 1; /* Input takes up remaining space */ 
+    padding: 10px 15px; 
+    border: 2px solid #ccc; 
+    border-radius: 8px; 
+    font-size: 1rem; 
+}
+
+.controls button { 
+    padding: 10px 20px; 
+    background-color: #ef5350; 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+/* 2D CSS Grid for Pokémon Cards */ 
+.pokemon-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 20px; 
+    padding: 0 2rem 2rem 2rem; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
+
+/* Card Component (Flexbox Internal Alignment) */ 
+.pokemon-card { 
+    background: white; 
+    border-radius: 12px; 
+    padding: 15px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease; 
+}
+
+.pokemon-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
+} 
+
+.card-image { 
+    width: 120px; 
+    height: 120px; 
+    object-fit: contain; 
+}
