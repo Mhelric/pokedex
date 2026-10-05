@@ -61,6 +61,15 @@ searchForm.addEventListener('submit', async (e) => {
 
 // 3. Event Delegation: Add to Team from Main Grid 
 gridContainer.addEventListener('click', (e) => { 
+    if (e.target.classList.contains('cry-btn')) {
+        const cryUrl = e.target.dataset.cry;
+        if (cryUrl) {
+            const audio = new Audio(cryUrl);
+            audio.volume = 0.6; // Adjust volume (0.0 to 1.0)
+            audio.play().catch(err => console.error("Audio playback error:",err));
+        }
+    }
+
     if (e.target.classList.contains('add-team-btn')) { 
         const pokemonId = Number(e.target.dataset.id); 
         const pokemon = fetchedCache.get(pokemonId); 

@@ -213,3 +213,32 @@ header {
 .add-team-btn:hover { 
     background-color: #1b5e20; 
 }
+
+/* Card Actions Container */
+.card-actions {
+    display: flex;
+    gap: 8px; 
+    width: 100%; 
+    margin-top: 12px;
+}
+
+/* Audio Cry Button */ 
+.cry-btn { 
+    padding: 8px 12px; 
+    background-color: #ffb703; 
+    color: #023047; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s ease, transform 0.1s ease; 
+}
+
+.cry-btn:hover { 
+    background-color: #fb8500; 
+    transform: scale(1.05); 
+} 
+
+.cry-btn:active { 
+    transform: scale(0.95); 
+}

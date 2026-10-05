@@ -7,6 +7,11 @@ export function createPokemonCard(pokemon) {
     const typeBadges = pokemon.types
         .map(type => `<span class="type-badge type-${type}">${type}</span>`).join('');
 
+    // Render audio cry button if URL exists
+    const cryButtonHtml = pokemon.cry
+        ? `<button class="cry-btn" data-cry="${pokemon.cry}">🔊</button>`
+        : '';
+
     return `
         <article class="pokemon-card" data-id="${pokemon.id}>
             <span class="card-id">${formattedId}</span>
@@ -20,7 +25,10 @@ export function createPokemonCard(pokemon) {
                 <p>ATK: ${pokemon.stats.attack || 'N/A'}</p> 
                 <p>DEF: ${pokemon.stats.defense || 'N/A'}</p>
             </div>
-            <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
+            <div class="card-actions">
+                ${cryButtonHtml}
+                <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
+            </div>
         </article>
     `;
 }

@@ -63,7 +63,7 @@ export async function startNewRound(
 }
 
 /**
- * Evaluates the user's guess.
+ * Evaluates the user's guess and plays the Pokémon's cry on reveal!
  */
 export function handleGuess(
   selectedName,
@@ -76,10 +76,17 @@ export function handleGuess(
 ) {
   const isCorrect = selectedName.toLowerCase() === currentTarget.name.toLowerCase();
 
-  // Reveal image
+  // 1. Reveal image
   imgElement.classList.add('revealed');
 
-  // Disable all option buttons and apply status classes
+  // 2. 🔊 Play official audio cry on reveal if available
+  if (currentTarget && currentTarget.cry) {
+    const audio = new Audio(currentTarget.cry);
+    audio.volume = 0.6; // Adjust volume (0.0 to 1.0)
+    audio.play().catch((err) => console.error("Audio playback error:", err));
+  }
+
+  // 3. Disable all option buttons and highlight correct/wrong
   const buttons = optionsContainer.querySelectorAll('.option-btn');
   buttons.forEach((btn) => {
     btn.disabled = true;
@@ -90,6 +97,7 @@ export function handleGuess(
     }
   });
 
+  // 4. Update score & feedback message
   if (isCorrect) {
     currentStreak++;
     if (currentStreak > highScore) {
@@ -97,16 +105,16 @@ export function handleGuess(
       localStorage.setItem('minigame_highscore', highScore);
     }
     feedbackElement.textContent = `🎉 IT'S ${currentTarget.name.toUpperCase()}! Great guess!`;
-    feedbackElement.style.color = '#4caf50';
+    feedbackElement.style.color = "#4caf50";
   } else {
     currentStreak = 0;
     feedbackElement.textContent = `❌ It was ${currentTarget.name.toUpperCase()}! Streak reset.`;
-    feedbackElement.style.color = '#ef5350';
+    feedbackElement.style.color = "#ef5350";
   }
 
   if (streakElem) streakElem.textContent = currentStreak;
   if (highScoreElem) highScoreElem.textContent = highScore;
 
-  // Show Next Button
+  // 5. Show Next Button
   if (nextBtn) nextBtn.style.display = 'inline-block';
 }
