@@ -10,4 +10,4 @@ async function testAPI(nameOrID) {
     }
 }
 
-testAPI('Kogre');
+testAPI('Kyogre');
