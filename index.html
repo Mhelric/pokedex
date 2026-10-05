@@ -26,6 +26,7 @@
                 <!-- Dynamic team slot cards will be rendered here -->
             </div>
          </section>
+
         <!-- Controls: Search Bar and Type Filter -->
          <section class="controls">
             <form id="search-form">
@@ -35,6 +36,29 @@
             </form>
          </section>
         
+        <!-- Mini-Game Section -->
+         <section id="minigame-section" class="minigame-section">
+            <div class="game-header">
+                <h2>Who's That Pokémon?</h2>
+                <div class="game-score">
+                    <span>Streak: <strong id="streak-count">0</strong></span> |
+                    <span>Best: <strong id="highscore-count">0</strong></span>
+                </div>
+            </div>
+            <div class="game-card">
+                <div class="silhoutte-container">
+                    <img id="game-pokemon-img" class="silhoutte" src="" alt="Mystery Pokemon" />
+                </div>
+                <div id="game-feedback" class="game-feedback">
+                    Guess the Pokémon!
+                </div>
+                <div id="game-options" class="game-options">
+                    <!-- 4 Multiple Choice Buttons will render here -->
+                </div>
+                <button id="next-pokemon-btn" class="btn-primary" style="display: none">Next Pokemon ➡️</button>
+            </div>
+         </section>
+         
         <!-- Dynamic Grid Container -->
          <section id="pokemon-grid" class="pokemon-grid">
             <!-- Dynamic cards will be rendered here -->

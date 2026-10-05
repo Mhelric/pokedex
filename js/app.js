@@ -1,6 +1,7 @@
 import { fetchPokemon } from "./api.js";
 import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from './team.js';
+import { startNewRound, handleGuess } from './minigame.js';
 
 // DOM Elements
 const searchForm = document.getElementById('search-form');
@@ -9,6 +10,13 @@ const gridContainer = document.getElementById('pokemon-grid');
 const teamGrid = document.getElementById('team-grid'); 
 const teamCount = document.getElementById('team-count'); 
 const clearTeamBtn = document.getElementById('clear-team-btn');
+// Mini-Game DOM Elements
+const gameImg = document.getElementById('game-pokemon-img');
+const gameOptions = document.getElementById('game-options');
+const gameFeedback = document.getElementById('game-feedback');
+const nextPokemonBtn = document.getElementById('next-pokemon-btn');
+const streakCount = document.getElementById('streak-count');
+const highscoreCount = document.getElementById('highscore-count');
 
 // Temporary in-memory cache of fetched pokémon objects so we can add them to team easily 
 const fetchedCache = new Map();
@@ -84,3 +92,37 @@ if (clearTeamBtn) {
         updateTeamUI(); 
     }); 
 }
+
+// Helper to trigger a new round
+function initMinigameRound() {
+  if (nextPokemonBtn) nextPokemonBtn.style.display = 'none';
+  startNewRound(gameImg, gameOptions, gameFeedback, streakCount, highscoreCount);
+}
+
+// Event Delegation for Guess Buttons
+if (gameOptions) {
+  gameOptions.addEventListener('click', (e) => {
+    if (e.target.classList.contains('option-btn')) {
+      const selectedName = e.target.dataset.name;
+      handleGuess(
+        selectedName,
+        gameImg,
+        gameFeedback,
+        gameOptions,
+        nextPokemonBtn,
+        streakCount,
+        highscoreCount
+      );
+    }
+  });
+}
+
+// Next Button Listener
+if (nextPokemonBtn) {
+  nextPokemonBtn.addEventListener('click', initMinigameRound);
+}
+
+// Start first round on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  initMinigameRound();
+});
