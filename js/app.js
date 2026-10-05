@@ -1,13 +1,15 @@
 import { fetchPokemon } from "./api.js";
+import { renderError, renderPokemonGrid } from "./ui.js";
 
-//test API
-async function testAPI(nameOrID) {
-    try{
-        const pokemon = await fetchPokemon(nameOrID);
-        console.log('Pokemon Data: ', pokemon)
+const gridContainer = document.getElementById('pokemon-grid');
+
+async function testUI() {
+    try {
+        const pokemon = await fetchPokemon('hydreigon');
+        renderPokemonGrid(pokemon, gridContainer);
     } catch (error) {
-        console.error("Test failed:", error);
+        renderError(error.message, gridContainer);
     }
 }
 
-testAPI('Kyogre');
+testUI();
