@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex</title>
+    <title>Interactive Pokédex</title>
     <!-- CSS Stylesheets -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/retro-ui.css">
@@ -16,8 +16,18 @@
     </header>
 
     <main id="app">
+        <!-- Team Builder Banner / Section -->
+         <section id="team-section" class="team-section">
+            <div class="team-header">
+                <h2>My Team (<span id="team-count">0</span>/6)</h2>
+                <button id="clear-team-btn" class="btn-secondary">Clear team</button>
+            </div>
+            <div id="team-grid" class="team-grid">
+                <!-- Dynamic team slot cards will be rendered here -->
+            </div>
+         </section>
         <!-- Controls: Search Bar and Type Filter -->
-         <section>
+         <section class="controls">
             <form id="search-form">
                 <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required
                 />

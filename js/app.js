@@ -1,55 +1,86 @@
 import { fetchPokemon } from "./api.js";
-import { renderError, renderPokemonGrid } from "./ui.js";
+import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
+import { getTeam, addToTeam, removeFromTeam, clearTeam } from './team.js';
 
-// 1. Grab DOM Elements
+// DOM Elements
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const gridContainer = document.getElementById('pokemon-grid');
+const teamGrid = document.getElementById('team-grid'); 
+const teamCount = document.getElementById('team-count'); 
+const clearTeamBtn = document.getElementById('clear-team-btn');
 
-// 2. Set up Form Submit Listener
-searchForm.addEventListener('submit', async (event) => {
-    // Prevent default form browser reload
-    event.preventDefault();
+// Temporary in-memory cache of fetched pokémon objects so we can add them to team easily 
+const fetchedCache = new Map();
 
+// Helper to refresh Team UI 
+function updateTeamUI() { 
+    renderTeamGrid(getTeam(), teamGrid, teamCount); 
+}
+
+// 1. Initial Page Load 
+document.addEventListener('DOMContentLoaded', async () =>{   
+    updateTeamUI(); // Load saved team from localStorage immediately 
+
+    // Load initial 6 pokemon into main grid 
+    const INITIAL_POKEMON = ['charizard', 'pikachu', 'mewtwo', 'bulbasaur', 'eevee', 'greninja']; 
+    
+    try { 
+        const pokemonList = await Promise.all(INITIAL_POKEMON.map(name => fetchPokemon(name))); 
+        pokemonList.forEach(p => fetchedCache.set(p.id, p));
+        renderPokemonGrid(pokemonList, gridContainer); 
+    } catch (err) { 
+        renderError("Failed to load initial Pokémon.", gridContainer); 
+    } 
+});
+
+// 2. Search Form Event Listener
+searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const query = searchInput.value.trim();
     if (!query) return;
 
-    // Show loading state
     gridContainer.innerHTML = `<div class="loading"><p>Searching for "${query}"...</p></div>`;
 
     try {
-        // Fetch data from API
         const pokemon = await fetchPokemon(query);
-        // Render card
+        fetchedCache.set(pokemon.id, pokemon);
         renderPokemonGrid(pokemon, gridContainer);
     } catch (error) {
-        // Render error card if not found
         renderError(error.message, gridContainer);
     }
 });
 
-// Default Pokemon IDs or names to display on initial load
-const INITIAL_POKEMON = ['charizard', 'pikachu', 'mewtwo', 'bulbasaur', 'eevee', 'greninja'];
+// 3. Event Delegation: Add to Team from Main Grid 
+gridContainer.addEventListener('click', (e) => { 
+    if (e.target.classList.contains('add-team-btn')) { 
+        const pokemonId = Number(e.target.dataset.id); 
+        const pokemon = fetchedCache.get(pokemonId); 
+        
+        if (pokemon) { 
+            const result = addToTeam(pokemon); 
+            if (result.success) { 
+                updateTeamUI(); 
+            } else { 
+                alert(result.message); // Alert user if team full or duplicate 
+            } 
+        } 
+    } 
+}); 
 
-/**
- * Loads the initial set of default Pokemon concurrently using Promise.all
- */
-async function loadInitialPokemon() {
-    gridContainer.innerHTML = `<div class="loading"><p>Catching initial Pokemon...</p></div>`;
-
-    try {
-        // Fire all fetch promises concurrently
-        const pokemonPromises = INITIAL_POKEMON.map(name => fetchPokemon(name));
-
-        // Wait for all fetches to resolve
-        const pokemonList = await Promise.all(pokemonPromises);
-
-        // Render the array of cards into the grid
-        renderPokemonGrid(pokemonList, gridContainer);
-    } catch (error) {
-        renderError("Failed to load initial Pokemon.", gridContainer);
-    }
+// 4. Event Delegation: Remove from Team Drawer 
+teamGrid.addEventListener('click', (e) => { 
+    if (e.target.classList.contains('remove-btn')) { 
+        const pokemonId = Number(e.target.dataset.id);
+        removeFromTeam(pokemonId); 
+        updateTeamUI(); 
+    } 
+}); 
+        
+// 5. Clear Team Button Listener 
+if (clearTeamBtn) { 
+    clearTeamBtn.addEventListener('click', () => { 
+        clearTeam(); 
+        updateTeamUI(); 
+    }); 
 }
-
-// Trigger initial load on page startup
-document.addEventListener('DOMContentLoaded', loadInitialPokemon);

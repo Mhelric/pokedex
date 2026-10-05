@@ -20,6 +20,7 @@ export function createPokemonCard(pokemon) {
                 <p>ATK: ${pokemon.stats.attack || 'N/A'}</p> 
                 <p>DEF: ${pokemon.stats.defense || 'N/A'}</p>
             </div>
+            <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
         </article>
     `;
 }
@@ -47,4 +48,45 @@ export function renderError(message, containerElement) {
             <p class="error-message"> ⚠️ ${message}</p>
         </div>
     `;
+}
+
+/**
+ * Generates HTML for a compact Team Member card.
+ * @param {Object} pokemon - Normalized Pokemon object
+ * @returns {string} HTML markup string
+ */
+export function createTeamCard(pokemon) {
+    return `
+        <div class="team-card" data-id="${pokemon.name}" class="team-card-image">
+            <img src="${pokemon.image}" alt="${pokemon.name}" class="team-card-image">
+            <span class="team-card-name">${pokemon.name}</span>
+            <button class="remove-btn" data-id="${pokemon.id}">&times;</button>
+        </div>
+    `;
+}
+
+/** 
+ * Renders the team cards and updates team count.
+ * @param {Array} team - Array of team Pokémon objects
+ * @param {HTMLElement} gridElement - Container element for team (#team-grid)
+ * @param {HTMLElement} countElement - Span element for count (#team-count) 
+ */
+export function renderTeamGrid(team, gridElement, countElement) {
+    // 1. Update counter text (e.g., "3")
+    if (countElement) {
+        countElement.textContent = team.length;
+    }
+
+    // 2. If team is empty, display empty slot prompt
+    if (team.length === 0) {
+        gridElement.innerHTML = `
+            <div class="team-empty-state">
+                <p>No Pokemon in your team yet. Search and click "+ Add to Team"!</p>
+            </div>
+        `;
+        return;
+    }
+
+    // 3. Render team cards
+    gridElement.innerHTML = team.map(pokemon => createTeamCard(pokemon)).join('');
 }
