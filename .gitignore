@@ -1,4 +1,4 @@
-.DS_Store
-*.log
 .env
-.vscode/
+.env.local
+.vercel
+node_modules

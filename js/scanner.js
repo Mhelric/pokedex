@@ -1,36 +1,11 @@
 // ==========================================
-// CAMERA POKÉDEX SCANNER MODULE (TF.JS AI)
-// Client-side AI Image Recognition via TensorFlow.js
+// CAMERA POKÉDEX SCANNER MODULE (GEMINI VISION AI)
+// Vision AI Scanner powered by Gemini 1.5 Flash
 // ==========================================
 
 import { fetchPokemon } from "./api.js";
 
-// Public hosted TensorFlow.js Pokémon Model URL
-const MODEL_URL = "https://teachablemachine.withgoogle.com/models/bd8J-v0L8/";
-
-let model = null;
 let mediaStream = null;
-
-/**
- * Loads the TensorFlow.js model weights into browser memory.
- */
-async function loadAIModel(statusElement) {
-  if (model) return model;
-
-  try {
-    statusElement.textContent = "⏳ Loading AI Vision Model into browser memory...";
-    const modelURL = MODEL_URL + "model.json";
-    const metadataURL = MODEL_URL + "metadata.json";
-
-    model = await tmImage.load(modelURL, metadataURL);
-    statusElement.textContent = "✅ AI Vision Model Ready! Point camera and scan.";
-    return model;
-  } catch (err) {
-    console.error("TF.js Model Load Error:", err);
-    statusElement.textContent = "⚠️ Failed to load AI model. Check your internet connection.";
-    return null;
-  }
-}
 
 /**
  * Requests device camera permission and streams video feed to the <video> element.
@@ -44,9 +19,7 @@ export async function startCameraStream(videoElement, statusElement) {
     });
     videoElement.srcObject = mediaStream;
     await videoElement.play();
-
-    // Load AI model into memory
-    await loadAIModel(statusElement);
+    statusElement.textContent = "Point camera at any Pokémon photo, card, or plushie and tap Scan!";
   } catch (error) {
     console.error("Camera access error:", error);
     statusElement.textContent = "⚠️ Camera unavailable. Upload an image file below.";
@@ -64,47 +37,44 @@ export function stopCameraStream() {
 }
 
 /**
- * Runs image pixel tensor prediction on an HTML Image or Canvas element.
+ * Sends base64 image string to Gemini Vision backend endpoint.
  */
-async function predictImagePixels(imageOrCanvasElement, statusElement) {
-  const loadedModel = await loadAIModel(statusElement);
-  if (!loadedModel) return null;
-
-  statusElement.textContent = "🤖 Analyzing image pixels & color signatures...";
+async function classifyWithGeminiVision(base64Image, statusElement) {
+  statusElement.textContent = "✨ Gemini Multimodal AI analyzing visual features...";
 
   try {
-    // Run prediction on canvas/image pixels
-    const predictions = await loadedModel.predict(imageOrCanvasElement);
+    const response = await fetch("/api/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image }),
+    });
 
-    if (!predictions || predictions.length === 0) {
-      throw new Error("No predictions returned.");
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `Server error ${response.status}`);
     }
 
-    // Sort predictions by highest probability score
-    predictions.sort((a, b) => b.probability - a.probability);
-    const topMatch = predictions;
+    const data = await response.json();
+    const pokemonName = data.pokemon;
 
-    const confidence = Math.round(topMatch.probability * 100);
-    const pokemonName = topMatch.className.toLowerCase().trim();
-
-    if (confidence < 25) {
-      statusElement.textContent = "❓ Unclear image signature. Try a clearer photo or closer angle!";
+    if (!pokemonName || pokemonName === "none") {
+      statusElement.textContent = "❓ No Pokémon detected in image. Center the target and try again!";
       return null;
     }
 
-    statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()} (${confidence}% confidence)!`;
+    statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()}! Fetching Dex Entry...`;
 
-    // Fetch complete Pokédex data from PokéAPI
+    // Fetch complete Pokédex entry from PokéAPI
     return await fetchPokemon(pokemonName);
   } catch (err) {
-    console.error("AI Prediction Error:", err);
-    statusElement.textContent = "❌ Could not recognize Pokémon in this image. Try another photo!";
+    console.error("Gemini Vision Scan Error:", err);
+    statusElement.textContent = `❌ Scan failed: ${err.message}`;
     return null;
   }
 }
 
 /**
- * Captures the current camera video frame onto canvas and runs AI visual classification.
+ * Captures current camera video frame as Base64 JPEG and runs Gemini Vision AI.
  */
 export async function captureAndScanFrame(videoElement, canvasElement, statusElement) {
   if (!videoElement || !videoElement.videoWidth) {
@@ -118,24 +88,26 @@ export async function captureAndScanFrame(videoElement, canvasElement, statusEle
   canvasElement.height = videoElement.videoHeight;
   context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
-  return await predictImagePixels(canvasElement, statusElement);
+  // Convert canvas to Base64 JPEG
+  const base64Image = canvasElement.toDataURL("image/jpeg", 0.85);
+  return await classifyWithGeminiVision(base64Image, statusElement);
 }
 
 /**
- * Classifies an uploaded photo File object directly using AI Vision.
+ * Converts an uploaded File object to Base64 and runs Gemini Vision AI.
  */
 export async function scanUploadedFile(fileObject, statusElement) {
   return new Promise((resolve) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(fileObject);
-    img.onload = async () => {
-      const scannedPokemon = await predictImagePixels(img, statusElement);
-      URL.revokeObjectURL(img.src);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Image = reader.result;
+      const scannedPokemon = await classifyWithGeminiVision(base64Image, statusElement);
       resolve(scannedPokemon);
     };
-    img.onerror = () => {
-      statusElement.textContent = "⚠️ Failed to read image file.";
+    reader.onerror = () => {
+      statusElement.textContent = "⚠️ Failed to read uploaded file.";
       resolve(null);
     };
+    reader.readAsDataURL(fileObject);
   });
 }
