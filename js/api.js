@@ -8,6 +8,7 @@ const SPECIES_URL = "https://pokeapi.co/api/v2/pokemon-species";
 
 // Generation boundaries in PokéAPI
 export const GEN_RANGES = {
+  all: { start: 1, end: 1025 }, // All Generations (#001–#1025)
   1: { start: 1, end: 151 },    // Gen 1: Kanto (151)
   2: { start: 152, end: 251 },  // Gen 2: Johto (100)
   3: { start: 252, end: 386 },  // Gen 3: Hoenn (135)
@@ -32,7 +33,6 @@ export function formatPokemonName(name, speciesName = "") {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join("-");
 
-  // Check if this is an alternate form of a base species
   if (speciesName && name.toLowerCase().startsWith(speciesName.toLowerCase() + "-")) {
     const baseFormatted = capitalize(speciesName);
     const formSuffix = name.slice(speciesName.length + 1);
@@ -46,7 +46,6 @@ export function formatPokemonName(name, speciesName = "") {
  * Standardizes raw API responses into a clean, predictable object for the UI.
  */
 export function normalizePokemonData(rawData, speciesData = null) {
-  // Animated sprite preference (fallback to official artwork or static sprite)
   const animatedImage =
     rawData.sprites?.other?.showdown?.front_default ||
     rawData.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
@@ -55,14 +54,12 @@ export function normalizePokemonData(rawData, speciesData = null) {
     rawData.sprites?.other?.["official-artwork"]?.front_default ||
     rawData.sprites?.front_default;
 
-  // Extract English Pokédex description
   let description = "No Pokédex description available.";
   if (speciesData?.flavor_text_entries) {
     const englishEntry = speciesData.flavor_text_entries.find(
       (entry) => entry.language.name === "en"
     );
     if (englishEntry) {
-      // Remove page breaks and irregular whitespace
       description = englishEntry.flavor_text
         .replace(/[\f\n\r]/g, " ")
         .replace(/\s+/g, " ")
@@ -90,8 +87,7 @@ export function normalizePokemonData(rawData, speciesData = null) {
 }
 
 /**
- * Fetches a single Pokémon by ID or Name.
- * Safely handles species fetch so failures don't break the main card.
+ * Fetches a single Pokémon by ID or name.
  */
 export async function fetchPokemon(nameOrId) {
   try {
@@ -104,7 +100,6 @@ export async function fetchPokemon(nameOrId) {
 
     const rawData = await response.json();
 
-    // Safely attempt to fetch species description without throwing if throttled
     let speciesData = null;
     try {
       const speciesRes = await fetch(`${SPECIES_URL}/${rawData.id}`);
@@ -122,7 +117,6 @@ export async function fetchPokemon(nameOrId) {
   }
 }
 
-
 /**
  * Searches for all regional/form varieties belonging to a species.
  */
@@ -135,7 +129,6 @@ export async function fetchPokemonForms(nameOrId) {
       if (speciesRes.ok) {
         const speciesData = await speciesRes.json();
 
-        // If the species has multiple form entries, load them in parallel
         if (speciesData.varieties?.length > 0) {
           const rawVarieties = await Promise.all(
             speciesData.varieties.map(async (v) => {
@@ -152,11 +145,8 @@ export async function fetchPokemonForms(nameOrId) {
           }
         }
       }
-    } catch {
-      // Non-fatal, fallback to single lookup
-    }
+    } catch {}
 
-    // Default fallback to single entity fetch
     const single = await fetchPokemon(nameOrId);
     return [single];
   } catch (error) {
@@ -168,7 +158,7 @@ export async function fetchPokemonForms(nameOrId) {
 /**
  * Fetches Pokémon matching a specific element type (e.g. 'fire', 'water').
  */
-export async function fetchPokemonByType(typeName, limit = 20) {
+export async function fetchPokemonByType(typeName, limit = 30) {
   if (typeName === "all") {
     const promises = Array.from({ length: limit }, (_, i) => fetchPokemon(i + 1));
     return Promise.all(promises);
@@ -186,7 +176,7 @@ export async function fetchPokemonByType(typeName, limit = 20) {
 }
 
 /**
- * Fetches a slice/chunk of Pokémon by ID range (e.g. 10 at a time).
+ * Fetches a slice/chunk of Pokémon by ID range (10 at a time).
  */
 export async function fetchPokemonRange(startId, endId, limit = 10) {
   const actualEnd = Math.min(startId + limit - 1, endId);
@@ -210,5 +200,3 @@ export async function fetchPokemonRange(startId, endId, limit = 10) {
     hasMore: actualEnd < endId
   };
 }
-
-

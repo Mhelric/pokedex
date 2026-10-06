@@ -155,7 +155,7 @@ async function loadGenBatch(isFirstBatch = false) {
 
 // --- Combined Filter Logic ---
 async function applyCombinedFilters() {
-  genScrollState.active = false; // Disable single-gen infinite scroll when filtering combined types
+  genScrollState.active = false; // Reset infinite scroll state
 
   gridContainer.innerHTML = `<p class="loading-msg">Filtering Pokédex...</p>`;
 
@@ -163,7 +163,7 @@ async function applyCombinedFilters() {
     let results = [];
 
     if (activeGen !== "all" && activeType !== "all") {
-      // Both Generation and Type selected: fetch full gen range, then filter by type
+      // Both Specific Generation and Type selected: fetch gen range, then filter by type
       const range = GEN_RANGES[activeGen];
       const genList = [];
       for (let id = range.start; id <= range.end; id++) {
@@ -173,8 +173,16 @@ async function applyCombinedFilters() {
       }
       results = genList.filter((p) => p.types.includes(activeType.toLowerCase()));
 
-    } else if (activeGen !== "all") {
-      // Generation filter only -> Enable Infinite Scroll batching
+      currentDisplayedPokemon = results;
+      renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
+
+      if (results.length === 0) {
+        gridContainer.innerHTML = `<p class="status-message">No ${activeType.toUpperCase()} Pokémon found in Generation ${activeGen}.</p>`;
+      }
+
+    } else if (activeType === "all") {
+      // "All Types" selected (works for "All Generations" OR specific Gens 1–9):
+      // Enables Infinite Scroll across the target range (1 to 1025 for "all")
       const range = GEN_RANGES[activeGen];
       genScrollState = {
         active: true,
@@ -185,26 +193,14 @@ async function applyCombinedFilters() {
       };
       gridContainer.innerHTML = "";
       await loadGenBatch(true);
-      return;
 
     } else if (activeType !== "all") {
-      // Type filter only
+      // Type filter across all generations
       results = await fetchPokemonByType(activeType, 30);
       results.forEach((p) => fetchedCache.set(p.id, p));
 
-    } else {
-      // Default initial list (all generations, all types)
-      results = await Promise.all(
-        Array.from({ length: 20 }, (_, i) => fetchPokemon(i + 1))
-      );
-      results.forEach((p) => fetchedCache.set(p.id, p));
-    }
-
-    currentDisplayedPokemon = results;
-    renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
-
-    if (results.length === 0) {
-      gridContainer.innerHTML = `<p class="status-message">No ${activeType.toUpperCase()} Pokémon found in Generation ${activeGen}.</p>`;
+      currentDisplayedPokemon = results;
+      renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
     }
   } catch (error) {
     gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
@@ -237,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initMinigameRound();
   updateToggleBtnText();
 
-  // Initialize Custom Dropdowns with Combined Filter Handler
+  // Initialize Custom Dropdowns
   setupCustomDropdown("type-dropdown", (selectedType) => {
     activeType = selectedType;
     applyCombinedFilters();
@@ -248,16 +244,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyCombinedFilters();
   });
 
-  // Load initial showcase Pokémon
-  const INITIAL_POKEMON = ["charizard", "pikachu", "mewtwo", "bulbasaur", "eevee", "greninja"];
-  try {
-    const pokemonList = await Promise.all(INITIAL_POKEMON.map((name) => fetchPokemon(name)));
-    currentDisplayedPokemon = pokemonList;
-    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-    renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites);
-  } catch (err) {
-    renderError("Failed to load initial Pokémon.", gridContainer);
-  }
+  // Initial page load: Starts infinite scroll batching from #001 through #1025
+  await applyCombinedFilters();
 });
 
 // Search Form Handler
