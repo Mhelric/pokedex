@@ -1,9 +1,31 @@
 // ==========================================
 // UI RENDERING MODULE
-// Generates dynamic HTML components for cards, grids, and modal
+// Generates dynamic HTML components for cards, grids, modal, and team synergy
 // ==========================================
 
 import { getTypeMatchups } from "./api.js";
+
+/**
+ * Calculates cumulative team defensive coverage across all active squad members.
+ */
+function getTeamSynergy(teamList) {
+  const weaknessCounts = {};
+  const resistanceCounts = {};
+
+  teamList.forEach((pokemon) => {
+    const { weaknesses, resistances } = getTypeMatchups(pokemon.types);
+
+    weaknesses.forEach((w) => {
+      weaknessCounts[w.type] = (weaknessCounts[w.type] || 0) + 1;
+    });
+
+    resistances.forEach((r) => {
+      resistanceCounts[r.type] = (resistanceCounts[r.type] || 0) + 1;
+    });
+  });
+
+  return { weaknessCounts, resistanceCounts };
+}
 
 /**
  * Builds HTML string for a main Pokédex card (with species genus, no standalone cry button).
@@ -154,7 +176,7 @@ export function renderPokemonModal(pokemon, containerElement) {
 }
 
 /**
- * Renders the 6-slot team drawer items.
+ * Renders the 6-slot team drawer items along with a cumulative team synergy breakdown.
  */
 export function renderTeamGrid(teamList, containerElement, countElement) {
   if (countElement) {
@@ -168,7 +190,29 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
     return;
   }
 
-  containerElement.innerHTML = teamList
+  const { weaknessCounts, resistanceCounts } = getTeamSynergy(teamList);
+
+  // Filter shared weaknesses where 2+ team members are weak
+  const sharedWeaknesses = Object.entries(weaknessCounts)
+    .filter(([_, count]) => count >= 2)
+    .sort((a, b) => b - a);
+
+  const topResistances = Object.entries(resistanceCounts)
+    .sort((a, b) => b - a);
+
+  const weaknessBadges = sharedWeaknesses.length > 0
+    ? sharedWeaknesses.map(([type, count]) => 
+        `<span class="type-badge type-${type}">${type} <small>(${count}× Weak)</small></span>`
+      ).join(" ")
+    : `<span class="none-text">No shared team weaknesses (Great balance!)</span>`;
+
+  const resistanceBadges = topResistances.length > 0
+    ? topResistances.map(([type, count]) => 
+        `<span class="type-badge type-${type}">${type} <small>(${count}× Resists)</small></span>`
+      ).join(" ")
+    : `<span class="none-text">None</span>`;
+
+  const teamCardsHtml = teamList
     .map(
       (pokemon) => `
       <div class="team-card">
@@ -179,6 +223,24 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
     `
     )
     .join("");
+
+  containerElement.innerHTML = `
+    <div class="team-cards-wrapper">
+      ${teamCardsHtml}
+    </div>
+
+    <div class="team-synergy-box">
+      <h3>Team Type Synergy & Coverage</h3>
+      <div class="synergy-group">
+        <h4>Major Team Weaknesses (2+ Squad Members Vulnerable)</h4>
+        <div class="synergy-badges">${weaknessBadges}</div>
+      </div>
+      <div class="synergy-group">
+        <h4>Team Defensive Coverage (Resistances & Immunities)</h4>
+        <div class="synergy-badges">${resistanceBadges}</div>
+      </div>
+    </div>
+  `;
 }
 
 /**

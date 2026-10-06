@@ -619,7 +619,7 @@ header h1 {
     font-weight: 700;
 }
 
-.team-grid {
+.team-cards-wrapper {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px;
@@ -678,6 +678,52 @@ header h1 {
 
 .remove-btn:hover {
     background: #dc2626;
+}
+
+/* ==========================================
+TEAM SYNERGY & COVERAGE BREAKDOWN
+========================================== */
+.team-synergy-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.team-synergy-box h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.05rem;
+    color: #1e293b;
+    text-align: center;
+}
+
+.synergy-group {
+    margin-bottom: 12px;
+}
+
+.synergy-group:last-child {
+    margin-bottom: 0;
+}
+
+.synergy-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.85rem;
+    color: #475569;
+    text-align: center;
+}
+
+.synergy-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.synergy-badges .type-badge small {
+    font-size: 0.65rem;
+    opacity: 0.9;
+    font-weight: 700;
 }
 
 /* ==========================================
