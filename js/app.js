@@ -5,8 +5,8 @@
 import { 
   fetchPokemon, 
   fetchPokemonForms, 
-  fetchPokemonByType, 
-  fetchPokemonRange,
+  getPokemonListByType,
+  fetchPokemonBatch,
   GEN_RANGES 
 } from "./api.js";
 import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
@@ -38,14 +38,15 @@ let useAnimatedSprites = localStorage.getItem("sprite_mode") !== "artwork";
 let currentDisplayedPokemon = [];
 
 // Global Active Filter State
-let activeType = "all";
-let activeGen = "all";
+let activeType = "all";   // Type 1
+let activeType2 = "all";  // Type 2
+let activeGen = "all";    // Generation
 
-// Generation Infinite Scroll State
-let genScrollState = {
+// Unified Infinite Scroll State
+let scrollState = {
   active: false,
-  currentId: 0,
-  endId: 0,
+  fullList: [],      // Target array of IDs or names to fetch
+  currentIndex: 0,
   loading: false,
   hasMore: false
 };
@@ -71,7 +72,7 @@ function reRenderGrid() {
   }
 }
 
-// --- Custom Dropdown Setup ---
+// --- Custom Dropdown Setup with Dynamic Type Colors ---
 function setupCustomDropdown(dropdownId, onSelectCallback) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
@@ -97,6 +98,14 @@ function setupCustomDropdown(dropdownId, onSelectCallback) {
       label.textContent = opt.textContent;
       dropdown.classList.remove("open");
 
+      // Reset base classes on trigger
+      trigger.className = "dropdown-trigger";
+
+      // Dynamically assign type color class if a specific element type is chosen
+      if (value !== "all" && value !== "none" && isNaN(value)) {
+        trigger.classList.add(`type-${value.toLowerCase()}`);
+      }
+
       onSelectCallback(value);
     });
   });
@@ -107,11 +116,11 @@ document.addEventListener("click", () => {
   document.querySelectorAll(".custom-dropdown").forEach((d) => d.classList.remove("open"));
 });
 
-// --- Generation Batch Loader for Infinite Scroll ---
-async function loadGenBatch(isFirstBatch = false) {
-  if (!genScrollState.active || genScrollState.loading || !genScrollState.hasMore) return;
+// --- Unified Batch Loader for Infinite Scroll ---
+async function loadScrollBatch(isFirstBatch = false) {
+  if (!scrollState.active || scrollState.loading || !scrollState.hasMore) return;
 
-  genScrollState.loading = true;
+  scrollState.loading = true;
 
   if (!isFirstBatch) {
     let scrollLoader = document.getElementById("scroll-loader");
@@ -125,9 +134,9 @@ async function loadGenBatch(isFirstBatch = false) {
   }
 
   try {
-    const { pokemonList, nextStartId, hasMore } = await fetchPokemonRange(
-      genScrollState.currentId,
-      genScrollState.endId,
+    const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
+      scrollState.fullList,
+      scrollState.currentIndex,
       10
     );
 
@@ -142,66 +151,90 @@ async function loadGenBatch(isFirstBatch = false) {
 
     renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, !isFirstBatch);
 
-    genScrollState.currentId = nextStartId;
-    genScrollState.hasMore = hasMore;
+    scrollState.currentIndex = nextIndex;
+    scrollState.hasMore = hasMore;
   } catch (error) {
     const scrollLoader = document.getElementById("scroll-loader");
     if (scrollLoader) scrollLoader.remove();
     console.error("Scroll load error:", error);
   } finally {
-    genScrollState.loading = false;
+    scrollState.loading = false;
   }
 }
 
 // --- Combined Filter Logic ---
 async function applyCombinedFilters() {
-  genScrollState.active = false; // Reset infinite scroll state
+  scrollState.active = false; // Reset current infinite scroll session
 
   gridContainer.innerHTML = `<p class="loading-msg">Filtering Pokédex...</p>`;
 
   try {
-    let results = [];
+    let listToBatch = [];
 
-    if (activeGen !== "all" && activeType !== "all") {
-      // Both Specific Generation and Type selected: fetch gen range, then filter by type
+    // Case 1: Primary Type selected
+    if (activeType !== "all") {
+      const type1List = await getPokemonListByType(activeType);
+
+      // Case 1a: Secondary Type is specific (and different from Type 1)
+      if (activeType2 !== "all" && activeType2 !== "none" && activeType2 !== activeType) {
+        const type2List = await getPokemonListByType(activeType2);
+        const type2Ids = new Set(type2List.map((p) => p.id));
+        
+        // Find Pokémon that have BOTH Type 1 AND Type 2
+        listToBatch = type1List.filter((p) => type2Ids.has(p.id));
+
+      } else {
+        // Type 1 only
+        listToBatch = type1List;
+      }
+
+    } else if (activeType2 !== "all" && activeType2 !== "none") {
+      // Case 2: Only Secondary Type selected
+      listToBatch = await getPokemonListByType(activeType2);
+
+    } else {
+      // Case 3: All Types selected -> Generate full range of IDs
       const range = GEN_RANGES[activeGen];
-      const genList = [];
+      listToBatch = [];
       for (let id = range.start; id <= range.end; id++) {
-        const p = fetchedCache.get(id) || await fetchPokemon(id);
-        fetchedCache.set(p.id, p);
-        genList.push(p);
+        listToBatch.push(id);
       }
-      results = genList.filter((p) => p.types.includes(activeType.toLowerCase()));
-
-      currentDisplayedPokemon = results;
-      renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
-
-      if (results.length === 0) {
-        gridContainer.innerHTML = `<p class="status-message">No ${activeType.toUpperCase()} Pokémon found in Generation ${activeGen}.</p>`;
-      }
-
-    } else if (activeType === "all") {
-      // "All Types" selected (works for "All Generations" OR specific Gens 1–9):
-      // Enables Infinite Scroll across the target range (1 to 1025 for "all")
-      const range = GEN_RANGES[activeGen];
-      genScrollState = {
-        active: true,
-        currentId: range.start,
-        endId: range.end,
-        loading: false,
-        hasMore: true
-      };
-      gridContainer.innerHTML = "";
-      await loadGenBatch(true);
-
-    } else if (activeType !== "all") {
-      // Type filter across all generations
-      results = await fetchPokemonByType(activeType, 30);
-      results.forEach((p) => fetchedCache.set(p.id, p));
-
-      currentDisplayedPokemon = results;
-      renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
     }
+
+    // Filter by Generation ID range if a specific generation is selected
+    if (activeGen !== "all") {
+      const range = GEN_RANGES[activeGen];
+      listToBatch = listToBatch.filter((p) => {
+        const id = typeof p === "object" ? p.id : p;
+        return id >= range.start && id <= range.end;
+      });
+    }
+
+    if (listToBatch.length === 0) {
+      gridContainer.innerHTML = `<p class="status-message">No matching Pokémon found.</p>`;
+      return;
+    }
+
+    // Initialize unified scroll state
+    scrollState = {
+      active: true,
+      fullList: listToBatch,
+      currentIndex: 0,
+      loading: false,
+      hasMore: true
+    };
+
+    gridContainer.innerHTML = "";
+    
+    // Fetch initial 10 cards
+    await loadScrollBatch(true);
+
+    // If pure-type filtering is requested (e.g. Electric + Electric or Type 2 == 'none')
+    if (activeType2 === "none" || (activeType !== "all" && activeType === activeType2)) {
+      currentDisplayedPokemon = currentDisplayedPokemon.filter((p) => p.types.length === 1);
+      renderPokemonGrid(currentDisplayedPokemon, gridContainer, useAnimatedSprites, false);
+    }
+
   } catch (error) {
     gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
   }
@@ -209,13 +242,13 @@ async function applyCombinedFilters() {
 
 // --- Infinite Scroll Event Listener ---
 window.addEventListener("scroll", () => {
-  if (!genScrollState.active || !genScrollState.hasMore || genScrollState.loading) return;
+  if (!scrollState.active || !scrollState.hasMore || scrollState.loading) return;
 
   const scrollPosition = window.innerHeight + window.scrollY;
   const threshold = document.body.offsetHeight - 350;
 
   if (scrollPosition >= threshold) {
-    loadGenBatch(false);
+    loadScrollBatch(false);
   }
 });
 
@@ -239,12 +272,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyCombinedFilters();
   });
 
+  setupCustomDropdown("type2-dropdown", (selectedType2) => {
+    activeType2 = selectedType2;
+    applyCombinedFilters();
+  });
+
   setupCustomDropdown("gen-dropdown", (selectedGen) => {
     activeGen = selectedGen;
     applyCombinedFilters();
   });
 
-  // Initial page load: Starts infinite scroll batching from #001 through #1025
+  // Initial page load
   await applyCombinedFilters();
 });
 
@@ -256,15 +294,24 @@ if (searchForm) {
     if (!query) return;
 
     // Stop Infinite Scroll session on search
-    genScrollState.active = false;
+    scrollState.active = false;
 
-    // Reset Dropdown Labels & Active Filter States
+    // Reset Dropdown Labels, Active Filter States, and Button Trigger Colors
     activeType = "all";
+    activeType2 = "all";
     activeGen = "all";
+
+    document.querySelectorAll(".dropdown-trigger").forEach((t) => {
+      t.className = "dropdown-trigger";
+    });
+
     const typeLabel = document.querySelector("#type-dropdown .trigger-label");
+    const type2Label = document.querySelector("#type2-dropdown .trigger-label");
     const genLabel = document.querySelector("#gen-dropdown .trigger-label");
-    if (typeLabel) typeLabel.textContent = "🌐 All Types";
-    if (genLabel) genLabel.textContent = "🏛️ All Generations";
+
+    if (typeLabel) typeLabel.textContent = "Type 1: All";
+    if (type2Label) type2Label.textContent = "Type 2: Any";
+    if (genLabel) genLabel.textContent = "All Generations";
 
     gridContainer.innerHTML = '<p class="loading-msg">Searching Pokédex...</p>';
 

@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Pokédex</title>
-    <!-- CSS Stylesheets -->
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/retro-ui.css">
-    <link rel="stylesheet" href="styles/animations.css">
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokédex - Interactive Creature Encyclopedia</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/retro-ui.css" />
 </head>
 <body>
     <header>
@@ -16,77 +13,106 @@
     </header>
 
     <main id="app">
-        <!-- Controls: Search Bar and Type Filter -->
-         <section class="controls">
-            <form id="search-form">
-                <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required
-                />
-                <button type="submit">Search</button>
-                <!-- Side-by-Side Custom Filter Bar -->
-                <div class="filter-bar">
-                    <!-- Custom Type Dropdown -->
-                    <div class="custom-dropdown" id="type-dropdown">
-                        <button class="dropdown-trigger" type="button">
-                            <span class="trigger-label">All Types</span>
-                            <span class="dropdown-arrow">▾</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-option active" data-value="all">All Types</div>
-                            <div class="dropdown-option" data-value="fire">Fire</div>
-                            <div class="dropdown-option" data-value="water">Water</div>
-                            <div class="dropdown-option" data-value="grass">Grass</div>
-                            <div class="dropdown-option" data-value="electric">Electric</div>
-                            <div class="dropdown-option" data-value="ice">Ice</div>
-                            <div class="dropdown-option" data-value="fighting">Fighting</div>
-                            <div class="dropdown-option" data-value="poison">Poison</div>
-                            <div class="dropdown-option" data-value="ground">Ground</div>
-                            <div class="dropdown-option" data-value="flying">Flying</div>
-                            <div class="dropdown-option" data-value="psychic">Psychic</div>
-                            <div class="dropdown-option" data-value="bug">Bug</div>
-                            <div class="dropdown-option" data-value="rock">Rock</div>
-                            <div class="dropdown-option" data-value="ghost">Ghost</div>
-                            <div class="dropdown-option" data-value="dragon">Dragon</div>
-                            <div class="dropdown-option" data-value="steel">Steel</div>
-                            <div class="dropdown-option" data-value="fairy">Fairy</div>
-                            <div class="dropdown-option" data-value="dark">Dark</div>
-                        </div>
-                    </div>
+        <!-- Controls: Search Bar and Mode Toggle -->
+        <section class="controls">
+            <form id="search-form" class="search-form">
+                <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required />
+                <button type="submit" class="btn-primary">Search</button>
+            </form>
 
-                    <!-- Custom Generation Dropdown -->
-                    <div class="custom-dropdown" id="gen-dropdown">
-                        <button class="dropdown-trigger" type="button">
-                            <span class="trigger-label">All Generations</span>
-                            <span class="dropdown-arrow">▾</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-option active" data-value="all">All Generations</div>
-                            <div class="dropdown-option" data-value="1">Gen 1: Kanto (#001–#151)</div>
-                            <div class="dropdown-option" data-value="2">Gen 2: Johto (#152–#251)</div>
-                            <div class="dropdown-option" data-value="3">Gen 3: Hoenn (#252–#386)</div>
-                            <div class="dropdown-option" data-value="4">Gen 4: Sinnoh (#387–#493)</div>
-                            <div class="dropdown-option" data-value="5">Gen 5: Unova (#494–#649)</div>
-                            <div class="dropdown-option" data-value="6">Gen 6: Kalos (#650–#721)</div>
-                            <div class="dropdown-option" data-value="7">Gen 7: Alola (#722–#809)</div>
-                            <div class="dropdown-option" data-value="8">Gen 8: Galar (#810–#905)</div>
-                            <div class="dropdown-option" data-value="9">Gen 9: Paldea (#906–#1025)</div>
-                        </div>
+            <!-- Side-by-Side Custom Filter Bar -->
+            <div class="filter-bar">
+                <!-- Primary Type Dropdown -->
+                <div class="custom-dropdown" id="type-dropdown">
+                    <button class="dropdown-trigger" type="button">
+                        <span class="trigger-label">Type 1: All</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-option active" data-value="all">Type 1: All</div>
+                        <div class="dropdown-option" data-value="fire">Fire</div>
+                        <div class="dropdown-option" data-value="water">Water</div>
+                        <div class="dropdown-option" data-value="grass">Grass</div>
+                        <div class="dropdown-option" data-value="electric">Electric</div>
+                        <div class="dropdown-option" data-value="ice">Ice</div>
+                        <div class="dropdown-option" data-value="fighting">Fighting</div>
+                        <div class="dropdown-option" data-value="poison">Poison</div>
+                        <div class="dropdown-option" data-value="ground">Ground</div>
+                        <div class="dropdown-option" data-value="flying">Flying</div>
+                        <div class="dropdown-option" data-value="psychic">Psychic</div>
+                        <div class="dropdown-option" data-value="bug">Bug</div>
+                        <div class="dropdown-option" data-value="rock">Rock</div>
+                        <div class="dropdown-option" data-value="ghost">Ghost</div>
+                        <div class="dropdown-option" data-value="dragon">Dragon</div>
+                        <div class="dropdown-option" data-value="steel">Steel</div>
+                        <div class="dropdown-option" data-value="fairy">Fairy</div>
+                        <div class="dropdown-option" data-value="dark">Dark</div>
+                        <div class="dropdown-option" data-value="normal">Normal</div>
                     </div>
                 </div>
 
-                <!-- Toggle Button -->
-                <button type="button" id="sprite-toggle-btn" class="btn-secondary">
-                    Mode: Animated GIFs
-                </button>
-            </form>
-         </section>
-         
-        <!-- Dynamic Grid Container -->
-         <section id="pokemon-grid" class="pokemon-grid">
-            <!-- Dynamic cards will be rendered here -->
-         </section>
+                <!-- Secondary Type Dropdown -->
+                <div class="custom-dropdown" id="type2-dropdown">
+                    <button class="dropdown-trigger" type="button">
+                        <span class="trigger-label">Type 2: Any</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-option active" data-value="all">Type 2: Any</div>
+                        <div class="dropdown-option" data-value="none">None</div>
+                        <div class="dropdown-option" data-value="fire">Fire</div>
+                        <div class="dropdown-option" data-value="water">Water</div>
+                        <div class="dropdown-option" data-value="grass">Grass</div>
+                        <div class="dropdown-option" data-value="electric">Electric</div>
+                        <div class="dropdown-option" data-value="ice">Ice</div>
+                        <div class="dropdown-option" data-value="fighting">Fighting</div>
+                        <div class="dropdown-option" data-value="poison">Poison</div>
+                        <div class="dropdown-option" data-value="ground">Ground</div>
+                        <div class="dropdown-option" data-value="flying">Flying</div>
+                        <div class="dropdown-option" data-value="psychic">Psychic</div>
+                        <div class="dropdown-option" data-value="bug">Bug</div>
+                        <div class="dropdown-option" data-value="rock">Rock</div>
+                        <div class="dropdown-option" data-value="ghost">Ghost</div>
+                        <div class="dropdown-option" data-value="dragon">Dragon</div>
+                        <div class="dropdown-option" data-value="steel">Steel</div>
+                        <div class="dropdown-option" data-value="fairy">Fairy</div>
+                        <div class="dropdown-option" data-value="dark">Dark</div>
+                        <div class="dropdown-option" data-value="normal">Normal</div>
+                    </div>
+                </div>
 
-<!-- Mini-Game Section -->
-         <section id="minigame-section" class="minigame-section">
+                <!-- Generation Dropdown -->
+                <div class="custom-dropdown" id="gen-dropdown">
+                    <button class="dropdown-trigger" type="button">
+                        <span class="trigger-label">All Generations</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-option active" data-value="all">All Generations</div>
+                        <div class="dropdown-option" data-value="1">Gen 1: Kanto (#001–#151)</div>
+                        <div class="dropdown-option" data-value="2">Gen 2: Johto (#152–#251)</div>
+                        <div class="dropdown-option" data-value="3">Gen 3: Hoenn (#252–#386)</div>
+                        <div class="dropdown-option" data-value="4">Gen 4: Sinnoh (#387–#493)</div>
+                        <div class="dropdown-option" data-value="5">Gen 5: Unova (#494–#649)</div>
+                        <div class="dropdown-option" data-value="6">Gen 6: Kalos (#650–#721)</div>
+                        <div class="dropdown-option" data-value="7">Gen 7: Alola (#722–#809)</div>
+                        <div class="dropdown-option" data-value="8">Gen 8: Galar (#810–#905)</div>
+                        <div class="dropdown-option" data-value="9">Gen 9: Paldea (#906–#1025)</div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="sprite-toggle-btn" class="btn-secondary">
+                Mode: Official Artwork
+            </button>
+        </section>
+
+        <!-- Dynamic Grid Container -->
+        <section id="pokemon-grid" class="pokemon-grid">
+            <!-- Dynamic cards rendered here -->
+        </section>
+
+        <!-- "Who's That Pokémon?" Mini-Game -->
+        <section id="minigame-section" class="minigame-section">
             <div class="game-header">
                 <h2>Who's That Pokémon?</h2>
                 <div class="game-score">
@@ -95,29 +121,29 @@
                 </div>
             </div>
             <div class="game-card">
-                <div class="silhoutte-container">
-                    <img id="game-pokemon-img" class="silhoutte" src="" alt="Mystery Pokemon" />
+                <div class="silhouette-container">
+                    <img id="game-pokemon-img" class="silhouette" src="" alt="Mystery Pokemon" />
                 </div>
                 <div id="game-feedback" class="game-feedback">
                     Guess the Pokémon!
                 </div>
                 <div id="game-options" class="game-options">
-                    <!-- 4 Multiple Choice Buttons will render here -->
+                    <!-- 4 Multiple Choice Buttons -->
                 </div>
                 <button id="next-pokemon-btn" class="btn-primary" style="display: none">Next Pokemon</button>
             </div>
-         </section>
+        </section>
 
-         <!-- Team Builder Banner / Section -->
-         <section id="team-section" class="team-section">
+        <!-- Team Builder Roster -->
+        <section id="team-section" class="team-section">
             <div class="team-header">
                 <h2>My Team (<span id="team-count">0</span>/6)</h2>
                 <button id="clear-team-btn" class="btn-secondary">Clear team</button>
             </div>
             <div id="team-grid" class="team-grid">
-                <!-- Dynamic team slot cards will be rendered here -->
+                <!-- Dynamic team slot cards -->
             </div>
-         </section>
+        </section>
     </main>
 
     <script type="module" src="js/app.js"></script>

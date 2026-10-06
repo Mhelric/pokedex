@@ -156,47 +156,43 @@ export async function fetchPokemonForms(nameOrId) {
 }
 
 /**
- * Fetches Pokémon matching a specific element type (e.g. 'fire', 'water').
+ * Fetches all Pokémon entries belonging to a specific type from PokéAPI.
+ * Returns an array of objects with Pokémon names and numeric IDs.
  */
-export async function fetchPokemonByType(typeName, limit = 30) {
-  if (typeName === "all") {
-    const promises = Array.from({ length: limit }, (_, i) => fetchPokemon(i + 1));
-    return Promise.all(promises);
-  }
-
+export async function getPokemonListByType(typeName) {
   const response = await fetch(`https://pokeapi.co/api/v2/type/${typeName.toLowerCase()}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${typeName} type Pokémon.`);
   }
 
   const data = await response.json();
-  const entries = data.pokemon.slice(0, limit);
-
-  return Promise.all(entries.map((entry) => fetchPokemon(entry.pokemon.name)));
+  return data.pokemon.map((entry) => {
+    const urlParts = entry.pokemon.url.split("/").filter(Boolean);
+    const id = parseInt(urlParts[urlParts.length - 1], 10);
+    return { name: entry.pokemon.name, id };
+  });
 }
 
 /**
- * Fetches a slice/chunk of Pokémon by ID range (10 at a time).
+ * Fetches a slice/chunk of Pokémon from an array of items (10 at a time).
  */
-export async function fetchPokemonRange(startId, endId, limit = 10) {
-  const actualEnd = Math.min(startId + limit - 1, endId);
-  const promises = [];
-
-  for (let id = startId; id <= actualEnd; id++) {
-    promises.push(
-      fetchPokemon(id).catch((err) => {
-        console.warn(`Skipped Pokémon #${id}:`, err);
-        return null;
-      })
-    );
-  }
+export async function fetchPokemonBatch(items, startIndex, batchSize = 10) {
+  const slice = items.slice(startIndex, startIndex + batchSize);
+  const promises = slice.map((item) => {
+    const identifier = typeof item === "object" ? item.name : item;
+    return fetchPokemon(identifier).catch((err) => {
+      console.warn(`Skipped Pokémon ${identifier}:`, err);
+      return null;
+    });
+  });
 
   const results = await Promise.all(promises);
   const validPokemon = results.filter(Boolean);
 
+  const nextIndex = startIndex + batchSize;
   return {
     pokemonList: validPokemon,
-    nextStartId: actualEnd + 1,
-    hasMore: actualEnd < endId
+    nextIndex: nextIndex,
+    hasMore: nextIndex < items.length
   };
 }

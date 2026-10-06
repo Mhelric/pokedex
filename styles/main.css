@@ -1,455 +1,124 @@
 /* ==========================================
-   1. BASE TYPOGRAPHY & LAYOUT
-   ========================================== */
+1. BASE TYPOGRAPHY & LAYOUT 
+========================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f6f9;
-  margin: 0;
-  padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    color: #2d3748;
 }
 
 header {
-  background-color: #ef5350; /* Pokédex Red */
-  color: #ffffff;
-  text-align: center;
-  padding: 1.5rem;
+    background-color: #ef5350; /* Pokédex Red */
+    color: #ffffff;
+    text-align: center;
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
 }
 
 /* ==========================================
-   2. CONTROLS & SEARCH FORM
-   ========================================== */
-.controls { 
-    display: flex; 
-    justify-content: center; 
-    padding: 1.5rem 1rem; 
-    background-color: #ffffff; 
-    border-bottom: 2px solid #e0e0e0; 
+2. CONTROLS & SEARCH FORM
+========================================== */
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem 0.5rem 1rem;
+    background-color: #ffffff;
+    border-bottom: 2px solid #e2e8f0;
 }
 
-.controls form { 
-    display: flex; 
-    flex-wrap: wrap; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 12px; 
-    width: 100%; 
-    max-width: 900px; 
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 800px;
 }
 
-/* Standardized Input, Dropdown & Buttons */
-.controls input,
-.controls select,
-.controls button {
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
+.search-form input {
+    flex: 1;
+    min-width: 240px;
+    height: 42px;
+    padding: 0 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
+    transition: border-color 0.2s ease;
 }
 
-.controls input {
-  flex: 1;
-  min-width: 240px;
-  border: 2px solid #e0e0e0;
-  background-color: #f8f9fa;
+.search-form input:focus {
+    outline: none;
+    border-color: #ef5350;
+    background-color: #ffffff;
 }
 
-.controls input:focus {
-  outline: none;
-  border-color: #ef5350;
-  background-color: #ffffff;
+.btn-primary {
+    height: 42px;
+    padding: 0 20px;
+    background-color: #ef5350;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
 }
 
-.controls button,
-.controls select {
-  border: none;
-  cursor: pointer;
-  background-color: #ef5350;
-  color: #ffffff;
-}
-
-.controls select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 20px;
-  padding-right: 36px;
-}
-
-.controls button:hover,
-.controls select:hover {
-  background-color: #d32f2f;
-  transform: translateY(-1px);
-}
-
-/* ==========================================
-   3. POKÉMON MAIN GRID & CARDS
-   ========================================== */
-.pokemon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 0 2rem 2rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Card Height & Action Alignment */
-.pokemon-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%; /* Uniform height */
-  box-sizing: border-box;
-}
-
-.card-actions {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-  margin-top: auto; /* Pushes buttons neatly to card bottom */
-  padding-top: 10px;
-}
-
-.pokemon-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card-image {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  margin: 0 auto;
-  display: block;
-  image-rendering: pixelated;
-  transition: transform 0.2s ease;
-}
-
-.pokemon-card:hover .card-image {
-  transform: scale(1.15);
-}
-
-.card-id {
-  font-size: 0.8rem;
-  color: #888888;
-  align-self: flex-start;
-}
-
-.pokemon-name {
-  margin: 8px 0;
-  text-transform: capitalize;
-}
-
-.card-types {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.type-badge {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: #e0e0e0;
-}
-
-.card-stats {
-  font-size: 0.85rem;
-  color: #555555;
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  margin: 6px 0;
-}
-
-.pokemon-description {
-  font-size: 0.85rem;
-  font-style: italic;
-  color: #495057;
-  background-color: #f8f9fa;
-  border-left: 3px solid #ef5350;
-  padding: 8px 10px;
-  margin: 10px 0;
-  border-radius: 0 6px 6px 0;
-  line-height: 1.4;
-  text-align: left;
-}
-
-.card-actions {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-  margin-top: 12px;
-}
-
-.add-team-btn {
-  flex: 1;
-  padding: 8px;
-  background-color: #2e7d32;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.add-team-btn:hover {
-  background-color: #1b5e20;
-}
-
-.cry-btn {
-  padding: 8px 12px;
-  background-color: #ffb703;
-  color: #023047;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.cry-btn:hover {
-  background-color: #fb8500;
-  transform: scale(1.05);
-}
-
-.cry-btn:active {
-  transform: scale(0.95);
-}
-
-/* Type Badge Styling */
-.type-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 12px;
-  color: #ffffff;
-}
-
-.type-fire {
-  background-color: #ff4422;
-}
-
-.type-water {
-  background-color: #3399ff;
-}
-
-.type-grass {
-  background-color: #77cc55;
-}
-
-.type-electric {
-  background-color: #ffcc33;
-  color: #000000;
-}
-
-.type-ice {
-  background-color: #66ccff;
-  color: #000000;
-}
-
-.type-fighting {
-  background-color: #bb5544;
-}
-
-.type-poison {
-  background-color: #aa5599;
-}
-
-.type-ground {
-  background-color: #ddbb55;
-  color: #000000;
-}
-
-.type-flying {
-  background-color: #8899ff;
-}
-
-.type-psychic {
-  background-color: #ff5599;
-}
-
-.type-bug {
-  background-color: #aabb22;
-  color: #000000;
-}
-
-.type-rock {
-  background-color: #bbaa66;
-}
-
-.type-ghost {
-  background-color: #6666bb;
-}
-
-.type-dragon {
-  background-color: #7766ee;
-}
-
-.type-steel {
-  background-color: #aaaabb;
-  color: #000000;
-}
-
-.type-fairy {
-  background-color: #ee99ee;
-  color: #000000;
-}
-
-.type-dark {
-  background-color: #775544;
-}
-
-.type-normal {
-  background-color: #aaaa99;
-  color: #000000;
-}
-
-/* ==========================================
-   4. TEAM BUILDER SECTION
-   ========================================== */
-.team-section {
-  background: #ffffff;
-  border-bottom: 2px solid #e0e0e0;
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto 1.5rem auto;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.team-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.team-header h2 {
-  margin: 0;
-  font-size: 1.3rem;
-  color: #333333;
-}
-
-#team-count {
-  color: #ef5350;
-  font-weight: bold;
+.btn-primary:hover {
+    background-color: #d32f2f;
 }
 
 .btn-secondary {
-  background-color: #757575;
-  color: #ffffff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
+    height: 42px;
+    padding: 0 16px;
+    background-color: #475569;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #616161;
+    background-color: #334155;
 }
 
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
-  min-height: 80px;
-}
-
-.team-empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: #888888;
-  font-style: italic;
-  padding: 1rem 0;
-}
-
-.team-card {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  transition: transform 0.2s ease;
-}
-
-.team-card:hover {
-  transform: translateY(-3px);
-  border-color: #ef5350;
-}
-
-.team-card-image {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-}
-
-.team-card-name {
-  font-size: 0.85rem;
-  font-weight: bold;
-  text-transform: capitalize;
-  color: #333333;
-  margin-top: 4px;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ff5252;
-  color: #ffffff;
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.remove-btn:hover {
-  background: #d32f2f;
-}
-
-/* Filter Bar Container - Side-by-side below Search */
+/* ==========================================
+3. CUSTOM FILTER BAR & DROPDOWNS
+========================================== */
 .filter-bar {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     margin: 14px auto 16px auto;
-    max-width: 800px;
+    max-width: 900px;
     width: 100%;
     flex-wrap: wrap;
     position: relative;
     z-index: 50;
 }
 
-/* Custom Minimalist Dropdown */
 .custom-dropdown {
     position: relative;
-    width: 220px;
+    width: 210px;
 }
 
 .dropdown-trigger {
@@ -467,17 +136,16 @@ header {
     color: #334155;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition: all 0.2s ease;
 }
 
 .dropdown-trigger:hover {
     border-color: #94a3b8;
-    background-color: #f8fafc;
 }
 
 .dropdown-arrow {
     font-size: 0.75rem;
-    color: #64748b;
+    color: inherit;
     transition: transform 0.15s ease;
 }
 
@@ -522,4 +190,284 @@ header {
     background-color: #f8fafc;
     font-weight: 700;
     color: #ef5350;
+}
+
+/* Dynamic Dropdown Trigger Colors based on selected type */
+.dropdown-trigger.type-fire { background-color: #ff4422; color: #ffffff; border-color: #d32f2f; }
+.dropdown-trigger.type-water { background-color: #3399ff; color: #ffffff; border-color: #1976d2; }
+.dropdown-trigger.type-grass { background-color: #77cc55; color: #ffffff; border-color: #388e3c; }
+.dropdown-trigger.type-electric { background-color: #ffcc33; color: #000000; border-color: #fbc02d; }
+.dropdown-trigger.type-ice { background-color: #66ccff; color: #000000; border-color: #00acc1; }
+.dropdown-trigger.type-fighting { background-color: #bb5544; color: #ffffff; border-color: #8d6e63; }
+.dropdown-trigger.type-poison { background-color: #aa5599; color: #ffffff; border-color: #7b1fa2; }
+.dropdown-trigger.type-ground { background-color: #ddbb55; color: #000000; border-color: #f57f17; }
+.dropdown-trigger.type-flying { background-color: #8899ff; color: #ffffff; border-color: #3f51b5; }
+.dropdown-trigger.type-psychic { background-color: #ff5599; color: #ffffff; border-color: #c2185b; }
+.dropdown-trigger.type-bug { background-color: #aabb22; color: #000000; border-color: #689f38; }
+.dropdown-trigger.type-rock { background-color: #bbaa66; color: #ffffff; border-color: #5d4037; }
+.dropdown-trigger.type-ghost { background-color: #6666bb; color: #ffffff; border-color: #512da8; }
+.dropdown-trigger.type-dragon { background-color: #7766ee; color: #ffffff; border-color: #303f9f; }
+.dropdown-trigger.type-steel { background-color: #aaaabb; color: #000000; border-color: #616161; }
+.dropdown-trigger.type-fairy { background-color: #ee99ee; color: #000000; border-color: #c2185b; }
+.dropdown-trigger.type-dark { background-color: #775544; color: #ffffff; border-color: #3e2723; }
+.dropdown-trigger.type-normal { background-color: #aaaa99; color: #000000; border-color: #616161; }
+
+/* ==========================================
+4. POKÉMON GRID & CARDS
+========================================== */
+.pokemon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pokemon-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pokemon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.card-id {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    align-self: flex-start;
+    font-weight: 600;
+}
+
+.pokemon-name {
+    margin: 8px 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+    text-align: center;
+}
+
+.card-types {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.type-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: #ffffff;
+}
+
+.type-fire { background-color: #ff4422; }
+.type-water { background-color: #3399ff; }
+.type-grass { background-color: #77cc55; }
+.type-electric { background-color: #ffcc33; color: #000; }
+.type-ice { background-color: #66ccff; color: #000; }
+.type-fighting { background-color: #bb5544; }
+.type-poison { background-color: #aa5599; }
+.type-ground { background-color: #ddbb55; color: #000; }
+.type-flying { background-color: #8899ff; }
+.type-psychic { background-color: #ff5599; }
+.type-bug { background-color: #aabb22; color: #000; }
+.type-rock { background-color: #bbaa66; }
+.type-ghost { background-color: #6666bb; }
+.type-dragon { background-color: #7766ee; }
+.type-steel { background-color: #aaaabb; color: #000; }
+.type-fairy { background-color: #ee99ee; color: #000; }
+.type-dark { background-color: #775544; }
+.type-normal { background-color: #aaaa99; color: #000; }
+
+.card-stats {
+    font-size: 0.85rem;
+    color: #64748b;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin: 6px 0;
+    font-weight: 600;
+}
+
+.pokemon-description {
+    font-size: 0.825rem;
+    font-style: italic;
+    color: #475569;
+    background-color: #f8fafc;
+    border-left: 3px solid #ef5350;
+    padding: 8px 10px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    line-height: 1.4;
+    text-align: left;
+    width: 100%;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.add-team-btn {
+    flex: 1;
+    padding: 8px;
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-team-btn:hover {
+    background-color: #15803d;
+}
+
+.cry-btn {
+    padding: 8px 12px;
+    background-color: #eab308;
+    color: #1e293b;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.cry-btn:hover {
+    background-color: #ca8a04;
+}
+
+/* Status Messages */
+.status-message, .loading-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #64748b;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 2rem 0;
+}
+
+.error-message, .error-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #ef5350;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 2rem 0;
+}
+
+/* ==========================================
+5. TEAM BUILDER SECTION
+========================================== */
+.team-section {
+    background: #ffffff;
+    border-top: 2px solid #e2e8f0;
+    padding: 1.5rem 2rem;
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.team-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #1e293b;
+}
+
+#team-count {
+    color: #ef5350;
+    font-weight: 700;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    min-height: 80px;
+}
+
+.team-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+.team-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.team-card-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.team-card-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    color: #1e293b;
+    margin-top: 4px;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #ef5350;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-btn:hover {
+    background: #dc2626;
 }
