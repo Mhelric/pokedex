@@ -16,6 +16,7 @@
         </div>
         <div class="pokeball-bottom"></div>
     </div>
+
     <header>
         <h1>Pokédex</h1>
     </header>
@@ -26,6 +27,9 @@
             <form id="search-form" class="search-form">
                 <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required />
                 <button type="submit" class="btn-primary">Search</button>
+                <button type="button" id="sprite-toggle-btn" class="btn-secondary">
+                    Mode: Official Artwork
+                </button>
             </form>
 
             <!-- Side-by-Side Custom Filter Bar -->
@@ -67,7 +71,7 @@
                     </button>
                     <div class="dropdown-menu">
                         <div class="dropdown-option active" data-value="all">Type 2: Any</div>
-                        <div class="dropdown-option" data-value="none">None</div>
+                        <div class="dropdown-option" data-value="none">None (Pure Type Only)</div>
                         <div class="dropdown-option" data-value="fire">Fire</div>
                         <div class="dropdown-option" data-value="water">Water</div>
                         <div class="dropdown-option" data-value="grass">Grass</div>
@@ -109,9 +113,6 @@
                     </div>
                 </div>
             </div>
-            <button type="button" id="sprite-toggle-btn" class="btn-secondary">
-                Mode: Official Artwork
-            </button>
         </section>
 
         <!-- Dynamic Grid Container -->
@@ -152,6 +153,16 @@
                 <!-- Dynamic team slot cards -->
             </div>
         </section>
+
+        <!-- Detailed Pokémon Info Modal Overlay -->
+        <div id="pokemon-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button id="modal-close-btn" class="modal-close">&times;</button>
+                <div id="modal-content" class="modal-body">
+                    <!-- Dynamic detailed view rendered here on card click -->
+                </div>
+            </div>
+        </div>
     </main>
 
     <script type="module" src="js/app.js"></script>

@@ -213,7 +213,7 @@ header h1 {
 .dropdown-trigger.type-normal { background-color: #aaaa99; color: #000000; border-color: #616161; }
 
 /* ==========================================
-4. POKÉMON GRID & CARDS
+4. POKÉMON GRID & CARDS (Internal Scroll)
 ========================================== */
 .pokemon-grid {
     display: grid;
@@ -239,6 +239,7 @@ header h1 {
     flex-direction: column;
     align-items: center;
     height: 100%;
+    cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -264,10 +265,18 @@ header h1 {
 }
 
 .pokemon-name {
-    margin: 8px 0;
+    margin: 6px 0 2px 0;
     font-size: 1.1rem;
     color: #1e293b;
     text-align: center;
+}
+
+.pokemon-genus {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #64748b;
+    margin: 0 0 8px 0;
+    font-weight: 600;
 }
 
 .card-types {
@@ -352,21 +361,6 @@ header h1 {
     background-color: #15803d;
 }
 
-.cry-btn {
-    padding: 8px 12px;
-    background-color: #eab308;
-    color: #1e293b;
-    border: none;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.cry-btn:hover {
-    background-color: #ca8a04;
-}
-
 /* Status Messages */
 .status-message, .loading-msg {
     grid-column: 1 / -1;
@@ -387,7 +381,147 @@ header h1 {
 }
 
 /* ==========================================
-5. TEAM BUILDER SECTION
+5. MODAL OVERLAY & DETAILED VIEW LAYOUT
+========================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+    text-align: left;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: #f1f5f9;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #e2e8f0;
+}
+
+/* Top Left Profile Layout */
+.modal-top-layout {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.modal-left-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.modal-left-profile .modal-image {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.modal-left-profile .card-id {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.modal-left-profile .modal-title {
+    margin: 2px 0 4px 0;
+    font-size: 1.5rem;
+    color: #1e293b;
+}
+
+.modal-left-profile .pokemon-genus {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.modal-left-profile .card-types {
+    display: flex;
+    gap: 6px;
+}
+
+/* Bottom Details Section */
+.modal-bottom-details {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+}
+
+.modal-measurements {
+    font-size: 0.9rem;
+    color: #475569;
+    margin: 12px 0;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.full-stats h4 {
+    margin: 14px 0 8px 0;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.stat-bar-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.stat-bar-group progress {
+    width: 60%;
+    height: 10px;
+    accent-color: #ef5350;
+}
+
+/* ==========================================
+6. TEAM BUILDER SECTION
 ========================================== */
 .team-section {
     background: #ffffff;
@@ -479,7 +613,7 @@ header h1 {
 }
 
 /* ==========================================
-POKEBALL OPENING OVERLAY & ANIMATION
+7. POKEBALL OPENING OVERLAY & ANIMATION
 ========================================== */
 .pokeball-overlay {
     position: fixed;

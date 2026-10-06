@@ -9,7 +9,7 @@ import {
   fetchPokemonBatch,
   GEN_RANGES 
 } from "./api.js";
-import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
+import { renderPokemonGrid, renderTeamGrid, renderPokemonModal, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
 
@@ -21,6 +21,11 @@ const teamGrid = document.getElementById("team-grid");
 const teamCount = document.getElementById("team-count");
 const clearTeamBtn = document.getElementById("clear-team-btn");
 const spriteToggleBtn = document.getElementById("sprite-toggle-btn");
+
+// Modal DOM References
+const modalOverlay = document.getElementById("pokemon-modal");
+const modalContent = document.getElementById("modal-content");
+const modalCloseBtn = document.getElementById("modal-close-btn");
 
 // Mini-game DOM References
 const gameImg = document.getElementById("game-pokemon-img");
@@ -51,9 +56,34 @@ let scrollState = {
   hasMore: false
 };
 
+// --- Pokeball Opening Animation Helper ---
+function triggerPokeballOpening() {
+  const overlay = document.getElementById("pokeball-overlay");
+  if (!overlay) return;
+
+  setTimeout(() => {
+    overlay.classList.add("open");
+    setTimeout(() => {
+      overlay.classList.add("opened");
+    }, 800);
+  }, 500);
+}
+
 // --- Team UI Helper ---
 function updateTeamUI() {
   renderTeamGrid(getTeam(), teamGrid, teamCount);
+}
+
+// --- Modal Close Helper ---
+function closeModal() {
+  if (modalOverlay) modalOverlay.classList.add("hidden");
+}
+
+if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeModal);
+if (modalOverlay) {
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
 }
 
 // --- Toggle Button Helpers ---
@@ -142,7 +172,6 @@ async function loadScrollBatch(isFirstBatch = false) {
 
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
 
-    // Update currently displayed cards list
     if (isFirstBatch) {
       currentDisplayedPokemon = [...pokemonList];
     } else {
@@ -164,36 +193,28 @@ async function loadScrollBatch(isFirstBatch = false) {
 
 // --- Combined Filter Logic ---
 async function applyCombinedFilters() {
-  scrollState.active = false; // Reset current infinite scroll session
+  scrollState.active = false;
 
   gridContainer.innerHTML = `<p class="loading-msg">Filtering Pokédex...</p>`;
 
   try {
     let listToBatch = [];
 
-    // Case 1: Primary Type selected
     if (activeType !== "all") {
       const type1List = await getPokemonListByType(activeType);
 
-      // Case 1a: Secondary Type is specific (and different from Type 1)
       if (activeType2 !== "all" && activeType2 !== "none" && activeType2 !== activeType) {
         const type2List = await getPokemonListByType(activeType2);
         const type2Ids = new Set(type2List.map((p) => p.id));
-        
-        // Find Pokémon that have BOTH Type 1 AND Type 2
         listToBatch = type1List.filter((p) => type2Ids.has(p.id));
-
       } else {
-        // Type 1 only
         listToBatch = type1List;
       }
 
     } else if (activeType2 !== "all" && activeType2 !== "none") {
-      // Case 2: Only Secondary Type selected
       listToBatch = await getPokemonListByType(activeType2);
 
     } else {
-      // Case 3: All Types selected -> Generate full range of IDs
       const range = GEN_RANGES[activeGen];
       listToBatch = [];
       for (let id = range.start; id <= range.end; id++) {
@@ -201,7 +222,6 @@ async function applyCombinedFilters() {
       }
     }
 
-    // Filter by Generation ID range if a specific generation is selected
     if (activeGen !== "all") {
       const range = GEN_RANGES[activeGen];
       listToBatch = listToBatch.filter((p) => {
@@ -215,7 +235,6 @@ async function applyCombinedFilters() {
       return;
     }
 
-    // Initialize unified scroll state
     scrollState = {
       active: true,
       fullList: listToBatch,
@@ -225,11 +244,8 @@ async function applyCombinedFilters() {
     };
 
     gridContainer.innerHTML = "";
-    
-    // Fetch initial 10 cards
     await loadScrollBatch(true);
 
-    // If pure-type filtering is requested (e.g. Electric + Electric or Type 2 == 'none')
     if (activeType2 === "none" || (activeType !== "all" && activeType === activeType2)) {
       currentDisplayedPokemon = currentDisplayedPokemon.filter((p) => p.types.length === 1);
       renderPokemonGrid(currentDisplayedPokemon, gridContainer, useAnimatedSprites, false);
@@ -240,7 +256,7 @@ async function applyCombinedFilters() {
   }
 }
 
-// --- Infinite Scroll Event Listener ---
+// --- Infinite Scroll Listener (Listens to gridContainer internal scroll) ---
 gridContainer.addEventListener("scroll", () => {
   if (!scrollState.active || !scrollState.hasMore || scrollState.loading) return;
 
@@ -266,7 +282,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   initMinigameRound();
   updateToggleBtnText();
 
-  // Initialize Custom Dropdowns
   setupCustomDropdown("type-dropdown", (selectedType) => {
     activeType = selectedType;
     applyCombinedFilters();
@@ -282,10 +297,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyCombinedFilters();
   });
 
-  // Initial page load
   await applyCombinedFilters();
 
-  // 🎬 Trigger Pokéball slicing open animation
+  // 🎬 Trigger Pokéball slicing opening animation
   triggerPokeballOpening();
 });
 
@@ -296,10 +310,8 @@ if (searchForm) {
     const query = searchInput.value.trim();
     if (!query) return;
 
-    // Stop Infinite Scroll session on search
     scrollState.active = false;
 
-    // Reset Dropdown Labels, Active Filter States, and Button Trigger Colors
     activeType = "all";
     activeType2 = "all";
     activeGen = "all";
@@ -329,17 +341,9 @@ if (searchForm) {
   });
 }
 
-// Main Grid Clicks (Cry Audio & Team Builder)
+// Main Grid Clicks (Card Click: Play Cry + Open Detail Modal | Team Builder)
 gridContainer.addEventListener("click", (e) => {
-  if (e.target.classList.contains("cry-btn")) {
-    const cryUrl = e.target.dataset.cry;
-    if (cryUrl) {
-      const audio = new Audio(cryUrl);
-      audio.volume = 0.6;
-      audio.play().catch((err) => console.error("Audio playback error:", err));
-    }
-  }
-
+  // Handle Add to Team button
   if (e.target.classList.contains("add-team-btn")) {
     const pokemonId = Number(e.target.dataset.id);
     const pokemon = fetchedCache.get(pokemonId);
@@ -351,6 +355,27 @@ gridContainer.addEventListener("click", (e) => {
       } else {
         alert(result.message);
       }
+    }
+    return;
+  }
+
+  // Handle Card Click (Plays Cry + Opens Detail Modal)
+  const card = e.target.closest(".pokemon-card");
+  if (card) {
+    const pokemonId = Number(card.dataset.id);
+    const pokemon = fetchedCache.get(pokemonId);
+
+    if (pokemon) {
+      // 1. Play Pokémon Cry Audio
+      if (pokemon.cry) {
+        const audio = new Audio(pokemon.cry);
+        audio.volume = 0.6;
+        audio.play().catch((err) => console.error("Audio playback error:", err));
+      }
+
+      // 2. Open Detailed Pokédex View Modal
+      renderPokemonModal(pokemon, modalContent);
+      modalOverlay.classList.remove("hidden");
     }
   }
 });
@@ -400,18 +425,4 @@ if (spriteToggleBtn) {
     updateToggleBtnText();
     reRenderGrid();
   });
-}
-
-// --- Pokeball Opening Animation Helper ---
-function triggerPokeballOpening() {
-  const overlay = document.getElementById("pokeball-overlay");
-  if (!overlay) return;
-
-  // Short pause so user sees the Pokéball splash before it slices open
-  setTimeout(() => {
-    overlay.classList.add("open");
-    setTimeout(() => {
-      overlay.classList.add("opened");
-    }, 800); // Matches CSS transition duration
-  }, 500);
 }

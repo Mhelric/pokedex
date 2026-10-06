@@ -55,15 +55,28 @@ export function normalizePokemonData(rawData, speciesData = null) {
     rawData.sprites?.front_default;
 
   let description = "No Pokédex description available.";
-  if (speciesData?.flavor_text_entries) {
-    const englishEntry = speciesData.flavor_text_entries.find(
-      (entry) => entry.language.name === "en"
-    );
-    if (englishEntry) {
-      description = englishEntry.flavor_text
-        .replace(/[\f\n\r]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+  let genus = "";
+
+  if (speciesData) {
+    if (speciesData.flavor_text_entries) {
+      const englishEntry = speciesData.flavor_text_entries.find(
+        (entry) => entry.language.name === "en"
+      );
+      if (englishEntry) {
+        description = englishEntry.flavor_text
+          .replace(/[\f\n\r]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+    }
+
+    if (speciesData.genera) {
+      const englishGenus = speciesData.genera.find(
+        (g) => g.language.name === "en"
+      );
+      if (englishGenus) {
+        genus = englishGenus.genus; // e.g., "Mouse Pokémon"
+      }
     }
   }
 
@@ -72,6 +85,9 @@ export function normalizePokemonData(rawData, speciesData = null) {
   return {
     id: rawData.id,
     name: formatPokemonName(rawData.name, speciesName),
+    genus: genus || "Pokémon",
+    height: rawData.height ? (rawData.height / 10).toFixed(1) + " m" : "N/A",
+    weight: rawData.weight ? (rawData.weight / 10).toFixed(1) + " kg" : "N/A",
     animatedImage: animatedImage || officialArtwork,
     officialArtwork: officialArtwork,
     image: animatedImage || officialArtwork,
@@ -80,6 +96,9 @@ export function normalizePokemonData(rawData, speciesData = null) {
       hp: rawData.stats?.find((s) => s.stat.name === "hp")?.base_stat || 0,
       attack: rawData.stats?.find((s) => s.stat.name === "attack")?.base_stat || 0,
       defense: rawData.stats?.find((s) => s.stat.name === "defense")?.base_stat || 0,
+      spAtk: rawData.stats?.find((s) => s.stat.name === "special-attack")?.base_stat || 0,
+      spDef: rawData.stats?.find((s) => s.stat.name === "special-defense")?.base_stat || 0,
+      speed: rawData.stats?.find((s) => s.stat.name === "speed")?.base_stat || 0,
     },
     cry: rawData.cries?.latest || rawData.cries?.legacy || null,
     description: description,
