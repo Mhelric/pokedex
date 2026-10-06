@@ -81,10 +81,13 @@ export function renderPokemonModal(pokemon, containerElement) {
     .join("");
 
   containerElement.innerHTML = `
-    <!-- Top Section: Image and Metadata on the Left -->
+    <!-- Top Centered Section: Artwork & Header Metadata -->
     <div class="modal-top-layout">
-      <div class="modal-left-profile">
+      <div class="modal-image-container">
         <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="modal-image" />
+      </div>
+
+      <div class="modal-header-info">
         <span class="card-id">${formattedId}</span>
         <h2 class="modal-title">${pokemon.name}</h2>
         <p class="pokemon-genus">${pokemon.genus}</p>
@@ -92,7 +95,7 @@ export function renderPokemonModal(pokemon, containerElement) {
       </div>
     </div>
 
-    <!-- Bottom Section: Description, Measurements & Stats below all of it -->
+    <!-- Bottom Section: Description, Measurements & Stats -->
     <div class="modal-bottom-details">
       <p class="pokemon-description">"${pokemon.description}"</p>
       
@@ -113,6 +116,7 @@ export function renderPokemonModal(pokemon, containerElement) {
     </div>
   `;
 }
+
 
 /**
  * Renders the 6-slot team drawer items.
