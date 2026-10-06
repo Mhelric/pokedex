@@ -219,9 +219,15 @@ header h1 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0 auto 2rem auto;
+    max-height: 70vh; /* Fixed height for grid */
+    overflow-y: auto;  /* Scroll internally inside the grid */
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .pokemon-card {

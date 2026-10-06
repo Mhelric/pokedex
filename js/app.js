@@ -241,11 +241,11 @@ async function applyCombinedFilters() {
 }
 
 // --- Infinite Scroll Event Listener ---
-window.addEventListener("scroll", () => {
+gridContainer.addEventListener("scroll", () => {
   if (!scrollState.active || !scrollState.hasMore || scrollState.loading) return;
 
-  const scrollPosition = window.innerHeight + window.scrollY;
-  const threshold = document.body.offsetHeight - 350;
+  const scrollPosition = gridContainer.scrollTop + gridContainer.clientHeight;
+  const threshold = gridContainer.scrollHeight - 150;
 
   if (scrollPosition >= threshold) {
     loadScrollBatch(false);
