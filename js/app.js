@@ -21,9 +21,8 @@ const teamGrid = document.getElementById("team-grid");
 const teamCount = document.getElementById("team-count");
 const clearTeamBtn = document.getElementById("clear-team-btn");
 const spriteToggleBtn = document.getElementById("sprite-toggle-btn");
-const typeSelectDropdown = document.getElementById('type-select-dropdown');
 
-// Mini-game references
+// Mini-game DOM References
 const gameImg = document.getElementById("game-pokemon-img");
 const gameOptions = document.getElementById("game-options");
 const gameFeedback = document.getElementById("game-feedback");
@@ -31,18 +30,32 @@ const nextPokemonBtn = document.getElementById("next-pokemon-btn");
 const streakCount = document.getElementById("streak-count");
 const highscoreCount = document.getElementById("highscore-count");
 
-// In-memory cache for fast lookup when adding to team
+// --- Global State ---
 const fetchedCache = new Map();
-
-// Sprite mode toggle state
 let useAnimatedSprites = localStorage.getItem("sprite_mode") !== "artwork";
 
-// --- Team Helpers ---
+// Track currently displayed cards for sprite mode toggling
+let currentDisplayedPokemon = [];
+
+// Global Active Filter State
+let activeType = "all";
+let activeGen = "all";
+
+// Generation Infinite Scroll State
+let genScrollState = {
+  active: false,
+  currentId: 0,
+  endId: 0,
+  loading: false,
+  hasMore: false
+};
+
+// --- Team UI Helper ---
 function updateTeamUI() {
   renderTeamGrid(getTeam(), teamGrid, teamCount);
 }
 
-// --- Toggle Helpers ---
+// --- Toggle Button Helpers ---
 function updateToggleBtnText() {
   if (spriteToggleBtn) {
     spriteToggleBtn.textContent = useAnimatedSprites
@@ -51,69 +64,14 @@ function updateToggleBtnText() {
   }
 }
 
+// Re-renders the EXACT cards currently on screen when toggling artwork mode
 function reRenderGrid() {
-  const cachedList = Array.from(fetchedCache.values());
-  if (cachedList.length > 0) {
-    renderPokemonGrid(cachedList, gridContainer, useAnimatedSprites);
+  if (currentDisplayedPokemon.length > 0) {
+    renderPokemonGrid(currentDisplayedPokemon, gridContainer, useAnimatedSprites, false);
   }
 }
 
-// --- Mini-game Initializer ---
-function initMinigameRound() {
-  if (nextPokemonBtn) nextPokemonBtn.style.display = "none";
-  startNewRound(gameImg, gameOptions, gameFeedback, streakCount, highscoreCount);
-}
-
-// ==========================================
-// EVENT LISTENERS & INITIALIZATION
-// ==========================================
-
-document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Initialize Team UI from storage
-  updateTeamUI();
-
-  // 2. Initialize Mini-game
-  initMinigameRound();
-
-  // 3. Initialize Sprite Toggle UI
-  updateToggleBtnText();
-
-  // 4. Load initial showcase cards
-  const INITIAL_POKEMON = ["charizard", "pikachu", "mewtwo", "bulbasaur", "eevee", "greninja"];
-  try {
-    const pokemonList = await Promise.all(INITIAL_POKEMON.map((name) => fetchPokemon(name)));
-    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-    renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites);
-  } catch (err) {
-    renderError("Failed to load initial Pokémon.", gridContainer);
-  }
-});
-
-// Search form submit
-if (searchForm) {
-  searchForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    gridContainer.innerHTML = '<p class="status-message">Searching Pokédex...</p>';
-
-    try {
-      const results = await fetchPokemonForms(query);
-      results.forEach((p) => fetchedCache.set(p.id, p));
-      renderPokemonGrid(results, gridContainer, useAnimatedSprites);
-    } catch (error) {
-      gridContainer.innerHTML = `<p class="error-message">❌ ${error.message}</p>`;
-    }
-  });
-}
-
-/**
- * Custom Dropdown Component Setup
- * - Opens/toggles menu on trigger click
- * - Closes when an option is selected or when clicking anywhere outside
- * - Menu stays open on mouseleave (per user preference)
- */
+// --- Custom Dropdown Setup ---
 function setupCustomDropdown(dropdownId, onSelectCallback) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
@@ -122,17 +80,14 @@ function setupCustomDropdown(dropdownId, onSelectCallback) {
   const label = dropdown.querySelector(".trigger-label");
   const options = dropdown.querySelectorAll(".dropdown-option");
 
-  // 1. Toggle open state on click
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
-    // Close any other open custom dropdowns
     document.querySelectorAll(".custom-dropdown").forEach((d) => {
       if (d !== dropdown) d.classList.remove("open");
     });
     dropdown.classList.toggle("open");
   });
 
-  // 2. Handle option selection
   options.forEach((opt) => {
     opt.addEventListener("click", () => {
       options.forEach((o) => o.classList.remove("active"));
@@ -147,42 +102,17 @@ function setupCustomDropdown(dropdownId, onSelectCallback) {
   });
 }
 
-// 3. Close open custom dropdowns when clicking anywhere outside
+// Close dropdowns when clicking anywhere outside
 document.addEventListener("click", () => {
   document.querySelectorAll(".custom-dropdown").forEach((d) => d.classList.remove("open"));
 });
 
-// Initialize Type Dropdown
-setupCustomDropdown("type-dropdown", async (selectedType) => {
-  gridContainer.innerHTML = `<p class="loading-msg">Loading ${selectedType.toUpperCase()} Pokémon...</p>`;
-  try {
-    const pokemonList = await fetchPokemonByType(selectedType, 20);
-    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-    renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites);
-  } catch (error) {
-    gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
-  }
-});
-
-// Infinite Scroll State for Generations
-let genScrollState = {
-  active: false,
-  currentId: 0,
-  endId: 0,
-  loading: false,
-  hasMore: false
-};
-
-/**
- * Loads a batch of 10 Pokémon
- * @param {boolean} isFirstBatch - If true, replaces the grid; if false, appends/stacks.
- */
+// --- Generation Batch Loader for Infinite Scroll ---
 async function loadGenBatch(isFirstBatch = false) {
   if (!genScrollState.active || genScrollState.loading || !genScrollState.hasMore) return;
 
   genScrollState.loading = true;
 
-  // Add loader at the bottom when scrolling
   if (!isFirstBatch) {
     let scrollLoader = document.getElementById("scroll-loader");
     if (!scrollLoader) {
@@ -201,12 +131,15 @@ async function loadGenBatch(isFirstBatch = false) {
       10
     );
 
-    // Cache items
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
 
-    // Render:
-    // isFirstBatch = true  => append = false (replaces initial "Loading..." message)
-    // isFirstBatch = false => append = true  (STACKS next 10 onto existing cards)
+    // Update currently displayed cards list
+    if (isFirstBatch) {
+      currentDisplayedPokemon = [...pokemonList];
+    } else {
+      currentDisplayedPokemon = [...currentDisplayedPokemon, ...pokemonList];
+    }
+
     renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, !isFirstBatch);
 
     genScrollState.currentId = nextStartId;
@@ -220,7 +153,65 @@ async function loadGenBatch(isFirstBatch = false) {
   }
 }
 
-// Global Scroll Listener
+// --- Combined Filter Logic ---
+async function applyCombinedFilters() {
+  genScrollState.active = false; // Disable single-gen infinite scroll when filtering combined types
+
+  gridContainer.innerHTML = `<p class="loading-msg">Filtering Pokédex...</p>`;
+
+  try {
+    let results = [];
+
+    if (activeGen !== "all" && activeType !== "all") {
+      // Both Generation and Type selected: fetch full gen range, then filter by type
+      const range = GEN_RANGES[activeGen];
+      const genList = [];
+      for (let id = range.start; id <= range.end; id++) {
+        const p = fetchedCache.get(id) || await fetchPokemon(id);
+        fetchedCache.set(p.id, p);
+        genList.push(p);
+      }
+      results = genList.filter((p) => p.types.includes(activeType.toLowerCase()));
+
+    } else if (activeGen !== "all") {
+      // Generation filter only -> Enable Infinite Scroll batching
+      const range = GEN_RANGES[activeGen];
+      genScrollState = {
+        active: true,
+        currentId: range.start,
+        endId: range.end,
+        loading: false,
+        hasMore: true
+      };
+      gridContainer.innerHTML = "";
+      await loadGenBatch(true);
+      return;
+
+    } else if (activeType !== "all") {
+      // Type filter only
+      results = await fetchPokemonByType(activeType, 30);
+      results.forEach((p) => fetchedCache.set(p.id, p));
+
+    } else {
+      // Default initial list (all generations, all types)
+      results = await Promise.all(
+        Array.from({ length: 20 }, (_, i) => fetchPokemon(i + 1))
+      );
+      results.forEach((p) => fetchedCache.set(p.id, p));
+    }
+
+    currentDisplayedPokemon = results;
+    renderPokemonGrid(results, gridContainer, useAnimatedSprites, false);
+
+    if (results.length === 0) {
+      gridContainer.innerHTML = `<p class="status-message">No ${activeType.toUpperCase()} Pokémon found in Generation ${activeGen}.</p>`;
+    }
+  } catch (error) {
+    gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
+  }
+}
+
+// --- Infinite Scroll Event Listener ---
 window.addEventListener("scroll", () => {
   if (!genScrollState.active || !genScrollState.hasMore || genScrollState.loading) return;
 
@@ -228,43 +219,80 @@ window.addEventListener("scroll", () => {
   const threshold = document.body.offsetHeight - 350;
 
   if (scrollPosition >= threshold) {
-    loadGenBatch(false); // Append next 10 cards
+    loadGenBatch(false);
   }
 });
 
-// Generation Dropdown Listener
-setupCustomDropdown("gen-dropdown", async (selectedGen) => {
-  if (selectedGen === "all") {
+// --- Mini-game Initializer ---
+function initMinigameRound() {
+  if (nextPokemonBtn) nextPokemonBtn.style.display = "none";
+  startNewRound(gameImg, gameOptions, gameFeedback, streakCount, highscoreCount);
+}
+
+// ==========================================
+// INITIALIZATION & EVENT LISTENERS
+// ==========================================
+document.addEventListener("DOMContentLoaded", async () => {
+  updateTeamUI();
+  initMinigameRound();
+  updateToggleBtnText();
+
+  // Initialize Custom Dropdowns with Combined Filter Handler
+  setupCustomDropdown("type-dropdown", (selectedType) => {
+    activeType = selectedType;
+    applyCombinedFilters();
+  });
+
+  setupCustomDropdown("gen-dropdown", (selectedGen) => {
+    activeGen = selectedGen;
+    applyCombinedFilters();
+  });
+
+  // Load initial showcase Pokémon
+  const INITIAL_POKEMON = ["charizard", "pikachu", "mewtwo", "bulbasaur", "eevee", "greninja"];
+  try {
+    const pokemonList = await Promise.all(INITIAL_POKEMON.map((name) => fetchPokemon(name)));
+    currentDisplayedPokemon = pokemonList;
+    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+    renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites);
+  } catch (err) {
+    renderError("Failed to load initial Pokémon.", gridContainer);
+  }
+});
+
+// Search Form Handler
+if (searchForm) {
+  searchForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    // Stop Infinite Scroll session on search
     genScrollState.active = false;
-    gridContainer.innerHTML = '<p class="loading-msg">Loading Pokédex...</p>';
-    const defaultList = await Promise.all(
-      Array.from({ length: 20 }, (_, i) => fetchPokemon(i + 1))
-    );
-    renderPokemonGrid(defaultList, gridContainer, useAnimatedSprites, false);
-    return;
-  }
 
-  const range = GEN_RANGES[selectedGen];
-  if (!range) return;
+    // Reset Dropdown Labels & Active Filter States
+    activeType = "all";
+    activeGen = "all";
+    const typeLabel = document.querySelector("#type-dropdown .trigger-label");
+    const genLabel = document.querySelector("#gen-dropdown .trigger-label");
+    if (typeLabel) typeLabel.textContent = "🌐 All Types";
+    if (genLabel) genLabel.textContent = "🏛️ All Generations";
 
-  // Reset scroll state for selected generation
-  genScrollState = {
-    active: true,
-    currentId: range.start,
-    endId: range.end,
-    loading: false,
-    hasMore: true
-  };
+    gridContainer.innerHTML = '<p class="loading-msg">Searching Pokédex...</p>';
 
-  gridContainer.innerHTML = `<p class="loading-msg">Loading Generation ${selectedGen}... </p>`;
+    try {
+      const results = await fetchPokemonForms(query);
+      currentDisplayedPokemon = results;
+      results.forEach((p) => fetchedCache.set(p.id, p));
+      renderPokemonGrid(results, gridContainer, useAnimatedSprites);
+    } catch (error) {
+      gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
+    }
+  });
+}
 
-  // Load first 10 cards (isFirstBatch = true resets loading text and renders first 10)
-  await loadGenBatch(true);
-});
-
-// Main grid clicks (Audio cry & Add to Team delegation)
+// Main Grid Clicks (Cry Audio & Team Builder)
 gridContainer.addEventListener("click", (e) => {
-  // Play cry
   if (e.target.classList.contains("cry-btn")) {
     const cryUrl = e.target.dataset.cry;
     if (cryUrl) {
@@ -274,7 +302,6 @@ gridContainer.addEventListener("click", (e) => {
     }
   }
 
-  // Add to team
   if (e.target.classList.contains("add-team-btn")) {
     const pokemonId = Number(e.target.dataset.id);
     const pokemon = fetchedCache.get(pokemonId);
@@ -290,7 +317,7 @@ gridContainer.addEventListener("click", (e) => {
   }
 });
 
-// Remove item from team drawer
+// Team Drawer Interactions
 teamGrid.addEventListener("click", (e) => {
   if (e.target.classList.contains("remove-btn")) {
     const pokemonId = Number(e.target.dataset.id);
@@ -299,7 +326,6 @@ teamGrid.addEventListener("click", (e) => {
   }
 });
 
-// Clear team button
 if (clearTeamBtn) {
   clearTeamBtn.addEventListener("click", () => {
     clearTeam();
@@ -307,7 +333,7 @@ if (clearTeamBtn) {
   });
 }
 
-// Mini-game option click
+// Mini-game Interactions
 if (gameOptions) {
   gameOptions.addEventListener("click", (e) => {
     if (e.target.classList.contains("option-btn")) {
@@ -324,12 +350,11 @@ if (gameOptions) {
   });
 }
 
-// Mini-game next round
 if (nextPokemonBtn) {
   nextPokemonBtn.addEventListener("click", initMinigameRound);
 }
 
-// Sprite toggle button
+// Sprite Toggle Listener
 if (spriteToggleBtn) {
   spriteToggleBtn.addEventListener("click", () => {
     useAnimatedSprites = !useAnimatedSprites;
