@@ -12,7 +12,8 @@ import {
 import { 
   startCameraStream, 
   stopCameraStream, 
-  captureAndScanFrame 
+  captureAndScanFrame,
+  scanUploadedFile
 } from "./scanner.js";
 import { renderPokemonGrid, renderTeamGrid, renderPokemonModal, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
@@ -442,7 +443,7 @@ if (spriteToggleBtn) {
   });
 }
 
-// --- Open Scanner ---
+// --- Open Scanner Modal ---
 if (cameraScanBtn) {
   cameraScanBtn.addEventListener("click", () => {
     if (scannerModal) {
@@ -452,7 +453,7 @@ if (cameraScanBtn) {
   });
 }
 
-// --- Close Scanner ---
+// --- Close Scanner Modal ---
 function closeScanner() {
   stopCameraStream();
   if (scannerModal) scannerModal.classList.add("hidden");
@@ -460,7 +461,7 @@ function closeScanner() {
 
 if (scannerCloseBtn) scannerCloseBtn.addEventListener("click", closeScanner);
 
-// --- Capture & Scan Action ---
+// --- Capture & AI Scan Camera Frame ---
 if (captureScanBtn) {
   captureScanBtn.addEventListener("click", async () => {
     const scannedPokemon = await captureAndScanFrame(
@@ -485,27 +486,17 @@ if (captureScanBtn) {
   });
 }
 
-// --- Image File Upload Fallback ---
+// --- Upload Photo AI Scanner ---
 if (imageUploadInput) {
   imageUploadInput.addEventListener("change", async (e) => {
     const file = e.target.files;
     if (!file) return;
 
-    scannerStatus.textContent = `Processing ${file.name}...`;
+    scannerStatus.textContent = `Uploading ${file.name} to AI classifier...`;
 
-    // Attempt name match if image filename contains a Pokemon name
-    const fileNameClean = file.name.split(".").toLowerCase().trim();
-    let targetQuery = fileNameClean;
+    const scannedPokemon = await scanUploadedFile(file, scannerStatus);
 
-    // Fallback to random ID if filename is generic (e.g., photo123)
-    if (/\d+/.test(fileNameClean) || fileNameClean.length < 3) {
-      targetQuery = Math.floor(Math.random() * 1025) + 1;
-    }
-
-    try {
-      const scannedPokemon = await fetchPokemon(targetQuery);
-      scannerStatus.textContent = `✅ Target identified: ${scannedPokemon.name.toUpperCase()}!`;
-
+    if (scannedPokemon) {
       setTimeout(() => {
         closeScanner();
         if (scannedPokemon.cry) {
@@ -515,9 +506,7 @@ if (imageUploadInput) {
         }
         renderPokemonModal(scannedPokemon, modalContent);
         modalOverlay.classList.remove("hidden");
-      }, 800);
-    } catch (err) {
-      scannerStatus.textContent = "❌ Could not identify Pokémon from image. Try another photo!";
+      }, 1000);
     }
   });
 }
