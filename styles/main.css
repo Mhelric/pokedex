@@ -24,7 +24,6 @@ header {
 header h1 {
     margin: 0;
     font-size: 2rem;
-    color: #000000;
 }
 
 /* ==========================================
@@ -119,7 +118,7 @@ header h1 {
 
 .custom-dropdown {
     position: relative;
-    width: 120px;
+    width: 210px;
 }
 
 .dropdown-trigger {
@@ -408,14 +407,14 @@ header h1 {
 .modal-card {
     background: #ffffff;
     border-radius: 16px;
-    width: 100%;
-    max-width: 680px; /* Expanded width for wide screens */
+    width: 90%;
+    max-width: 540px;
     max-height: 85vh;
     overflow-y: auto;
     padding: 24px;
     position: relative;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
-    text-align: left;
+    text-align: center;
 }
 
 .modal-close {
@@ -440,37 +439,43 @@ header h1 {
     background: #e2e8f0;
 }
 
-/* Top Side-by-Side Layout: Image Left, Info Right */
+/* Centered Top Section Layout */
 .modal-top-layout {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 14px;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-image-container {
-    flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     background: #f8fafc;
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 16px;
+    padding: 16px;
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
 }
 
 .modal-image-container .modal-image {
-    width: 340px;
-    height: 190px;
+    width: 180px;
+    height: 180px;
     object-fit: contain;
 }
 
 .modal-header-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+    width: 100%;
 }
 
 .modal-header-info .card-id {
@@ -480,8 +485,8 @@ header h1 {
 }
 
 .modal-header-info .modal-title {
-    margin: 2px 0 4px 0;
-    font-size: 1.75rem;
+    margin: 4px 0 2px 0;
+    font-size: 1.8rem;
     color: #1e293b;
     line-height: 1.2;
 }
@@ -495,28 +500,77 @@ header h1 {
 
 .modal-header-info .card-types {
     display: flex;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
 }
 
 /* Bottom Details Section */
 .modal-bottom-details {
     padding-top: 8px;
+    text-align: left;
 }
 
 .modal-measurements {
     font-size: 0.9rem;
     color: #475569;
-    margin: 12px 0;
+    margin: 12px auto;
     background: #f8fafc;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-radius: 8px;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+}
+
+/* Type Matchup Badges in Modal */
+.modal-matchups {
+    margin: 16px 0;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.matchup-group {
+    margin-bottom: 12px;
+}
+
+.matchup-group:last-child {
+    margin-bottom: 0;
+}
+
+.matchup-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.875rem;
+    color: #475569;
+    text-align: center;
+}
+
+.matchup-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.matchup-badges .type-badge small {
+    font-size: 0.65rem;
+    opacity: 0.9;
+    font-weight: 700;
+}
+
+.none-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
 }
 
 .full-stats h4 {
     margin: 14px 0 8px 0;
     font-size: 1rem;
     color: #1e293b;
+    text-align: left;
 }
 
 .stat-bar-group {
@@ -532,19 +586,6 @@ header h1 {
     width: 60%;
     height: 10px;
     accent-color: #ef5350;
-}
-
-/* Responsive adjustment for small mobile screens */
-@media (max-width: 480px) {
-    .modal-top-layout {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 12px;
-    }
-    .modal-header-info {
-        align-items: center;
-    }
 }
 
 /* ==========================================

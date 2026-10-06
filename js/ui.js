@@ -3,6 +3,8 @@
 // Generates dynamic HTML components for cards, grids, and modal
 // ==========================================
 
+import { getTypeMatchups } from "./api.js";
+
 /**
  * Builds HTML string for a main Pokédex card (with species genus, no standalone cry button).
  */
@@ -71,14 +73,35 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
 }
 
 /**
- * Builds full detail modal dialog: Image, name, species & types on the top-left,
- * with description, height/weight, and base stats below all of it.
+ * Builds full detail modal dialog:
+ * Top Section: Centered Artwork, ID, Name, Species Genus, and Type Badges.
+ * Bottom Section: Description, Measurements, Weaknesses/Resistances, and Base Stats.
  */
 export function renderPokemonModal(pokemon, containerElement) {
   const formattedId = `#${String(pokemon.id).padStart(3, "0")}`;
   const typeBadges = pokemon.types
     .map((type) => `<span class="type-badge type-${type}">${type}</span>`)
     .join("");
+
+  // Calculate Type Matchups
+  const { weaknesses, resistances } = getTypeMatchups(pokemon.types);
+
+  const formatMultiplier = (m) => {
+    if (m === 4) return "4×";
+    if (m === 2) return "2×";
+    if (m === 0.5) return "½×";
+    if (m === 0.25) return "¼×";
+    if (m === 0) return "0×";
+    return `${m}×`;
+  };
+
+  const weaknessBadgesHtml = weaknesses.length > 0
+    ? weaknesses.map((w) => `<span class="type-badge type-${w.type}">${w.type} <small>(${formatMultiplier(w.multiplier)})</small></span>`).join(" ")
+    : `<span class="none-text">None</span>`;
+
+  const resistanceBadgesHtml = resistances.length > 0
+    ? resistances.map((r) => `<span class="type-badge type-${r.type}">${r.type} <small>(${formatMultiplier(r.multiplier)})</small></span>`).join(" ")
+    : `<span class="none-text">None</span>`;
 
   containerElement.innerHTML = `
     <!-- Top Centered Section: Artwork & Header Metadata -->
@@ -95,7 +118,7 @@ export function renderPokemonModal(pokemon, containerElement) {
       </div>
     </div>
 
-    <!-- Bottom Section: Description, Measurements & Stats -->
+    <!-- Bottom Section: Description, Measurements, Matchups & Stats -->
     <div class="modal-bottom-details">
       <p class="pokemon-description">"${pokemon.description}"</p>
       
@@ -104,6 +127,19 @@ export function renderPokemonModal(pokemon, containerElement) {
         <span>Weight: <strong>${pokemon.weight}</strong></span>
       </div>
 
+      <!-- Type Weaknesses & Resistances Section -->
+      <div class="modal-matchups">
+        <div class="matchup-group">
+          <h4>Weaknesses</h4>
+          <div class="matchup-badges">${weaknessBadgesHtml}</div>
+        </div>
+        <div class="matchup-group">
+          <h4>Resistances & Immunities</h4>
+          <div class="matchup-badges">${resistanceBadgesHtml}</div>
+        </div>
+      </div>
+
+      <!-- Base Stats -->
       <div class="full-stats">
         <h4>Base Stats</h4>
         <div class="stat-bar-group"><label>HP (${pokemon.stats.hp})</label><progress value="${pokemon.stats.hp}" max="255"></progress></div>
@@ -116,7 +152,6 @@ export function renderPokemonModal(pokemon, containerElement) {
     </div>
   `;
 }
-
 
 /**
  * Renders the 6-slot team drawer items.
