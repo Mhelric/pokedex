@@ -24,6 +24,7 @@ header {
 header h1 {
     margin: 0;
     font-size: 2rem;
+    color: #000000;
 }
 
 /* ==========================================
@@ -118,7 +119,7 @@ header h1 {
 
 .custom-dropdown {
     position: relative;
-    width: 210px;
+    width: 120px;
 }
 
 .dropdown-trigger {
