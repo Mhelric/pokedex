@@ -284,6 +284,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initial page load
   await applyCombinedFilters();
+
+  // 🎬 Trigger Pokéball slicing open animation
+  triggerPokeballOpening();
 });
 
 // Search Form Handler
@@ -397,4 +400,18 @@ if (spriteToggleBtn) {
     updateToggleBtnText();
     reRenderGrid();
   });
+}
+
+// --- Pokeball Opening Animation Helper ---
+function triggerPokeballOpening() {
+  const overlay = document.getElementById("pokeball-overlay");
+  if (!overlay) return;
+
+  // Short pause so user sees the Pokéball splash before it slices open
+  setTimeout(() => {
+    overlay.classList.add("open");
+    setTimeout(() => {
+      overlay.classList.add("opened");
+    }, 800); // Matches CSS transition duration
+  }, 500);
 }
