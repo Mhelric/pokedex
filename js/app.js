@@ -9,6 +9,11 @@ import {
   fetchPokemonBatch,
   GEN_RANGES 
 } from "./api.js";
+import { 
+  startCameraStream, 
+  stopCameraStream, 
+  captureAndScanFrame 
+} from "./scanner.js";
 import { renderPokemonGrid, renderTeamGrid, renderPokemonModal, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
@@ -26,6 +31,16 @@ const spriteToggleBtn = document.getElementById("sprite-toggle-btn");
 const modalOverlay = document.getElementById("pokemon-modal");
 const modalContent = document.getElementById("modal-content");
 const modalCloseBtn = document.getElementById("modal-close-btn");
+
+// Scanner DOM References
+const cameraScanBtn = document.getElementById("camera-scan-btn");
+const scannerModal = document.getElementById("scanner-modal");
+const scannerCloseBtn = document.getElementById("scanner-close-btn");
+const scannerVideo = document.getElementById("scanner-video");
+const scannerCanvas = document.getElementById("scanner-canvas");
+const scannerStatus = document.getElementById("scanner-status");
+const captureScanBtn = document.getElementById("capture-scan-btn");
+const imageUploadInput = document.getElementById("image-upload-input");
 
 // Mini-game DOM References
 const gameImg = document.getElementById("game-pokemon-img");
@@ -424,5 +439,85 @@ if (spriteToggleBtn) {
     localStorage.setItem("sprite_mode", useAnimatedSprites ? "animated" : "artwork");
     updateToggleBtnText();
     reRenderGrid();
+  });
+}
+
+// --- Open Scanner ---
+if (cameraScanBtn) {
+  cameraScanBtn.addEventListener("click", () => {
+    if (scannerModal) {
+      scannerModal.classList.remove("hidden");
+      startCameraStream(scannerVideo, scannerStatus);
+    }
+  });
+}
+
+// --- Close Scanner ---
+function closeScanner() {
+  stopCameraStream();
+  if (scannerModal) scannerModal.classList.add("hidden");
+}
+
+if (scannerCloseBtn) scannerCloseBtn.addEventListener("click", closeScanner);
+
+// --- Capture & Scan Action ---
+if (captureScanBtn) {
+  captureScanBtn.addEventListener("click", async () => {
+    const scannedPokemon = await captureAndScanFrame(
+      scannerVideo, 
+      scannerCanvas, 
+      scannerStatus
+    );
+
+    if (scannedPokemon) {
+      setTimeout(() => {
+        closeScanner();
+        // Play Audio Cry & Open Pokédex Detail Modal
+        if (scannedPokemon.cry) {
+          const audio = new Audio(scannedPokemon.cry);
+          audio.volume = 0.6;
+          audio.play().catch((e) => console.error(e));
+        }
+        renderPokemonModal(scannedPokemon, modalContent);
+        modalOverlay.classList.remove("hidden");
+      }, 1000);
+    }
+  });
+}
+
+// --- Image File Upload Fallback ---
+if (imageUploadInput) {
+  imageUploadInput.addEventListener("change", async (e) => {
+    const file = e.target.files;
+    if (!file) return;
+
+    scannerStatus.textContent = `Processing ${file.name}...`;
+
+    // Attempt name match if image filename contains a Pokemon name
+    const fileNameClean = file.name.split(".").toLowerCase().trim();
+    let targetQuery = fileNameClean;
+
+    // Fallback to random ID if filename is generic (e.g., photo123)
+    if (/\d+/.test(fileNameClean) || fileNameClean.length < 3) {
+      targetQuery = Math.floor(Math.random() * 1025) + 1;
+    }
+
+    try {
+      const scannedPokemon = await fetchPokemon(targetQuery);
+      scannerStatus.textContent = `✅ Target identified: ${scannedPokemon.name.toUpperCase()}!`;
+
+      setTimeout(() => {
+        closeScanner();
+        if (scannedPokemon.cry) {
+          const audio = new Audio(scannedPokemon.cry);
+          audio.volume = 0.6;
+          audio.play().catch((err) => console.error(err));
+        }
+        renderPokemonModal(scannedPokemon, modalContent);
+        modalOverlay.classList.remove("hidden");
+      }, 800);
+    } catch (err) {
+      scannerStatus.textContent = "❌ Could not identify Pokémon from image. Try another photo!";
+    }
   });
 }
