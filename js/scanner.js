@@ -1,15 +1,36 @@
 // ==========================================
-// CAMERA POKÉDEX SCANNER MODULE (AI VISION)
-// Uses Hugging Face Inference API for image recognition
+// CAMERA POKÉDEX SCANNER MODULE (TF.JS AI)
+// Client-side AI Image Recognition via TensorFlow.js
 // ==========================================
 
 import { fetchPokemon } from "./api.js";
 
-// Free Hugging Face AI Vision Model Endpoint trained on Pokémon species
-const HF_VISION_MODEL_URL =
-  "https://api-inference.huggingface.co/models/imbr/pokemon-classifier";
+// Public hosted TensorFlow.js Pokémon Model URL
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/bd8J-v0L8/";
 
+let model = null;
 let mediaStream = null;
+
+/**
+ * Loads the TensorFlow.js model weights into browser memory.
+ */
+async function loadAIModel(statusElement) {
+  if (model) return model;
+
+  try {
+    statusElement.textContent = "⏳ Loading AI Vision Model into browser memory...";
+    const modelURL = MODEL_URL + "model.json";
+    const metadataURL = MODEL_URL + "metadata.json";
+
+    model = await tmImage.load(modelURL, metadataURL);
+    statusElement.textContent = "✅ AI Vision Model Ready! Point camera and scan.";
+    return model;
+  } catch (err) {
+    console.error("TF.js Model Load Error:", err);
+    statusElement.textContent = "⚠️ Failed to load AI model. Check your internet connection.";
+    return null;
+  }
+}
 
 /**
  * Requests device camera permission and streams video feed to the <video> element.
@@ -23,7 +44,9 @@ export async function startCameraStream(videoElement, statusElement) {
     });
     videoElement.srcObject = mediaStream;
     await videoElement.play();
-    statusElement.textContent = "Point camera at a Pokémon and tap Scan Target!";
+
+    // Load AI model into memory
+    await loadAIModel(statusElement);
   } catch (error) {
     console.error("Camera access error:", error);
     statusElement.textContent = "⚠️ Camera unavailable. Upload an image file below.";
@@ -41,51 +64,41 @@ export function stopCameraStream() {
 }
 
 /**
- * Sends image Blob/Bytes to Hugging Face AI Vision model for visual classification.
+ * Runs image pixel tensor prediction on an HTML Image or Canvas element.
  */
-async function classifyImageWithAI(imageBlob, statusElement) {
-  statusElement.textContent = "🤖 AI model analyzing image features & pixels...";
+async function predictImagePixels(imageOrCanvasElement, statusElement) {
+  const loadedModel = await loadAIModel(statusElement);
+  if (!loadedModel) return null;
+
+  statusElement.textContent = "🤖 Analyzing image pixels & color signatures...";
 
   try {
-    const response = await fetch(HF_VISION_MODEL_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/octet-stream",
-      },
-      body: imageBlob,
-    });
+    // Run prediction on canvas/image pixels
+    const predictions = await loadedModel.predict(imageOrCanvasElement);
 
-    if (response.status === 503) {
-      // Model cold boot state
-      statusElement.textContent = "⏳ AI Model is warming up... Please try again in 5 seconds!";
+    if (!predictions || predictions.length === 0) {
+      throw new Error("No predictions returned.");
+    }
+
+    // Sort predictions by highest probability score
+    predictions.sort((a, b) => b.probability - a.probability);
+    const topMatch = predictions;
+
+    const confidence = Math.round(topMatch.probability * 100);
+    const pokemonName = topMatch.className.toLowerCase().trim();
+
+    if (confidence < 25) {
+      statusElement.textContent = "❓ Unclear image signature. Try a clearer photo or closer angle!";
       return null;
     }
 
-    if (!response.ok) {
-      throw new Error(`AI Classification failed with status ${response.status}`);
-    }
+    statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()} (${confidence}% confidence)!`;
 
-    const predictions = await response.json();
-
-    if (!Array.isArray(predictions) || predictions.length === 0) {
-      throw new Error("No predictions returned from AI vision model.");
-    }
-
-    // Extract top prediction (e.g., { label: "Pikachu", score: 0.98 })
-    const topPrediction = predictions;
-    const rawLabel = topPrediction.label || "";
-    const confidencePercent = Math.round((topPrediction.score || 0) * 100);
-
-    // Clean up label name (remove form suffixes if needed)
-    const cleanedName = rawLabel.split("-").toLowerCase().trim();
-
-    statusElement.textContent = `🎯 Identified: ${cleanedName.toUpperCase()} (${confidencePercent}% match)!`;
-
-    // Fetch full Pokédex entry from PokéAPI
-    return await fetchPokemon(cleanedName);
+    // Fetch complete Pokédex data from PokéAPI
+    return await fetchPokemon(pokemonName);
   } catch (err) {
-    console.error("AI Recognition Error:", err);
-    statusElement.textContent = "❌ AI could not recognize the Pokémon in this image. Try another angle or clearer photo!";
+    console.error("AI Prediction Error:", err);
+    statusElement.textContent = "❌ Could not recognize Pokémon in this image. Try another photo!";
     return null;
   }
 }
@@ -105,23 +118,24 @@ export async function captureAndScanFrame(videoElement, canvasElement, statusEle
   canvasElement.height = videoElement.videoHeight;
   context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
-  // Convert canvas frame to Image Blob
-  return new Promise((resolve) => {
-    canvasElement.toBlob(async (blob) => {
-      if (!blob) {
-        statusElement.textContent = "⚠️ Failed to capture image frame.";
-        resolve(null);
-        return;
-      }
-      const scannedPokemon = await classifyImageWithAI(blob, statusElement);
-      resolve(scannedPokemon);
-    }, "image/jpeg", 0.9);
-  });
+  return await predictImagePixels(canvasElement, statusElement);
 }
 
 /**
  * Classifies an uploaded photo File object directly using AI Vision.
  */
 export async function scanUploadedFile(fileObject, statusElement) {
-  return await classifyImageWithAI(fileObject, statusElement);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(fileObject);
+    img.onload = async () => {
+      const scannedPokemon = await predictImagePixels(img, statusElement);
+      URL.revokeObjectURL(img.src);
+      resolve(scannedPokemon);
+    };
+    img.onerror = () => {
+      statusElement.textContent = "⚠️ Failed to read image file.";
+      resolve(null);
+    };
+  });
 }
