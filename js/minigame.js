@@ -1,20 +1,22 @@
-//MINIGAME JS
+// ==========================================
+// MINI-GAME ENGINE ("Who's That Pokémon?")
+// ==========================================
 
-import { fetchPokemon } from './api.js';
+import { fetchPokemon } from "./api.js";
 
 let currentTarget = null;
 let currentStreak = 0;
-let highScore = Number(localStorage.getItem('minigame_highscore')) || 0;
+let highScore = Number(localStorage.getItem("minigame_highscore")) || 0;
 
 /**
- * Returns a random integer between min and max (inclusive).
+ * Generates a random National Pokédex ID.
  */
 function getRandomId(min = 1, max = 1025) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
- * Generates a new game round with 1 target Pokémon and 3 distractor choices.
+ * Sets up a new round: picks 4 random Pokémon, sets the target, and creates choice buttons.
  */
 export async function startNewRound(
   imgElement,
@@ -23,49 +25,46 @@ export async function startNewRound(
   streakElem,
   highScoreElem
 ) {
-  // 1. Reset UI State
-  imgElement.className = 'silhouette';
+  // Reset UI elements to unrevealed state
+  imgElement.className = "silhouette";
   feedbackElement.textContent = "Who's That Pokémon?";
   feedbackElement.style.color = "#ffffff";
-  optionsContainer.innerHTML = '<p>Loading mystery Pokémon...</p>';
+  optionsContainer.innerHTML = '<p class="game-loading">Loading mystery Pokémon...</p>';
 
   if (streakElem) streakElem.textContent = currentStreak;
   if (highScoreElem) highScoreElem.textContent = highScore;
 
   try {
-    // 2. Select 4 unique random IDs
+    // Select 4 unique IDs
     const ids = new Set();
     while (ids.size < 4) {
       ids.add(getRandomId(1, 1025));
     }
-    const idArray = Array.from(ids);
 
-    // 3. Fetch data for all 4 Pokémon in parallel
-    const pokemonList = await Promise.all(idArray.map((id) => fetchPokemon(id)));
+    // Fetch all 4 options simultaneously
+    const pokemonList = await Promise.all(Array.from(ids).map((id) => fetchPokemon(id)));
 
-    // Target is the first Pokémon in the fetched list
+    // Designate first fetch as target, then shuffle for button layout
     currentTarget = pokemonList[0];
-
-    // Shuffle all 4 choices so target isn't always option #1
     const choices = [...pokemonList].sort(() => Math.random() - 0.5);
 
-    // 4. Set Image Source
-    imgElement.src = currentTarget.image;
+    // Apply mystery artwork
+    imgElement.src = currentTarget.officialArtwork || currentTarget.image;
 
-    // 5. Render 4 Option Buttons
+    // Render choice buttons
     optionsContainer.innerHTML = choices
       .map(
         (p) =>
           `<button class="option-btn" data-name="${p.name}">${p.name.toUpperCase()}</button>`
       )
-      .join('');
+      .join("");
   } catch (error) {
-    feedbackElement.textContent = 'Failed to load mini-game round. Try again!';
+    feedbackElement.textContent = "Failed to load mini-game round. Try again!";
   }
 }
 
 /**
- * Evaluates the user's guess and plays the Pokémon's cry on reveal!
+ * Evaluates the chosen answer, reveals the sprite, plays audio cry, and updates streaks.
  */
 export function handleGuess(
   selectedName,
@@ -78,33 +77,33 @@ export function handleGuess(
 ) {
   const isCorrect = selectedName.toLowerCase() === currentTarget.name.toLowerCase();
 
-  // 1. Reveal image
-  imgElement.classList.add('revealed');
+  // Reveal sprite
+  imgElement.classList.add("revealed");
 
-  // 2. 🔊 Play official audio cry on reveal if available
-  if (currentTarget && currentTarget.cry) {
+  // Play audio cry if available
+  if (currentTarget?.cry) {
     const audio = new Audio(currentTarget.cry);
-    audio.volume = 0.6; // Adjust volume (0.0 to 1.0)
+    audio.volume = 0.6;
     audio.play().catch((err) => console.error("Audio playback error:", err));
   }
 
-  // 3. Disable all option buttons and highlight correct/wrong
-  const buttons = optionsContainer.querySelectorAll('.option-btn');
+  // Highlight buttons and disable repeated clicks
+  const buttons = optionsContainer.querySelectorAll(".option-btn");
   buttons.forEach((btn) => {
     btn.disabled = true;
     if (btn.dataset.name.toLowerCase() === currentTarget.name.toLowerCase()) {
-      btn.classList.add('correct');
+      btn.classList.add("correct");
     } else if (btn.dataset.name.toLowerCase() === selectedName.toLowerCase() && !isCorrect) {
-      btn.classList.add('wrong');
+      btn.classList.add("wrong");
     }
   });
 
-  // 4. Update score & feedback message
+  // Score management
   if (isCorrect) {
     currentStreak++;
     if (currentStreak > highScore) {
       highScore = currentStreak;
-      localStorage.setItem('minigame_highscore', highScore);
+      localStorage.setItem("minigame_highscore", highScore);
     }
     feedbackElement.textContent = `🎉 IT'S ${currentTarget.name.toUpperCase()}! Great guess!`;
     feedbackElement.style.color = "#4caf50";
@@ -117,6 +116,5 @@ export function handleGuess(
   if (streakElem) streakElem.textContent = currentStreak;
   if (highScoreElem) highScoreElem.textContent = highScore;
 
-  // 5. Show Next Button
-  if (nextBtn) nextBtn.style.display = 'inline-block';
+  if (nextBtn) nextBtn.style.display = "inline-block";
 }

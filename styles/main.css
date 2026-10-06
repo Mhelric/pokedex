@@ -1,251 +1,130 @@
-/* MAIN CSS */
-
-/* Base Styling & Layout */
+/* ==========================================
+   1. BASE TYPOGRAPHY & LAYOUT
+   ========================================== */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f9; 
-    margin: 0; 
-    padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 0;
 }
 
-header { 
-    background-color: #ef5350; /*Pokedex RED*/
-    color: white; 
-    text-align: center; 
-    padding: 1.5rem; 
+header {
+  background-color: #ef5350; /* Pokédex Red */
+  color: #ffffff;
+  text-align: center;
+  padding: 1.5rem;
 }
 
-/* 1D Flexbox for Form Controls */ 
-.controls { 
-    display: flex; 
-    justify-content: center; 
-    padding: 1.5rem; 
+/* ==========================================
+   2. CONTROLS & SEARCH FORM
+   ========================================== */
+.controls {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
-.controls form { 
-    display: flex; 
-    gap: 10px; 
-    width: 100%; 
-    max-width: 500px; 
+.controls form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
 }
 
-.controls input { 
-    flex: 1; /* Input takes up remaining space */ 
-    padding: 10px 15px; 
-    border: 2px solid #ccc; 
-    border-radius: 8px; 
-    font-size: 1rem; 
+.controls input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #cccccc;
+  border-radius: 8px;
+  font-size: 1rem;
 }
 
-.controls button { 
-    padding: 10px 20px; 
-    background-color: #ef5350; 
-    color: white; 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    font-weight: bold; 
+.controls button {
+  padding: 10px 20px;
+  background-color: #ef5350;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-/* 2D CSS Grid for Pokémon Cards */ 
-.pokemon-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-    gap: 20px; 
-    padding: 0 2rem 2rem 2rem; 
-    max-width: 1200px; 
-    margin: 0 auto; 
+/* ==========================================
+   3. POKÉMON MAIN GRID & CARDS
+   ========================================== */
+.pokemon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 0 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Card Component (Flexbox Internal Alignment) */ 
-.pokemon-card { 
-    background: white; 
-    border-radius: 12px; 
-    padding: 15px; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    transition: transform 0.2s ease, box-shadow 0.2s ease; 
+.pokemon-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.pokemon-card:hover { 
-    transform: translateY(-5px); 
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
-} 
-
-.card-image { 
-    width: 120px; 
-    height: 120px; 
-    object-fit: contain; 
+.pokemon-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/*  ========================================== 
-    TEAM BUILDER SECTION ========================================== */
-.team-section { 
-    background: #ffffff; 
-    border-bottom: 2px solid #e0e0e0; 
-    padding: 1.5rem 2rem; 
-    max-width: 1200px; 
-    margin: 0 auto 1.5rem auto; 
-    border-radius: 0 0 12px 12px; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+.card-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+  image-rendering: pixelated;
+  transition: transform 0.2s ease;
 }
 
-.team-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 1rem; 
+.pokemon-card:hover .card-image {
+  transform: scale(1.15);
 }
 
-.team-header h2 { 
-    margin: 0; 
-    font-size: 1.3rem; 
-    color: #333; 
+.card-id {
+  font-size: 0.8rem;
+  color: #888888;
+  align-self: flex-start;
 }
 
-#team-count { 
-    color: #ef5350; 
-    font-weight: bold; 
+.pokemon-name {
+  margin: 8px 0;
+  text-transform: capitalize;
 }
 
-.btn-secondary { 
-    background-color: #757575; 
-    color: white; 
-    border: none; 
-    padding: 6px 12px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-size: 0.85rem; 
-    font-weight: bold; 
-    transition: background-color 0.2s ease; 
+.card-types {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.btn-secondary:hover { 
-    background-color: #616161; 
+.type-badge {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #e0e0e0;
 }
 
-/* Team Card Grid */ 
-.team-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
-    gap: 12px; 
-    min-height: 80px; 
+.card-stats {
+  font-size: 0.85rem;
+  color: #555555;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  margin: 6px 0;
 }
 
-.team-empty-state { 
-    grid-column: 1 / -1; 
-    text-align: center; 
-    color: #888; 
-    font-style: italic; 
-    padding: 1rem 0; 
-}
-
-/* Compact Team Member Card */ 
-.team-card { 
-    background: #f8f9fa; 
-    border: 2px solid #e9ecef; 
-    border-radius: 8px; 
-    padding: 8px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    position: relative; 
-    transition: transform 0.2s ease; 
-} 
-    
-.team-card:hover { 
-    transform: translateY(-3px); 
-    border-color: #ef5350; 
-} 
-
-.team-card-image { 
-    width: 60px; 
-    height: 60px; 
-    object-fit: contain; 
-} 
-
-.team-card-name { 
-    font-size: 0.85rem; 
-    font-weight: bold; 
-    text-transform: capitalize; 
-    color: #333; 
-    margin-top: 4px; 
-}
-
-/* Remove '×' Button */ 
-.remove-btn { 
-    position: absolute; 
-    top: 4px; 
-    right: 4px; 
-    background: #ff5252; 
-    color: white; 
-    border: none; 
-    border-radius: 50%; 
-    width: 20px; 
-    height: 20px; 
-    font-size: 12px; 
-    line-height: 1; 
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 0; 
-} 
-
-.remove-btn:hover { 
-    background: #d32f2f; 
-} 
-
-/* Add to Team Button on Main Cards */ 
-.add-team-btn { 
-    margin-top: 12px; 
-    width: 100%; 
-    padding: 8px; 
-    background-color: #2e7d32; 
-    color: white; 
-    border: none; 
-    border-radius: 6px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    transition: background-color 0.2s ease; 
-} 
-
-.add-team-btn:hover { 
-    background-color: #1b5e20; 
-}
-
-/* Card Actions Container */
-.card-actions {
-    display: flex;
-    gap: 8px; 
-    width: 100%; 
-    margin-top: 12px;
-}
-
-/* Audio Cry Button */ 
-.cry-btn { 
-    padding: 8px 12px; 
-    background-color: #ffb703; 
-    color: #023047; 
-    border: none; 
-    border-radius: 6px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    transition: background-color 0.2s ease, transform 0.1s ease; 
-}
-
-.cry-btn:hover { 
-    background-color: #fb8500; 
-    transform: scale(1.05); 
-} 
-
-.cry-btn:active { 
-    transform: scale(0.95); 
-}
-
-/* Pokédex Entry Flavor Text */
 .pokemon-description {
   font-size: 0.85rem;
   font-style: italic;
@@ -257,4 +136,162 @@ header {
   border-radius: 0 6px 6px 0;
   line-height: 1.4;
   text-align: left;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.add-team-btn {
+  flex: 1;
+  padding: 8px;
+  background-color: #2e7d32;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-team-btn:hover {
+  background-color: #1b5e20;
+}
+
+.cry-btn {
+  padding: 8px 12px;
+  background-color: #ffb703;
+  color: #023047;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.cry-btn:hover {
+  background-color: #fb8500;
+  transform: scale(1.05);
+}
+
+.cry-btn:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   4. TEAM BUILDER SECTION
+   ========================================== */
+.team-section {
+  background: #ffffff;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto 1.5rem auto;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.team-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333333;
+}
+
+#team-count {
+  color: #ef5350;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background-color: #757575;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #616161;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  min-height: 80px;
+}
+
+.team-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #888888;
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+.team-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-3px);
+  border-color: #ef5350;
+}
+
+.team-card-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.team-card-name {
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  color: #333333;
+  margin-top: 4px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ff5252;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background: #d32f2f;
 }

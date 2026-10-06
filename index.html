@@ -16,27 +16,25 @@
     </header>
 
     <main id="app">
-        <!-- Team Builder Banner / Section -->
-         <section id="team-section" class="team-section">
-            <div class="team-header">
-                <h2>My Team (<span id="team-count">0</span>/6)</h2>
-                <button id="clear-team-btn" class="btn-secondary">Clear team</button>
-            </div>
-            <div id="team-grid" class="team-grid">
-                <!-- Dynamic team slot cards will be rendered here -->
-            </div>
-         </section>
-
         <!-- Controls: Search Bar and Type Filter -->
          <section class="controls">
             <form id="search-form">
                 <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required
                 />
                 <button type="submit">Search</button>
+                <!-- Toggle Button -->
+                <button type="button" id="sprite-toggle-btn" class="btn-secondary">
+                    Mode: Animated GIFs
+                </button>
             </form>
          </section>
-        
-        <!-- Mini-Game Section -->
+         
+        <!-- Dynamic Grid Container -->
+         <section id="pokemon-grid" class="pokemon-grid">
+            <!-- Dynamic cards will be rendered here -->
+         </section>
+
+<!-- Mini-Game Section -->
          <section id="minigame-section" class="minigame-section">
             <div class="game-header">
                 <h2>Who's That Pokémon?</h2>
@@ -55,13 +53,19 @@
                 <div id="game-options" class="game-options">
                     <!-- 4 Multiple Choice Buttons will render here -->
                 </div>
-                <button id="next-pokemon-btn" class="btn-primary" style="display: none">Next Pokemon ➡️</button>
+                <button id="next-pokemon-btn" class="btn-primary" style="display: none">Next Pokemon</button>
             </div>
          </section>
-         
-        <!-- Dynamic Grid Container -->
-         <section id="pokemon-grid" class="pokemon-grid">
-            <!-- Dynamic cards will be rendered here -->
+
+         <!-- Team Builder Banner / Section -->
+         <section id="team-section" class="team-section">
+            <div class="team-header">
+                <h2>My Team (<span id="team-count">0</span>/6)</h2>
+                <button id="clear-team-btn" class="btn-secondary">Clear team</button>
+            </div>
+            <div id="team-grid" class="team-grid">
+                <!-- Dynamic team slot cards will be rendered here -->
+            </div>
          </section>
     </main>
 

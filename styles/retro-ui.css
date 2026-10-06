@@ -1,112 +1,123 @@
-/* RETRO CSS */
+/* ==========================================
+   MINI-GAME ("Who's That Pokémon?") UI
+   ========================================== */
 
-/* Mini-Game Layout */ 
-.minigame-section { 
-    background: #1a1a2e; 
-    color: #ffffff; 
-    padding: 1.5rem; 
-    max-width: 1200px; 
-    margin: 0 auto 1.5rem auto; 
-    border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
-    text-align: center; 
-} 
-
-.game-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 2px solid #16213e; 
-    padding-bottom: 10px; 
-    margin-bottom: 15px; 
-} 
-
-.game-header h2 { 
-    margin: 0; 
-    color: #fca311; 
-    font-size: 1.4rem; 
-} 
-
-.silhouette-container { 
-    height: 160px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    margin-bottom: 15px; 
+/* Main Panel Container */
+.minigame-section {
+  background: #1a1a2e;
+  color: #ffffff;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto 1.5rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
-/* 🌟 Silhouette Filter - Direct Container Target */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #16213e;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.game-header h2 {
+  margin: 0;
+  color: #fca311;
+  font-size: 1.4rem;
+}
+
+/* Silhouette Stage */
+.silhouette-container {
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 #game-pokemon-img {
-  width: 140px;
-  height: 140px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
-  filter: brightness(0) !important;
-  -webkit-filter: brightness(0) !important;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: brightness(0) drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
   transition: filter 0.4s ease-in-out, transform 0.3s ease;
 }
 
-/* Revealed State when user makes a guess */
+/* Revealed State */
 #game-pokemon-img.revealed {
-  filter: brightness(1) drop-shadow(0 0 12px rgba(254, 208, 0, 0.8)) !important;
-  -webkit-filter: brightness(1) drop-shadow(0 0 12px rgba(254, 208, 0, 0.8)) !important;
+  filter: brightness(1) drop-shadow(0 0 12px rgba(254, 208, 0, 0.8));
   transform: scale(1.1);
 }
 
-.game-feedback { 
-    font-size: 1.1rem; 
-    font-weight: bold; 
-    min-height: 28px; 
-    margin-bottom: 15px; 
+.game-feedback {
+  font-size: 1.1rem;
+  font-weight: bold;
+  min-height: 28px;
+  margin-bottom: 15px;
+  text-transform: capitalize;
 }
 
-/* Options Grid (2x2) */ 
-.game-options { 
-    display: grid; 
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 10px; 
-    max-width: 400px; 
-    margin: 0 auto 15px auto; 
-} 
+/* 2x2 Options Grid */
+.game-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-width: 400px;
+  margin: 0 auto 15px auto;
+}
 
-.option-btn { 
-    padding: 10px; 
-    background-color: #0f3460; 
-    color: #ffffff; 
-    border: 2px solid #e94560; 
-    border-radius: 8px; 
-    font-size: 1rem; 
-    font-weight: bold; 
-    text-transform: capitalize; 
-    cursor: pointer; 
-    transition: background-color 0.2s, transform 0.1s; 
-} 
+.option-btn {
+  padding: 10px;
+  background-color: #0f3460;
+  color: #ffffff;
+  border: 2px solid #e94560;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
 
-.option-btn:hover:not(:disabled) { 
-    background-color: #e94560; 
-    transform: translateY(-2px); 
-} 
+.option-btn:hover:not(:disabled) {
+  background-color: #e94560;
+  transform: translateY(-2px);
+}
 
-.option-btn:disabled { 
-    cursor: not-allowed; 
-    opacity: 0.8; 
-} 
-    
-.option-btn.correct { 
-    background-color: #2e7d32 !important; 
-    border-color: #4caf50 !important; 
-} 
+.option-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
 
-.option-btn.wrong { 
-    background-color: #c62828 !important; 
-    border-color: #ef5350 !important; 
-} 
+.option-btn.correct {
+  background-color: #2e7d32 !important;
+  border-color: #4caf50 !important;
+}
 
-.btn-primary { 
-    padding: 10px 20px; 
-    background-color: #fca311; 
-    color: #14213d; 
-    border: none; 
-    border-radius: 8px; 
-    font-weight: bold; 
-    font-size: 1rem; 
-    cursor: pointer; 
+.option-btn.wrong {
+  background-color: #c62828 !important;
+  border-color: #ef5350 !important;
+}
+
+.game-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #fca311;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  background-color: #fca311;
+  color: #14213d;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
 }

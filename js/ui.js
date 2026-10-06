@@ -1,36 +1,42 @@
-//UI JS
+// ==========================================
+// DOM RENDERING TEMPLATES
+// ==========================================
 
-/** 
- * Generates an HTML card string for a single normalized Pokémon object. 
-*/
-export function createPokemonCard(pokemon) {
-  const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+/**
+ * Builds HTML string for a main Pokédex card.
+ */
+export function createPokemonCard(pokemon, useAnimated = true) {
+  const formattedId = `#${String(pokemon.id).padStart(3, "0")}`;
 
   const typeBadges = pokemon.types
     .map((type) => `<span class="type-badge type-${type}">${type}</span>`)
-    .join('');
+    .join("");
 
   const cryButtonHtml = pokemon.cry
-    ? `<button class="cry-btn" data-cry="${pokemon.cry}">🔊</button>`
-    : '';
+    ? `<button class="cry-btn" data-cry="${pokemon.cry}" title="Play Cry">🔊</button>`
+    : "";
+
+  const displayImage = useAnimated
+    ? pokemon.animatedImage || pokemon.officialArtwork
+    : pokemon.officialArtwork;
 
   return `
     <article class="pokemon-card" data-id="${pokemon.id}">
       <span class="card-id">${formattedId}</span>
-      <img src="${pokemon.image}" alt="${pokemon.name}" class="card-image" loading="lazy" />
-      <h3>${pokemon.name}</h3>
+      <img src="${displayImage}" alt="${pokemon.name}" class="card-image" loading="lazy" />
+      <h3 class="pokemon-name">${pokemon.name}</h3>
 
       <div class="card-types">
         ${typeBadges}
       </div>
 
       <div class="card-stats">
-        <p>HP: ${pokemon.stats?.hp || 'N/A'}</p>
-        <p>ATK: ${pokemon.stats?.attack || 'N/A'}</p>
-        <p>DEF: ${pokemon.stats?.defense || 'N/A'}</p>
+        <p>HP: ${pokemon.stats.hp || "N/A"}</p>
+        <p>ATK: ${pokemon.stats.attack || "N/A"}</p>
+        <p>DEF: ${pokemon.stats.defense || "N/A"}</p>
       </div>
 
-      <p class="pokemon-description">"${pokemon.description || 'No description available.'}"</p>
+      <p class="pokemon-description">"${pokemon.description}"</p>
 
       <div class="card-actions">
         ${cryButtonHtml}
@@ -41,67 +47,55 @@ export function createPokemonCard(pokemon) {
 }
 
 /**
- * Renders one or multiple Pokemon cards into a DOM container.
+ * Injects multiple Pokémon cards into a container.
  */
-export function renderPokemonGrid(pokemonList, containerElement) {
-    const list = Array.isArray(pokemonList) ? pokemonList : [pokemonList];
-    containerElement.innerHTML = '';
-
-    const cardsHTML = list
-        .map(pokemon => createPokemonCard(pokemon))
-        .join('');
-
-    containerElement.innerHTML = cardsHTML;
+export function renderPokemonGrid(pokemonList, containerElement, useAnimated = true) {
+  const list = Array.isArray(pokemonList) ? pokemonList : [pokemonList];
+  containerElement.innerHTML = list
+    .map((p) => createPokemonCard(p, useAnimated))
+    .join("");
 }
 
 /**
- * Displays an error message inside the target container.
- */
-export function renderError(message, containerElement) {
-    containerElement.innerHTML = `
-        <div class="error-card">
-            <p class="error-message"> ⚠️ ${message}</p>
-        </div>
-    `;
-}
-
-/**
- * Generates HTML for a compact Team Member card.
- * @param {Object} pokemon - Normalized Pokemon object
- * @returns {string} HTML markup string
+ * Builds HTML markup for a compact team roster card.
  */
 export function createTeamCard(pokemon) {
-    return `
-        <div class="team-card" data-id="${pokemon.name}" class="team-card-image">
-            <img src="${pokemon.image}" alt="${pokemon.name}" class="team-card-image">
-            <span class="team-card-name">${pokemon.name}</span>
-            <button class="remove-btn" data-id="${pokemon.id}">&times;</button>
-        </div>
-    `;
+  return `
+    <div class="team-card" data-id="${pokemon.id}">
+      <img src="${pokemon.image}" alt="${pokemon.name}" class="team-card-image" />
+      <span class="team-card-name">${pokemon.name}</span>
+      <button class="remove-btn" data-id="${pokemon.id}" title="Remove">&times;</button>
+    </div>
+  `;
 }
 
-/** 
- * Renders the team cards and updates team count.
- * @param {Array} team - Array of team Pokémon objects
- * @param {HTMLElement} gridElement - Container element for team (#team-grid)
- * @param {HTMLElement} countElement - Span element for count (#team-count) 
+/**
+ * Updates the team roster UI container and member count.
  */
 export function renderTeamGrid(team, gridElement, countElement) {
-    // 1. Update counter text (e.g., "3")
-    if (countElement) {
-        countElement.textContent = team.length;
-    }
+  if (countElement) {
+    countElement.textContent = team.length;
+  }
 
-    // 2. If team is empty, display empty slot prompt
-    if (team.length === 0) {
-        gridElement.innerHTML = `
-            <div class="team-empty-state">
-                <p>No Pokemon in your team yet. Search and click "+ Add to Team"!</p>
-            </div>
-        `;
-        return;
-    }
+  if (team.length === 0) {
+    gridElement.innerHTML = `
+      <div class="team-empty-state">
+        <p>No Pokémon in your team yet. Search and click "+ Add to Team"!</p>
+      </div>
+    `;
+    return;
+  }
 
-    // 3. Render team cards
-    gridElement.innerHTML = team.map(pokemon => createTeamCard(pokemon)).join('');
+  gridElement.innerHTML = team.map((pokemon) => createTeamCard(pokemon)).join("");
+}
+
+/**
+ * Renders an inline error notice.
+ */
+export function renderError(message, containerElement) {
+  containerElement.innerHTML = `
+    <div class="error-card">
+      <p class="error-message">⚠️ ${message}</p>
+    </div>
+  `;
 }
