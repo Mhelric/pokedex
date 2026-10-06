@@ -165,3 +165,30 @@ export async function fetchPokemonForms(nameOrId) {
     throw error;
   }
 }
+
+/**
+ * Fetches Pokémon matching a specific element type (e.g. 'fire', 'water').
+ */
+export async function fetchPokemonByType(typeName, limit = 20) {
+  if (typeName === 'all') {
+    const promises = Array.from({ length: limit }, (_, i) => fetchPokemon(i + 1));
+    return Promise.all(promises);
+  }
+
+  const response = await fetch(`https://pokeapi.co/api/v2/type/${typeName.toLowerCase()}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${typeName} type Pokémon.`);
+  }
+
+  const data = await response.json();
+
+  // Get first 'limit' entries for this type
+  const entries = data.pokemon.slice(0, limit);
+
+  // Fetch full details for all selected type entries in parallel
+  const fetchedList = await Promise.all(
+    entries.map((entry) => fetchPokemon(entry.pokemon.name))
+  );
+
+  return fetchedList;
+}

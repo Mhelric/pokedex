@@ -2,7 +2,7 @@
 // APPLICATION ENTRY POINT
 // ==========================================
 
-import { fetchPokemon, fetchPokemonForms } from "./api.js";
+import { fetchPokemon, fetchPokemonForms, fetchPokemonByType } from './api.js';
 import { renderPokemonGrid, renderTeamGrid, renderError } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
@@ -15,6 +15,7 @@ const teamGrid = document.getElementById("team-grid");
 const teamCount = document.getElementById("team-count");
 const clearTeamBtn = document.getElementById("clear-team-btn");
 const spriteToggleBtn = document.getElementById("sprite-toggle-btn");
+const typeSelectDropdown = document.getElementById('type-select-dropdown');
 
 // Mini-game references
 const gameImg = document.getElementById("game-pokemon-img");
@@ -95,6 +96,25 @@ if (searchForm) {
       const results = await fetchPokemonForms(query);
       results.forEach((p) => fetchedCache.set(p.id, p));
       renderPokemonGrid(results, gridContainer, useAnimatedSprites);
+    } catch (error) {
+      gridContainer.innerHTML = `<p class="error-message">❌ ${error.message}</p>`;
+    }
+  });
+}
+
+// Type Dropdown Listener
+if (typeSelectDropdown) {
+  typeSelectDropdown.addEventListener('change', async (e) => {
+    const selectedType = e.target.value;
+
+    gridContainer.innerHTML = `<p class="status-message">Loading ${selectedType.toUpperCase()} Pokémon...</p>`;
+
+    try {
+      const pokemonList = await fetchPokemonByType(selectedType, 20);
+
+      // Cache and render results
+      pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+      renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites);
     } catch (error) {
       gridContainer.innerHTML = `<p class="error-message">❌ ${error.message}</p>`;
     }

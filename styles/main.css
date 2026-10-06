@@ -18,35 +18,72 @@ header {
 /* ==========================================
    2. CONTROLS & SEARCH FORM
    ========================================== */
-.controls {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem;
+.controls { 
+    display: flex; 
+    justify-content: center; 
+    padding: 1.5rem 1rem; 
+    background-color: #ffffff; 
+    border-bottom: 2px solid #e0e0e0; 
 }
 
-.controls form {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  max-width: 500px;
+.controls form { 
+    display: flex; 
+    flex-wrap: wrap; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 12px; 
+    width: 100%; 
+    max-width: 900px; 
+}
+
+/* Standardized Input, Dropdown & Buttons */
+.controls input,
+.controls select,
+.controls button {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .controls input {
   flex: 1;
-  padding: 10px 15px;
-  border: 2px solid #cccccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  min-width: 240px;
+  border: 2px solid #e0e0e0;
+  background-color: #f8f9fa;
 }
 
-.controls button {
-  padding: 10px 20px;
+.controls input:focus {
+  outline: none;
+  border-color: #ef5350;
+  background-color: #ffffff;
+}
+
+.controls button,
+.controls select {
+  border: none;
+  cursor: pointer;
   background-color: #ef5350;
   color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
+}
+
+.controls select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 36px;
+}
+
+.controls button:hover,
+.controls select:hover {
+  background-color: #d32f2f;
+  transform: translateY(-1px);
 }
 
 /* ==========================================
@@ -61,15 +98,25 @@ header {
   margin: 0 auto;
 }
 
+/* Card Height & Action Alignment */
 .pokemon-card {
   background: #ffffff;
   border-radius: 12px;
-  padding: 15px;
+  padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%; /* Uniform height */
+  box-sizing: border-box;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto; /* Pushes buttons neatly to card bottom */
+  padding-top: 10px;
 }
 
 .pokemon-card:hover {
@@ -179,6 +226,95 @@ header {
 
 .cry-btn:active {
   transform: scale(0.95);
+}
+
+/* Type Badge Styling */
+.type-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 12px;
+  color: #ffffff;
+}
+
+.type-fire {
+  background-color: #ff4422;
+}
+
+.type-water {
+  background-color: #3399ff;
+}
+
+.type-grass {
+  background-color: #77cc55;
+}
+
+.type-electric {
+  background-color: #ffcc33;
+  color: #000000;
+}
+
+.type-ice {
+  background-color: #66ccff;
+  color: #000000;
+}
+
+.type-fighting {
+  background-color: #bb5544;
+}
+
+.type-poison {
+  background-color: #aa5599;
+}
+
+.type-ground {
+  background-color: #ddbb55;
+  color: #000000;
+}
+
+.type-flying {
+  background-color: #8899ff;
+}
+
+.type-psychic {
+  background-color: #ff5599;
+}
+
+.type-bug {
+  background-color: #aabb22;
+  color: #000000;
+}
+
+.type-rock {
+  background-color: #bbaa66;
+}
+
+.type-ghost {
+  background-color: #6666bb;
+}
+
+.type-dragon {
+  background-color: #7766ee;
+}
+
+.type-steel {
+  background-color: #aaaabb;
+  color: #000000;
+}
+
+.type-fairy {
+  background-color: #ee99ee;
+  color: #000000;
+}
+
+.type-dark {
+  background-color: #775544;
+}
+
+.type-normal {
+  background-color: #aaaa99;
+  color: #000000;
 }
 
 /* ==========================================
@@ -294,4 +430,70 @@ header {
 
 .remove-btn:hover {
   background: #d32f2f;
+}
+
+/* Type Filter Bar Container */
+.type-filter-container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 4px;
+  margin: 15px 0;
+  scrollbar-width: thin;
+}
+
+.type-btn {
+  padding: 6px 14px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  opacity: 0.75;
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.type-btn:hover,
+.type-btn.active {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  border-color: #222;
+}
+
+.filter-controls {
+  margin: 12px 0 20px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.type-dropdown {
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #2b2b36;
+  border: 2px solid #ef5350;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.type-dropdown:hover,
+.type-dropdown:focus {
+  background-color: #383846;
+  border-color: #ff7673;
+  box-shadow: 0 0 10px rgba(239, 83, 80, 0.4);
+}
+
+.type-dropdown option {
+  background-color: #1e1e24;
+  color: #ffffff;
+  padding: 8px;
 }
