@@ -6,6 +6,19 @@
 const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 const SPECIES_URL = "https://pokeapi.co/api/v2/pokemon-species";
 
+// Generation boundaries in PokéAPI
+export const GEN_RANGES = {
+  1: { start: 1, end: 151 },    // Gen 1: Kanto (151)
+  2: { start: 152, end: 251 },  // Gen 2: Johto (100)
+  3: { start: 252, end: 386 },  // Gen 3: Hoenn (135)
+  4: { start: 387, end: 493 },  // Gen 4: Sinnoh (107)
+  5: { start: 494, end: 649 },  // Gen 5: Unova (156)
+  6: { start: 650, end: 721 },  // Gen 6: Kalos (72)
+  7: { start: 722, end: 809 },  // Gen 7: Alola (88)
+  8: { start: 810, end: 905 },  // Gen 8: Galar (96)
+  9: { start: 906, end: 1025 }  // Gen 9: Paldea (120)
+};
+
 /**
  * Capitalizes hyphenated names and handles alternate form labels.
  * Example: "deoxys-attack" -> "Deoxys (Attack)"
@@ -77,44 +90,29 @@ export function normalizePokemonData(rawData, speciesData = null) {
 }
 
 /**
- * Fetches a single Pokémon by ID or name.
+ * Fetches a single Pokémon by ID or Name.
+ * Safely handles species fetch so failures don't break the main card.
  */
 export async function fetchPokemon(nameOrId) {
   try {
     const cleanQuery = String(nameOrId).toLowerCase().trim().replace(/\s+/g, "-");
-    let response = await fetch(`${BASE_URL}/${cleanQuery}`);
 
-    // If direct lookup fails, try matching by species name
-    if (!response.ok) {
-      const speciesRes = await fetch(`${SPECIES_URL}/${cleanQuery}`);
-      if (speciesRes.ok) {
-        const speciesData = await speciesRes.json();
-        const defaultVariety =
-          speciesData.varieties?.find((v) => v.is_default)?.pokemon?.name ||
-          speciesData.varieties?.[0]?.pokemon?.name;
-
-        if (defaultVariety) {
-          response = await fetch(`${BASE_URL}/${defaultVariety}`);
-        }
-      }
-    }
-
+    const response = await fetch(`${BASE_URL}/${cleanQuery}`);
     if (!response.ok) {
       throw new Error(`Pokémon "${nameOrId}" not found.`);
     }
 
     const rawData = await response.json();
-    let speciesData = null;
 
-    // Fetch species data for Pokédex flavor text
+    // Safely attempt to fetch species description without throwing if throttled
+    let speciesData = null;
     try {
-      const speciesIdentifier = rawData.species?.name || rawData.id;
-      const speciesRes = await fetch(`${SPECIES_URL}/${speciesIdentifier}`);
+      const speciesRes = await fetch(`${SPECIES_URL}/${rawData.id}`);
       if (speciesRes.ok) {
         speciesData = await speciesRes.json();
       }
-    } catch {
-      // Non-fatal if species text fails
+    } catch (e) {
+      // Fallback: Default description will be used if species fetch is throttled
     }
 
     return normalizePokemonData(rawData, speciesData);
@@ -123,6 +121,7 @@ export async function fetchPokemon(nameOrId) {
     throw error;
   }
 }
+
 
 /**
  * Searches for all regional/form varieties belonging to a species.
@@ -170,7 +169,7 @@ export async function fetchPokemonForms(nameOrId) {
  * Fetches Pokémon matching a specific element type (e.g. 'fire', 'water').
  */
 export async function fetchPokemonByType(typeName, limit = 20) {
-  if (typeName === 'all') {
+  if (typeName === "all") {
     const promises = Array.from({ length: limit }, (_, i) => fetchPokemon(i + 1));
     return Promise.all(promises);
   }
@@ -181,14 +180,35 @@ export async function fetchPokemonByType(typeName, limit = 20) {
   }
 
   const data = await response.json();
-
-  // Get first 'limit' entries for this type
   const entries = data.pokemon.slice(0, limit);
 
-  // Fetch full details for all selected type entries in parallel
-  const fetchedList = await Promise.all(
-    entries.map((entry) => fetchPokemon(entry.pokemon.name))
-  );
-
-  return fetchedList;
+  return Promise.all(entries.map((entry) => fetchPokemon(entry.pokemon.name)));
 }
+
+/**
+ * Fetches a slice/chunk of Pokémon by ID range (e.g. 10 at a time).
+ */
+export async function fetchPokemonRange(startId, endId, limit = 10) {
+  const actualEnd = Math.min(startId + limit - 1, endId);
+  const promises = [];
+
+  for (let id = startId; id <= actualEnd; id++) {
+    promises.push(
+      fetchPokemon(id).catch((err) => {
+        console.warn(`Skipped Pokémon #${id}:`, err);
+        return null;
+      })
+    );
+  }
+
+  const results = await Promise.all(promises);
+  const validPokemon = results.filter(Boolean);
+
+  return {
+    pokemonList: validPokemon,
+    nextStartId: actualEnd + 1,
+    hasMore: actualEnd < endId
+  };
+}
+
+

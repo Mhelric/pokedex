@@ -22,30 +22,57 @@
                 <input type="text" id="search-input" placeholder="Search by name or ID (e.g., Pikachu, 25)..." required
                 />
                 <button type="submit">Search</button>
-                <!-- Type Filter Bar -->
-                <div class="type-select-container">
-                    <select id="type-select-dropdown" class="type-dropdown">
-                        <option value="all">🌐 All Types</option>
-                        <option value="normal">⚪ Normal</option>
-                        <option value="fire">🔥 Fire</option>
-                        <option value="water">💧 Water</option>
-                        <option value="grass">🌿 Grass</option>
-                        <option value="electric">⚡ Electric</option>
-                        <option value="ice">❄️ Ice</option>
-                        <option value="fighting">🥊 Fighting</option>
-                        <option value="poison">☠️️ Poison</option>
-                        <option value="ground">🏜️ Ground</option>
-                        <option value="flying">🕊️ Flying</option>
-                        <option value="psychic">🔮 Psychic</option>
-                        <option value="bug">🐛 Bug</option>
-                        <option value="rock">🪨 Rock</option>
-                        <option value="ghost">👻 Ghost</option>
-                        <option value="dragon">🐉 Dragon</option>
-                        <option value="steel">⚙️ Steel</option>
-                        <option value="fairy">✨ Fairy</option>
-                        <option value="dark">🌙 Dark</option>
-                    </select>
+                <!-- Side-by-Side Custom Filter Bar -->
+                <div class="filter-bar">
+                    <!-- Custom Type Dropdown -->
+                    <div class="custom-dropdown" id="type-dropdown">
+                        <button class="dropdown-trigger" type="button">
+                            <span class="trigger-label">All Types</span>
+                            <span class="dropdown-arrow">▾</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-option active" data-value="all">All Types</div>
+                            <div class="dropdown-option" data-value="fire">Fire</div>
+                            <div class="dropdown-option" data-value="water">Water</div>
+                            <div class="dropdown-option" data-value="grass">Grass</div>
+                            <div class="dropdown-option" data-value="electric">Electric</div>
+                            <div class="dropdown-option" data-value="ice">Ice</div>
+                            <div class="dropdown-option" data-value="fighting">Fighting</div>
+                            <div class="dropdown-option" data-value="poison">Poison</div>
+                            <div class="dropdown-option" data-value="ground">Ground</div>
+                            <div class="dropdown-option" data-value="flying">Flying</div>
+                            <div class="dropdown-option" data-value="psychic">Psychic</div>
+                            <div class="dropdown-option" data-value="bug">Bug</div>
+                            <div class="dropdown-option" data-value="rock">Rock</div>
+                            <div class="dropdown-option" data-value="ghost">Ghost</div>
+                            <div class="dropdown-option" data-value="dragon">Dragon</div>
+                            <div class="dropdown-option" data-value="steel">Steel</div>
+                            <div class="dropdown-option" data-value="fairy">Fairy</div>
+                            <div class="dropdown-option" data-value="dark">Dark</div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Generation Dropdown -->
+                    <div class="custom-dropdown" id="gen-dropdown">
+                        <button class="dropdown-trigger" type="button">
+                            <span class="trigger-label">All Generations</span>
+                            <span class="dropdown-arrow">▾</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-option active" data-value="all">All Generations</div>
+                            <div class="dropdown-option" data-value="1">Gen 1: Kanto (#001–#151)</div>
+                            <div class="dropdown-option" data-value="2">Gen 2: Johto (#152–#251)</div>
+                            <div class="dropdown-option" data-value="3">Gen 3: Hoenn (#252–#386)</div>
+                            <div class="dropdown-option" data-value="4">Gen 4: Sinnoh (#387–#493)</div>
+                            <div class="dropdown-option" data-value="5">Gen 5: Unova (#494–#649)</div>
+                            <div class="dropdown-option" data-value="6">Gen 6: Kalos (#650–#721)</div>
+                            <div class="dropdown-option" data-value="7">Gen 7: Alola (#722–#809)</div>
+                            <div class="dropdown-option" data-value="8">Gen 8: Galar (#810–#905)</div>
+                            <div class="dropdown-option" data-value="9">Gen 9: Paldea (#906–#1025)</div>
+                        </div>
+                    </div>
                 </div>
+
                 <!-- Toggle Button -->
                 <button type="button" id="sprite-toggle-btn" class="btn-secondary">
                     Mode: Animated GIFs

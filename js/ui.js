@@ -49,12 +49,28 @@ export function createPokemonCard(pokemon, useAnimated = true) {
 /**
  * Injects multiple Pokémon cards into a container.
  */
-export function renderPokemonGrid(pokemonList, containerElement, useAnimated = true) {
+export function renderPokemonGrid(
+  pokemonList,
+  containerElement,
+  useAnimated = true,
+  append = false
+) {
   const list = Array.isArray(pokemonList) ? pokemonList : [pokemonList];
-  containerElement.innerHTML = list
-    .map((p) => createPokemonCard(p, useAnimated))
-    .join("");
+  const html = list.map((p) => createPokemonCard(p, useAnimated)).join("");
+
+  if (append) {
+    // Remove any loading indicator at the bottom before appending new cards
+    const scrollLoader = containerElement.querySelector("#scroll-loader");
+    if (scrollLoader) scrollLoader.remove();
+
+    // STACK new cards onto existing grid
+    containerElement.insertAdjacentHTML("beforeend", html);
+  } else {
+    // Replace whole grid (for initial gen pick, search, or type filter)
+    containerElement.innerHTML = html;
+  }
 }
+
 
 /**
  * Builds HTML markup for a compact team roster card.
