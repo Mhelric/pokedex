@@ -16,29 +16,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Convert base64 data URL into binary Buffer
+    // 1. Convert Base64 Data URL to binary Buffer
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     const imageBuffer = Buffer.from(base64Data, 'base64');
 
-    // 2. Upload image to SerpApi's upload service to obtain an image_id
+    // 2. Upload image to SerpApi /image endpoint to acquire an image_id
     const formData = new FormData();
     formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'scan.jpg');
     formData.append('api_key', serpApiKey);
 
-    const uploadRes = await fetch('https://serpapi.com/image', {
+    const uploadResponse = await fetch('https://serpapi.com/image', {
       method: 'POST',
       body: formData,
     });
 
-    if (!uploadRes.ok) {
-      throw new Error(`SerpApi image upload failed with status ${uploadRes.status}`);
+    if (!uploadResponse.ok) {
+      throw new Error(`SerpApi image upload failed with status ${uploadResponse.status}`);
     }
 
-    const uploadData = await uploadRes.json();
+    const uploadData = await uploadResponse.json();
     const imageId = uploadData.image_id;
 
     if (!imageId) {
-      throw new Error('Could not obtain an image_id from SerpApi upload.');
+      throw new Error('Failed to obtain image_id from SerpApi upload.');
     }
 
     // 3. Search Google Lens via SerpApi
@@ -46,14 +46,14 @@ export default async function handler(req, res) {
       imageId
     )}&hl=en&api_key=${serpApiKey}`;
 
-    const lensRes = await fetch(lensUrl);
-    if (!lensRes.ok) {
-      throw new Error(`Google Lens search failed with status ${lensRes.status}`);
+    const lensResponse = await fetch(lensUrl);
+    if (!lensResponse.ok) {
+      throw new Error(`Google Lens search failed with status ${lensResponse.status}`);
     }
 
-    const lensData = await lensRes.json();
+    const lensData = await lensResponse.json();
 
-    // 4. Collect textual candidates from Knowledge Graph and Visual Matches
+    // 4. Extract candidates from Knowledge Graph and Visual Matches
     const candidateTexts = [];
 
     if (lensData.knowledge_graph?.title) {
@@ -61,12 +61,12 @@ export default async function handler(req, res) {
     }
 
     if (Array.isArray(lensData.visual_matches)) {
-      lensData.visual_matches.slice(0, 10).forEach((item) => {
+      lensData.visual_matches.slice(0, 12).forEach((item) => {
         if (item.title) candidateTexts.push(item.title);
       });
     }
 
-    // 5. Filter common boilerplate words and count keyword frequency
+    // 5. Extract words and check frequency against PokéAPI
     const stopWords = new Set([
       'pokemon', 'the', 'card', 'plush', 'plushie', 'figure', 'toy', 'gx', 'ex',
       'vmax', 'vstar', 'tcg', 'holo', 'rare', 'ultra', 'shiny', 'edition', 'series',
@@ -87,10 +87,9 @@ export default async function handler(req, res) {
       });
     });
 
-    // Sort keywords from most frequent to least frequent
     const sortedWords = Object.keys(wordCounts).sort((a, b) => wordCounts[b] - wordCounts[a]);
 
-    // 6. Verify top keywords against PokéAPI
+    // 6. Check top candidates against PokéAPI
     let detectedPokemon = null;
 
     for (const word of sortedWords.slice(0, 6)) {
@@ -100,8 +99,8 @@ export default async function handler(req, res) {
           detectedPokemon = word;
           break;
         }
-      } catch (err) {
-        // Continue checking next candidate
+      } catch (e) {
+        // Continue checking candidates
       }
     }
 
@@ -112,6 +111,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ pokemon: detectedPokemon });
   } catch (error) {
     console.error('Reverse Image Search Error:', error);
-    return res.status(500).json({ error: error.message || 'Reverse search processing failed' });
+    return res.status(500).json({ error: error.message || 'Reverse Image Search failed' });
   }
 }

@@ -1,297 +1,295 @@
 /* ==========================================
-1. BASE TYPOGRAPHY & LAYOUT 
-========================================== */
-*, *::before, *::after {
-    box-sizing: border-box;
+   1. GLOBAL STYLES & HEADER
+   ========================================== */
+* {
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f9;
-    margin: 0;
-    padding: 0;
-    color: #2d3748;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 0 0 76px 0; /* Space for the fixed bottom bar */
+  color: #2d3748;
 }
 
-header {
-    background-color: #ef5350; /* Pokédex Red */
-    color: #ffffff;
-    text-align: center;
-    padding: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.app-header {
+  background-color: #ef5350; /* Pokédex Red */
+  color: #ffffff;
+  padding: 0.8rem 1.4rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  min-height: 56px;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 2rem;
+.header-title {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.5px;
+}
+
+/* --- Top-Right Smooth Toggle Switch --- */
+.header-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-mode-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  user-select: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .slider {
+  background-color: #22c55e;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
 }
 
 /* ==========================================
-2. CONTROLS & SEARCH FORM
-========================================== */
+   2. CONTROLS & COMPACT FILTER BAR
+   ========================================== */
 .controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.5rem 1rem 0.5rem 1rem;
-    background-color: #ffffff;
-    border-bottom: 2px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.8rem 0.6rem 0.8rem;
+  background-color: #ffffff;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .search-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    max-width: 800px;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 8px;
 }
 
-.search-form input {
-    flex: 1;
-    min-width: 240px;
-    height: 42px;
-    padding: 0 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    background-color: #f8fafc;
-    transition: border-color 0.2s ease;
+.search-form input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
 }
 
-.search-form input:focus {
-    outline: none;
-    border-color: #ef5350;
-    background-color: #ffffff;
+.search-form input[type="text"]:focus {
+  border-color: #ef5350;
 }
 
-.btn-primary {
-    height: 42px;
-    padding: 0 20px;
-    background-color: #ef5350;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.95rem;
-    transition: background-color 0.2s ease;
-}
-
-.btn-primary:hover {
-    background-color: #d32f2f;
-}
-
-.btn-secondary {
-    height: 42px;
-    padding: 0 16px;
-    background-color: #475569;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease;
-}
-
-.btn-secondary:hover {
-    background-color: #334155;
-}
-
-/* ==========================================
-3. CUSTOM FILTER BAR & DROPDOWNS
-========================================== */
 .filter-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin: 14px auto 16px auto;
-    max-width: 900px;
-    width: 100%;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  max-width: 700px;
+  margin: 4px auto 4px auto;
+}
+
+#type-dropdown,
+#type2-dropdown {
+  flex: 1 1 calc(50% - 3px);
+  min-width: 120px;
+}
+
+#gen-dropdown {
+  flex: 1 1 100%;
 }
 
 .custom-dropdown {
-    position: relative;
-    width: 210px;
+  position: relative;
 }
 
 .dropdown-trigger {
-    width: 100%;
-    height: 40px;
-    padding: 0 14px;
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #334155;
-    cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-}
-
-.dropdown-trigger:hover {
-    border-color: #94a3b8;
-}
-
-.dropdown-arrow {
-    font-size: 0.75rem;
-    color: inherit;
-    transition: transform 0.15s ease;
-}
-
-.custom-dropdown.open .dropdown-arrow {
-    transform: rotate(180deg);
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    width: 100%;
-    max-height: 260px;
-    overflow-y: auto;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    display: none;
-    z-index: 100;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  z-index: 120;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .custom-dropdown.open .dropdown-menu {
-    display: block;
+  display: block;
 }
 
 .dropdown-option {
-    padding: 10px 14px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #334155;
-    cursor: pointer;
-    transition: background-color 0.1s ease;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
 }
 
-.dropdown-option:hover {
-    background-color: #f1f5f9;
-    color: #0f172a;
-}
-
+.dropdown-option:hover,
 .dropdown-option.active {
-    background-color: #f8fafc;
-    font-weight: 700;
-    color: #ef5350;
+  background-color: #f1f5f9;
+  font-weight: 600;
 }
 
-/* Dynamic Dropdown Trigger Colors based on selected type */
-.dropdown-trigger.type-fire { background-color: #ff4422; color: #ffffff; border-color: #d32f2f; }
-.dropdown-trigger.type-water { background-color: #3399ff; color: #ffffff; border-color: #1976d2; }
-.dropdown-trigger.type-grass { background-color: #77cc55; color: #ffffff; border-color: #388e3c; }
-.dropdown-trigger.type-electric { background-color: #ffcc33; color: #000000; border-color: #fbc02d; }
-.dropdown-trigger.type-ice { background-color: #66ccff; color: #000000; border-color: #00acc1; }
-.dropdown-trigger.type-fighting { background-color: #bb5544; color: #ffffff; border-color: #8d6e63; }
-.dropdown-trigger.type-poison { background-color: #aa5599; color: #ffffff; border-color: #7b1fa2; }
-.dropdown-trigger.type-ground { background-color: #ddbb55; color: #000000; border-color: #f57f17; }
-.dropdown-trigger.type-flying { background-color: #8899ff; color: #ffffff; border-color: #3f51b5; }
-.dropdown-trigger.type-psychic { background-color: #ff5599; color: #ffffff; border-color: #c2185b; }
-.dropdown-trigger.type-bug { background-color: #aabb22; color: #000000; border-color: #689f38; }
-.dropdown-trigger.type-rock { background-color: #bbaa66; color: #ffffff; border-color: #5d4037; }
-.dropdown-trigger.type-ghost { background-color: #6666bb; color: #ffffff; border-color: #512da8; }
-.dropdown-trigger.type-dragon { background-color: #7766ee; color: #ffffff; border-color: #303f9f; }
-.dropdown-trigger.type-steel { background-color: #aaaabb; color: #000000; border-color: #616161; }
-.dropdown-trigger.type-fairy { background-color: #ee99ee; color: #000000; border-color: #c2185b; }
-.dropdown-trigger.type-dark { background-color: #775544; color: #ffffff; border-color: #3e2723; }
-.dropdown-trigger.type-normal { background-color: #aaaa99; color: #000000; border-color: #616161; }
+.btn-secondary {
+  background-color: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #cbd5e1;
+}
 
 /* ==========================================
-4. POKÉMON GRID & CARDS (Internal Scroll)
-========================================== */
+   3. POKÉMON GRID & CARDS
+   ========================================== */
 .pokemon-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto 2rem auto;
-    max-height: 70vh; /* Fixed height for grid */
-    overflow-y: auto;  /* Scroll internally inside the grid */
-    background-color: #ffffff;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 1.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  max-height: 72vh;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
 }
 
 .pokemon-card {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pokemon-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
 }
 
 .card-image {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block;
-    image-rendering: pixelated;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
 }
 
 .card-id {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    align-self: flex-start;
-    font-weight: 600;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  align-self: flex-start;
+  font-weight: 600;
 }
 
 .pokemon-name {
-    margin: 6px 0 2px 0;
-    font-size: 1.1rem;
-    color: #1e293b;
-    text-align: center;
+  margin: 6px 0 2px 0;
+  font-size: 1rem;
+  color: #1e293b;
+  text-align: center;
+  font-weight: 700;
 }
 
 .pokemon-genus {
-    font-size: 0.8rem;
-    font-style: italic;
-    color: #64748b;
-    margin: 0 0 8px 0;
-    font-weight: 600;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 0 0 8px 0;
 }
 
 .card-types {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 8px;
+  display: flex;
+  gap: 5px;
+  margin-bottom: 8px;
 }
 
 .type-badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 12px;
-    color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #ffffff;
 }
 
 .type-fire { background-color: #ff4422; }
@@ -314,585 +312,369 @@ header h1 {
 .type-normal { background-color: #aaaa99; color: #000; }
 
 .card-stats {
-    font-size: 0.85rem;
-    color: #64748b;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    margin: 6px 0;
-    font-weight: 600;
+  font-size: 0.8rem;
+  color: #64748b;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  margin: 6px 0;
+  font-weight: 600;
 }
 
 .pokemon-description {
-    font-size: 0.825rem;
-    font-style: italic;
-    color: #475569;
-    background-color: #f8fafc;
-    border-left: 3px solid #ef5350;
-    padding: 8px 10px;
-    margin: 10px 0;
-    border-radius: 0 6px 6px 0;
-    line-height: 1.4;
-    text-align: left;
-    width: 100%;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #475569;
+  background-color: #f8fafc;
+  border-left: 3px solid #ef5350;
+  padding: 6px 8px;
+  margin: 8px 0;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.35;
+  width: 100%;
 }
 
 .card-actions {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    margin-top: auto;
-    padding-top: 10px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 8px;
 }
 
 .add-team-btn {
-    flex: 1;
-    padding: 8px;
-    background-color: #16a34a;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+  width: 100%;
+  padding: 6px;
+  background-color: #16a34a;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .add-team-btn:hover {
-    background-color: #15803d;
+  background-color: #15803d;
 }
 
-/* Status Messages */
 .status-message, .loading-msg {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #64748b;
-    font-size: 1.1rem;
-    font-weight: 600;
-    padding: 2rem 0;
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 2rem 0;
 }
 
-.error-message, .error-msg {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #ef5350;
-    font-size: 1.1rem;
-    font-weight: 600;
-    padding: 2rem 0;
+.error-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #ef5350;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 2rem 0;
 }
 
 /* ==========================================
-5. MODAL OVERLAY & DETAILED VIEW LAYOUT
-========================================== */
+   4. MODALS & SPACING POLISH
+   ========================================== */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 1;
-    transition: opacity 0.25s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
 }
 
 .modal-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
+  display: none;
 }
 
 .modal-card {
-    background: #ffffff;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 540px;
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 24px;
-    position: relative;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
-    text-align: center;
+  background: #ffffff;
+  border-radius: 20px;
+  width: 95%;
+  max-width: 860px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 28px 24px;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e2e8f0;
 }
 
 .modal-close {
-    position: absolute;
-    top: 14px;
-    right: 16px;
-    background: #f1f5f9;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s ease;
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+  z-index: 10;
 }
 
 .modal-close:hover {
-    background: #e2e8f0;
+  background: #ef5350;
+  color: #ffffff;
 }
 
-/* Centered Top Section Layout */
-.modal-top-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 16px;
-    width: 100%;
-    max-width: 220px;
-    margin: 0 auto;
-}
-
-.modal-image-container .modal-image {
-    width: 180px;
-    height: 180px;
-    object-fit: contain;
+.modal-image {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
 }
 
 .modal-header-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
+  text-align: center;
+  margin: 8px 0 16px 0;
 }
 
-.modal-header-info .card-id {
-    font-size: 0.9rem;
-    color: #94a3b8;
-    font-weight: 700;
+.modal-title {
+  margin: 4px 0;
+  font-size: 1.5rem;
 }
 
-.modal-header-info .modal-title {
-    margin: 4px 0 2px 0;
-    font-size: 1.8rem;
-    color: #1e293b;
-    line-height: 1.2;
-}
-
-.modal-header-info .pokemon-genus {
-    font-size: 0.9rem;
-    color: #64748b;
-    font-style: italic;
-    margin: 0 0 10px 0;
-}
-
-.modal-header-info .card-types {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-/* Bottom Details Section */
-.modal-bottom-details {
-    padding-top: 8px;
-    text-align: left;
-}
-
-.modal-measurements {
-    font-size: 0.9rem;
-    color: #475569;
-    margin: 12px auto;
-    background: #f8fafc;
-    padding: 8px 16px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    text-align: center;
-}
-
-/* Type Matchup Badges in Modal */
-.modal-matchups {
-    margin: 16px 0;
-    padding: 12px;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.matchup-group {
-    margin-bottom: 12px;
-}
-
-.matchup-group:last-child {
-    margin-bottom: 0;
-}
-
-.matchup-group h4 {
-    margin: 0 0 8px 0;
-    font-size: 0.875rem;
-    color: #475569;
-    text-align: center;
-}
-
-.matchup-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-}
-
-.matchup-badges .type-badge small {
-    font-size: 0.65rem;
-    opacity: 0.9;
-    font-weight: 700;
-}
-
-.none-text {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    font-style: italic;
-}
-
-.full-stats h4 {
-    margin: 14px 0 8px 0;
-    font-size: 1rem;
-    color: #1e293b;
-    text-align: left;
+.modal-matchups, .full-stats {
+  margin-top: 14px;
 }
 
 .stat-bar-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    font-size: 0.85rem;
-    color: #475569;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
 }
 
 .stat-bar-group progress {
-    width: 60%;
-    height: 10px;
-    accent-color: #ef5350;
+  width: 60%;
+  height: 10px;
 }
 
-/* ==========================================
-6. TEAM BUILDER SECTION
-========================================== */
-.team-section {
-    background: #ffffff;
-    border-top: 2px solid #e2e8f0;
-    padding: 1.5rem 2rem;
-    max-width: 1200px;
-    margin: 1.5rem auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
+/* Team Header with Safe Clearance Gap */
 .team-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-right: 48px; /* Dedicated gap preventing overlap with the close button */
 }
 
 .team-header h2 {
-    margin: 0;
-    font-size: 1.3rem;
-    color: #1e293b;
-}
-
-#team-count {
-    color: #ef5350;
-    font-weight: 700;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .team-cards-wrapper {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
-    min-height: 80px;
-}
-
-.team-empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #94a3b8;
-    font-style: italic;
-    padding: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .team-card {
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+  position: relative;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 .team-card-image {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
 .team-card-name {
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: capitalize;
-    color: #1e293b;
-    margin-top: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin-top: 8px;
+  text-align: center;
+  color: #1e293b;
 }
 
 .remove-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: #ef5350;
-    color: #ffffff;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
 }
 
 .remove-btn:hover {
-    background: #dc2626;
+  transform: scale(1.15);
+  background: #dc2626;
 }
 
-/* ==========================================
-TEAM SYNERGY & COVERAGE BREAKDOWN
-========================================== */
 .team-synergy-box {
-    margin-top: 20px;
-    padding: 16px;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 16px 20px;
+  border: 1px solid #e2e8f0;
 }
 
 .team-synergy-box h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.05rem;
-    color: #1e293b;
-    text-align: center;
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-align: center;
 }
 
-.synergy-group {
-    margin-bottom: 12px;
-}
-
-.synergy-group:last-child {
-    margin-bottom: 0;
-}
-
-.synergy-group h4 {
-    margin: 0 0 8px 0;
-    font-size: 0.85rem;
-    color: #475569;
-    text-align: center;
-}
-
-.synergy-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-}
-
-.synergy-badges .type-badge small {
-    font-size: 0.65rem;
-    opacity: 0.9;
-    font-weight: 700;
+.team-empty-state {
+  text-align: center;
+  color: #64748b;
+  padding: 2.5rem 0;
 }
 
 /* ==========================================
-7. POKEBALL OPENING OVERLAY & ANIMATION
-========================================== */
-.pokeball-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    pointer-events: auto;
-    overflow: hidden;
-    transition: visibility 0.8s ease;
-}
-
-.pokeball-overlay.opened {
-    pointer-events: none;
-    visibility: hidden;
-}
-
-/* Red Top Half */
-.pokeball-top {
-    width: 100%;
-    height: 50vh;
-    background-color: #ef5350;
-    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-    z-index: 2;
-    border-bottom: 8px solid #1e293b;
-}
-
-/* White Bottom Half */
-.pokeball-bottom {
-    width: 100%;
-    height: 50vh;
-    background-color: #f8fafc;
-    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-    z-index: 2;
-    border-top: 8px solid #1e293b;
-}
-
-/* Center Pokeball Button */
-.pokeball-center-line {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.pokeball-button {
-    width: 80px;
-    height: 80px;
-    background-color: #ffffff;
-    border: 10px solid #1e293b;
-    border-radius: 50%;
-    box-shadow: 0 0 0 4px #ffffff, 0 0 20px rgba(0, 0, 0, 0.25);
-    position: relative;
-    animation: pulse-pokeball 1.2s infinite alternate;
-}
-
-@keyframes pulse-pokeball {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 4px #ffffff, 0 0 10px rgba(239, 83, 80, 0.4); }
-    100% { transform: scale(1.05); box-shadow: 0 0 0 4px #ffffff, 0 0 25px rgba(239, 83, 80, 0.8); }
-}
-
-/* Slicing Open State */
-.pokeball-overlay.open .pokeball-top {
-    transform: translateY(-100%);
-}
-
-.pokeball-overlay.open .pokeball-bottom {
-    transform: translateY(100%);
-}
-
-.pokeball-overlay.open .pokeball-center-line {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1.4);
-}
-
-/* ==========================================
-CAMERA SCANNER MODAL & VIEWFINDER
-========================================== */
+   5. SCANNER CARD
+   ========================================== */
 .scanner-card {
-    background: #1e293b;
-    color: #ffffff;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 520px;
-    padding: 20px;
-    position: relative;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-
-.scanner-status {
-    font-size: 0.9rem;
-    color: #cbd5e1;
-    margin: 8px 0 14px 0;
-    min-height: 24px;
+  background: #1e293b;
+  color: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  padding: 24px;
+  position: relative;
+  text-align: center;
 }
 
 .viewfinder-container {
-    position: relative;
-    width: 100%;
-    height: 280px;
-    background: #0f172a;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 3px solid #ef5350;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: relative;
+  width: 100%;
+  height: 250px;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 14px 0;
 }
 
 .viewfinder-container video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* Viewfinder Target Box */
 .viewfinder-reticle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 180px;
-    height: 180px;
-    border: 2px dashed #ef5350;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-}
-
-/* Scanning Laser Line Animation */
-.laser-line {
-    width: 100%;
-    height: 4px;
-    background: #ef5350;
-    box-shadow: 0 0 8px #ef5350, 0 0 16px #ef5350;
-    position: absolute;
-    top: 0;
-    animation: scan-laser 2s infinite ease-in-out alternate;
-}
-
-@keyframes scan-laser {
-    0% { top: 0%; }
-    100% { top: 100%; }
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  pointer-events: none;
 }
 
 .scanner-controls {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
 }
 
-.file-upload-label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    line-height: 42px;
+/* ==========================================
+   6. GLASS BOTTOM ACTION BAR
+   ========================================== */
+.bottom-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: none;
+  padding-bottom: 6px;
+}
+
+.bottom-nav-inner {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.bottom-nav-item {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bottom-nav-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.bottom-nav-item.highlight-btn {
+  background: #ef5350;
+  color: #ffffff;
+  border-color: #ef5350;
+}
+
+.bottom-nav-item.highlight-btn:hover {
+  background: #e53935;
+  color: #ffffff;
 }

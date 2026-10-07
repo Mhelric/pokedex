@@ -1,4 +1,6 @@
-// js/scanner.js
+// ==========================================
+// CAMERA POKÉDEX SCANNER MODULE (GOOGLE LENS VIA SERPAPI)
+// ==========================================
 
 import { fetchPokemon } from "./api.js";
 
@@ -46,7 +48,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     const pokemonName = data.pokemon;
 
     if (!pokemonName || pokemonName === "none") {
-      statusElement.textContent = "❓ No Pokémon detected. Try framing the target closer!";
+      statusElement.textContent = "❓ No Pokémon detected. Center the target and try again!";
       return null;
     }
 
