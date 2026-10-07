@@ -1,15 +1,9 @@
-// ==========================================
-// CAMERA POKÉDEX SCANNER MODULE (GEMINI VISION AI)
-// Vision AI Scanner powered by Gemini 1.5 Flash
-// ==========================================
+// js/scanner.js
 
 import { fetchPokemon } from "./api.js";
 
 let mediaStream = null;
 
-/**
- * Requests device camera permission and streams video feed to the <video> element.
- */
 export async function startCameraStream(videoElement, statusElement) {
   try {
     statusElement.textContent = "Requesting camera access...";
@@ -26,9 +20,6 @@ export async function startCameraStream(videoElement, statusElement) {
   }
 }
 
-/**
- * Stops all active video tracks to release camera hardware.
- */
 export function stopCameraStream() {
   if (mediaStream) {
     mediaStream.getTracks().forEach((track) => track.stop());
@@ -36,11 +27,8 @@ export function stopCameraStream() {
   }
 }
 
-/**
- * Sends base64 image string to Gemini Vision backend endpoint.
- */
-async function classifyWithGeminiVision(base64Image, statusElement) {
-  statusElement.textContent = "✨ Gemini Multimodal AI analyzing visual features...";
+async function classifyWithGoogleLens(base64Image, statusElement) {
+  statusElement.textContent = "🔍 Reverse searching with Google Lens...";
 
   try {
     const response = await fetch("/api/scan", {
@@ -58,50 +46,40 @@ async function classifyWithGeminiVision(base64Image, statusElement) {
     const pokemonName = data.pokemon;
 
     if (!pokemonName || pokemonName === "none") {
-      statusElement.textContent = "❓ No Pokémon detected in image. Center the target and try again!";
+      statusElement.textContent = "❓ No Pokémon detected. Try framing the target closer!";
       return null;
     }
 
     statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()}! Fetching Dex Entry...`;
-
-    // Fetch complete Pokédex entry from PokéAPI
     return await fetchPokemon(pokemonName);
   } catch (err) {
-    console.error("Gemini Vision Scan Error:", err);
+    console.error("Scanner Error:", err);
     statusElement.textContent = `❌ Scan failed: ${err.message}`;
     return null;
   }
 }
 
-/**
- * Captures current camera video frame as Base64 JPEG and runs Gemini Vision AI.
- */
 export async function captureAndScanFrame(videoElement, canvasElement, statusElement) {
   if (!videoElement || !videoElement.videoWidth) {
     statusElement.textContent = "⚠️ Camera feed not ready.";
     return null;
   }
 
-  // Render video frame onto canvas
   const context = canvasElement.getContext("2d");
   canvasElement.width = videoElement.videoWidth;
   canvasElement.height = videoElement.videoHeight;
   context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
-  // Convert canvas to Base64 JPEG
   const base64Image = canvasElement.toDataURL("image/jpeg", 0.85);
-  return await classifyWithGeminiVision(base64Image, statusElement);
+  return await classifyWithGoogleLens(base64Image, statusElement);
 }
 
-/**
- * Converts an uploaded File object to Base64 and runs Gemini Vision AI.
- */
 export async function scanUploadedFile(fileObject, statusElement) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = async () => {
       const base64Image = reader.result;
-      const scannedPokemon = await classifyWithGeminiVision(base64Image, statusElement);
+      const scannedPokemon = await classifyWithGoogleLens(base64Image, statusElement);
       resolve(scannedPokemon);
     };
     reader.onerror = () => {

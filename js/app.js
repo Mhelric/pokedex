@@ -489,7 +489,7 @@ if (captureScanBtn) {
 // --- Upload Photo AI Scanner ---
 if (imageUploadInput) {
   imageUploadInput.addEventListener("change", async (e) => {
-    const file = e.target.files;
+    const file = e.target.files[0]; // <-- Added [0] here
     if (!file) return;
 
     scannerStatus.textContent = `Uploading ${file.name} to AI classifier...`;
