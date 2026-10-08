@@ -1,39 +1,47 @@
 /* ==========================================
-   MINI-GAME ("Who's That Pokémon?") MODAL UI
+   MINI-GAME ("Who's That Pokémon?") COMPACT UI
    ========================================== */
 #game-modal .modal-card {
-  max-width: 680px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 90dvh;
+  overflow: hidden; /* Remains compact with no scroll */
   background: #0f172a;
   color: #ffffff;
   border: 1px solid #334155;
+  padding: 16px 18px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-/* Game Header with Safe Clearance Gap */
+/* Header with clearance for top-right close button */
 .game-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-  padding-right: 48px; /* Dedicated gap preventing overlap with the close button */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  padding-right: 44px; /* Guaranteed clearance for the close button */
 }
 
 .game-header h2 {
   margin: 0;
   color: #38bdf8;
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .game-score {
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   color: #94a3b8;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   white-space: nowrap;
 }
 
@@ -42,55 +50,55 @@
 }
 
 .silhouette-container {
-  height: 240px;
+  height: 155px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   background: radial-gradient(circle, #1e293b 0%, #090d16 100%);
   border: 1px solid #334155;
-  border-radius: 16px;
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
 }
 
 #game-pokemon-img {
-  width: 190px;
-  height: 190px;
+  width: 125px;
+  height: 125px;
   object-fit: contain;
   filter: brightness(0);
-  transition: filter 0.35s ease, transform 0.35s ease;
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 #game-pokemon-img.revealed {
-  filter: brightness(1) drop-shadow(0 0 20px rgba(250, 204, 21, 0.7));
-  transform: scale(1.05);
+  filter: brightness(1) drop-shadow(0 0 16px rgba(250, 204, 21, 0.7));
+  transform: scale(1.04);
 }
 
 .game-feedback {
   text-align: center;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   color: #e2e8f0;
-  font-size: 1.1rem;
-  min-height: 28px;
+  font-size: 0.9rem;
+  min-height: 22px;
 }
 
 .game-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .option-btn {
   background: #1e293b;
-  border: 1px solid #475569;
+  border: 1px solid #334155;
   color: #f8fafc;
-  padding: 14px 16px;
-  font-size: 1rem;
+  padding: 10px 8px;
+  font-size: 0.82rem;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   text-transform: capitalize;
   transition: all 0.15s ease;
@@ -99,7 +107,6 @@
 .option-btn:hover:not(:disabled) {
   background: #334155;
   border-color: #38bdf8;
-  transform: translateY(-2px);
 }
 
 .option-btn.correct {

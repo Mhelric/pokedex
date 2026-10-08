@@ -96,8 +96,8 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
 
 /**
  * Builds full detail modal dialog:
- * Top Section: Centered Artwork, ID, Name, Species Genus, and Type Badges.
- * Bottom Section: Description, Measurements, Weaknesses/Resistances, and Base Stats.
+ * Mobile: Stacked view with clean matchup pills.
+ * Desktop: Side-by-side layout with speaker cry button and single top-right Pokédex accent.
  */
 export function renderPokemonModal(pokemon, containerElement) {
   const formattedId = `#${String(pokemon.id).padStart(3, "0")}`;
@@ -117,24 +117,38 @@ export function renderPokemonModal(pokemon, containerElement) {
     return `${m}×`;
   };
 
+  const formatDetailPill = (item, isWeak) => `
+    <div class="matchup-pill ${isWeak ? 'weak' : 'resist'}">
+      <span class="type-dot type-${item.type}"></span>
+      <span class="pill-name">${item.type}</span>
+      <span class="pill-multiplier">${formatMultiplier(item.multiplier)}</span>
+    </div>
+  `;
+
   const weaknessBadgesHtml = weaknesses.length > 0
-    ? weaknesses.map((w) => `<span class="type-badge type-${w.type}">${w.type} <small>(${formatMultiplier(w.multiplier)})</small></span>`).join(" ")
+    ? weaknesses.map((w) => formatDetailPill(w, true)).join("")
     : `<span class="none-text">None</span>`;
 
   const resistanceBadgesHtml = resistances.length > 0
-    ? resistances.map((r) => `<span class="type-badge type-${r.type}">${r.type} <small>(${formatMultiplier(r.multiplier)})</small></span>`).join(" ")
+    ? resistances.map((r) => formatDetailPill(r, false)).join("")
     : `<span class="none-text">None</span>`;
 
   containerElement.innerHTML = `
-    <!-- Top Centered Section: Artwork & Header Metadata -->
+    <!-- Single Red Top-Right Accent (Bottom-left removed to avoid covering content) -->
+    <div class="modal-corner-decor top-right"></div>
+
+    <!-- Top Section: Stacked on Mobile, Side-by-Side on Desktop -->
     <div class="modal-top-layout">
       <div class="modal-image-container">
         <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="modal-image" />
       </div>
 
       <div class="modal-header-info">
-        <span class="card-id">${formattedId}</span>
-        <h2 class="modal-title">${pokemon.name}</h2>
+        <span class="modal-card-id">${formattedId}</span>
+        <div class="modal-title-row">
+          <h2 class="modal-title">${pokemon.name}</h2>
+          ${pokemon.cry ? `<button class="modal-cry-btn" id="modal-play-cry" title="Play Cry" type="button">🔊</button>` : ''}
+        </div>
         <p class="pokemon-genus">${pokemon.genus}</p>
         <div class="card-types">${typeBadges}</div>
       </div>
@@ -173,10 +187,20 @@ export function renderPokemonModal(pokemon, containerElement) {
       </div>
     </div>
   `;
+
+  // Attach audio playback listener to speaker button
+  const cryBtn = containerElement.querySelector("#modal-play-cry");
+  if (cryBtn && pokemon.cry) {
+    cryBtn.addEventListener("click", () => {
+      const audio = new Audio(pokemon.cry);
+      audio.volume = 0.6;
+      audio.play().catch((err) => console.error("Audio playback error:", err));
+    });
+  }
 }
 
 /**
- * Renders the 6-slot team drawer items along with a cumulative team synergy breakdown.
+ * Renders the 6-slot team drawer items along with a modern, compact synergy breakdown.
  */
 export function renderTeamGrid(teamList, containerElement, countElement) {
   if (countElement) {
@@ -185,39 +209,50 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
 
   if (teamList.length === 0) {
     containerElement.innerHTML = `
-      <p class="team-empty-state">Your team is empty. Click "+ Add to Team" on any Pokémon card!</p>
+      <div class="team-empty-state">
+        <p class="empty-icon">⚪</p>
+        <p class="empty-title">Your team is empty</p>
+        <p class="empty-subtitle">Tap <strong>+ Add to Team</strong> on any Pokémon card to build your roster.</p>
+      </div>
     `;
     return;
   }
 
   const { weaknessCounts, resistanceCounts } = getTeamSynergy(teamList);
 
-  // Filter shared weaknesses where 2+ team members are weak
+  // Group weaknesses (>= 2 members) and resistances (>= 2 members)
   const sharedWeaknesses = Object.entries(weaknessCounts)
     .filter(([_, count]) => count >= 2)
-    .sort((a, b) => b - a);
+    .sort((a, b) => b[1] - a[1]);
 
   const topResistances = Object.entries(resistanceCounts)
-    .sort((a, b) => b - a);
+    .filter(([_, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1]);
+
+  const formatPill = (type, count, isWeak) => `
+    <div class="synergy-pill ${isWeak ? 'weakness-pill' : 'resistance-pill'}">
+      <span class="type-dot type-${type}"></span>
+      <span class="pill-name">${type}</span>
+      <span class="pill-count">${count}×</span>
+    </div>
+  `;
 
   const weaknessBadges = sharedWeaknesses.length > 0
-    ? sharedWeaknesses.map(([type, count]) => 
-        `<span class="type-badge type-${type}">${type} <small>(${count}× Weak)</small></span>`
-      ).join(" ")
-    : `<span class="none-text">No shared team weaknesses (Great balance!)</span>`;
+    ? sharedWeaknesses.map(([type, count]) => formatPill(type, count, true)).join("")
+    : `<p class="synergy-empty-note">No shared team weaknesses ✨</p>`;
 
   const resistanceBadges = topResistances.length > 0
-    ? topResistances.map(([type, count]) => 
-        `<span class="type-badge type-${type}">${type} <small>(${count}× Resists)</small></span>`
-      ).join(" ")
-    : `<span class="none-text">None</span>`;
+    ? topResistances.map(([type, count]) => formatPill(type, count, false)).join("")
+    : `<p class="synergy-empty-note">No shared team resistances</p>`;
 
   const teamCardsHtml = teamList
     .map(
       (pokemon) => `
       <div class="team-card">
-        <button class="remove-btn" data-id="${pokemon.id}" title="Remove from team">&times;</button>
-        <img src="${pokemon.image}" alt="${pokemon.name}" class="team-card-image" />
+        <button class="remove-btn" data-id="${pokemon.id}" title="Remove ${pokemon.name}" aria-label="Remove">&times;</button>
+        <div class="team-card-avatar">
+          <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="team-card-image" />
+        </div>
         <span class="team-card-name">${pokemon.name}</span>
       </div>
     `
@@ -225,21 +260,40 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
     .join("");
 
   containerElement.innerHTML = `
+    <!-- Top Pokemon Roster -->
     <div class="team-cards-wrapper">
       ${teamCardsHtml}
     </div>
 
-    <div class="team-synergy-box">
-      <h3>Team Type Synergy & Coverage</h3>
-      <div class="synergy-group">
-        <h4>Major Team Weaknesses (2+ Squad Members Vulnerable)</h4>
-        <div class="synergy-badges">${weaknessBadges}</div>
+    <!-- Modern Synergy Overview -->
+    <section class="team-synergy-container">
+      <div class="synergy-header">
+        <h3 class="synergy-title">Defensive Synergy</h3>
+        <span class="synergy-subtitle">Analysis across 2+ squad members</span>
       </div>
-      <div class="synergy-group">
-        <h4>Team Defensive Coverage (Resistances & Immunities)</h4>
-        <div class="synergy-badges">${resistanceBadges}</div>
+
+      <div class="synergy-columns">
+        <div class="synergy-card">
+          <div class="synergy-card-header">
+            <span class="status-indicator alert"></span>
+            <h4>Shared Weaknesses</h4>
+          </div>
+          <div class="synergy-pills-wrap">
+            ${weaknessBadges}
+          </div>
+        </div>
+
+        <div class="synergy-card">
+          <div class="synergy-card-header">
+            <span class="status-indicator safe"></span>
+            <h4>Key Resistances</h4>
+          </div>
+          <div class="synergy-pills-wrap">
+            ${resistanceBadges}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   `;
 }
 
