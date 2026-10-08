@@ -236,6 +236,7 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); /* Renders 2 columns on mobile */
+  align-content: start; /* Prevents rows from stretching vertically when results are few */
   gap: 10px;
   padding: 0.8rem 0.6rem;
   max-width: 1200px;
@@ -262,7 +263,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  height: fit-content;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }

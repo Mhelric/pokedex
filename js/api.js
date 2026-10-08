@@ -146,6 +146,31 @@ export function formatPokemonName(name, speciesName = "") {
   if (lowerName === "terapagos-terastal") return "Terapagos (Terastal Form)";
   if (lowerName === "terapagos-stellar") return "Terapagos (Stellar Form)";
 
+  // Pikachu Cap & Cosplay
+  if (lowerName === "pikachu-rock-star") return "Rock Star Pikachu";
+  if (lowerName === "pikachu-belle") return "Pikachu Belle";
+  if (lowerName === "pikachu-pop-star") return "Pop Star Pikachu";
+  if (lowerName === "pikachu-phd") return "Pikachu, Ph.D.";
+  if (lowerName === "pikachu-libre") return "Pikachu Libre";
+  if (lowerName === "pikachu-cosplay") return "Cosplay Pikachu";
+  if (lowerName.endsWith("-cap")) {
+    const capRegion = lowerName.replace("pikachu-", "").replace("-cap", "");
+    return `${capitalize(capRegion)} Cap Pikachu`;
+  }
+
+  // Partner & Significant Battle Variants
+  if (lowerName === "pikachu-starter") return "Partner Pikachu";
+  if (lowerName === "eevee-starter") return "Partner Eevee";
+  if (lowerName === "greninja-battle-bond") return "Greninja (Battle Bond)";
+  if (lowerName === "wormadam-sandy") return "Wormadam (Sandy Cloak)";
+  if (lowerName === "wormadam-trash") return "Wormadam (Trash Cloak)";
+  if (lowerName === "meowstic-female") return "Meowstic (Female)";
+  if (lowerName === "lycanroc-midnight") return "Lycanroc (Midnight Form)";
+  if (lowerName === "lycanroc-dusk") return "Lycanroc (Dusk Form)";
+  if (lowerName === "oricorio-pom-pom") return "Oricorio (Pom-Pom Style)";
+  if (lowerName === "oricorio-pau") return "Oricorio (Pa'u Style)";
+  if (lowerName === "oricorio-sensu") return "Oricorio (Sensu Style)";
+
   // Fallback for hyphenated varieties
   if (speciesName && lowerName.startsWith(base + "-")) {
     const formSuffix = lowerName.slice(base.length + 1);
@@ -533,6 +558,37 @@ const SPECIAL_FORM_REGISTRY = [
   { name: "tauros-paldea-combat-breed", base: "tauros", tags: ["paldea", "paldean", "combat"] },
   { name: "tauros-paldea-blaze-breed", base: "tauros", tags: ["paldea", "paldean", "blaze"] },
   { name: "tauros-paldea-aqua-breed", base: "tauros", tags: ["paldea", "paldean", "aqua"] },
+
+  // --- Pikachu Cap & Cosplay Forms ---
+  { name: "pikachu-rock-star", base: "pikachu", tags: ["rock star", "costume", "cosplay"] },
+  { name: "pikachu-belle", base: "pikachu", tags: ["belle", "costume", "cosplay"] },
+  { name: "pikachu-pop-star", base: "pikachu", tags: ["pop star", "costume", "cosplay"] },
+  { name: "pikachu-phd", base: "pikachu", tags: ["phd", "ph.d", "costume", "cosplay"] },
+  { name: "pikachu-libre", base: "pikachu", tags: ["libre", "costume", "cosplay", "lucha"] },
+  { name: "pikachu-cosplay", base: "pikachu", tags: ["cosplay", "costume"] },
+  { name: "pikachu-original-cap", base: "pikachu", tags: ["cap", "hat", "original", "kanto", "ash"] },
+  { name: "pikachu-hoenn-cap", base: "pikachu", tags: ["cap", "hat", "hoenn", "ash"] },
+  { name: "pikachu-sinnoh-cap", base: "pikachu", tags: ["cap", "hat", "sinnoh", "ash"] },
+  { name: "pikachu-unova-cap", base: "pikachu", tags: ["cap", "hat", "unova", "ash"] },
+  { name: "pikachu-kalos-cap", base: "pikachu", tags: ["cap", "hat", "kalos", "ash"] },
+  { name: "pikachu-alola-cap", base: "pikachu", tags: ["cap", "hat", "alola", "ash"] },
+  { name: "pikachu-partner-cap", base: "pikachu", tags: ["cap", "hat", "partner", "ash"] },
+  { name: "pikachu-world-cap", base: "pikachu", tags: ["cap", "hat", "world", "journeys", "ash"] },
+
+  // --- Partner Starters & Battle Transformations ---
+  { name: "pikachu-starter", base: "pikachu", tags: ["starter", "lets go"] },
+  { name: "eevee-starter", base: "eevee", tags: ["starter", "lets go"] },
+  { name: "greninja-battle-bond", base: "greninja", tags: ["battle bond", "ash"] },
+
+  // --- Alternate Typing & Stat Variants ---
+  { name: "wormadam-sandy", base: "wormadam", tags: ["sandy", "ground"] },
+  { name: "wormadam-trash", base: "wormadam", tags: ["trash", "steel"] },
+  { name: "meowstic-female", base: "meowstic", tags: ["female"] },
+  { name: "lycanroc-midnight", base: "lycanroc", tags: ["midnight"] },
+  { name: "lycanroc-dusk", base: "lycanroc", tags: ["dusk"] },
+  { name: "oricorio-pom-pom", base: "oricorio", tags: ["pom-pom", "electric"] },
+  { name: "oricorio-pau", base: "oricorio", tags: ["pau", "psychic"] },
+  { name: "oricorio-sensu", base: "oricorio", tags: ["sensu", "ghost"] },
 ];
 
 export async function fetchFullPokedexDirectory() {
