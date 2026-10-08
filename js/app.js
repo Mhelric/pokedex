@@ -292,7 +292,7 @@ async function loadScrollBatch(isFirstBatch = false) {
     const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
-      10
+      24
     );
 
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
@@ -347,7 +347,7 @@ async function applyCombinedFilters() {
       const range = GEN_RANGES[activeGen];
       listToBatch = listToBatch.filter((p) => {
         const id = typeof p === "object" ? p.id : p;
-        return id >= range.start && id <= range.end;
+        return (id >= range.start && id <= range.end) || id >= 10000;
       });
     }
 
@@ -447,6 +447,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   await applyCombinedFilters();
   triggerPokeballOpening();
 });
+
+// Infinite Scroll Event: Automatically loads more items as user scrolls down
+if (gridContainer) {
+  gridContainer.addEventListener("scroll", () => {
+    if (
+      gridContainer.scrollTop + gridContainer.clientHeight >=
+      gridContainer.scrollHeight - 350
+    ) {
+      loadScrollBatch(false);
+    }
+  });
+}
 
 // Live Search Input (Loads all matching search results)
 if (searchInput) {

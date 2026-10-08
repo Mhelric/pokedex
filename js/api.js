@@ -7,7 +7,7 @@ const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 const SPECIES_URL = "https://pokeapi.co/api/v2/pokemon-species";
 
 export const GEN_RANGES = {
-  all: { start: 1, end: 1025 },
+  all: { start: 1, end: 100000 },
   1: { start: 1, end: 151 },
   2: { start: 152, end: 251 },
   3: { start: 252, end: 386 },
@@ -205,7 +205,6 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
         }
       });
 
-      // Default description to the latest entry from PokéAPI
       if (flavorTextEntries.length > 0) {
         description = flavorTextEntries[flavorTextEntries.length - 1].flavorText;
       }
@@ -402,7 +401,7 @@ export async function getPokemonListByType(typeName) {
   });
 }
 
-export async function fetchPokemonBatch(items, startIndex, batchSize = 10) {
+export async function fetchPokemonBatch(items, startIndex, batchSize = 30) {
   const slice = items.slice(startIndex, startIndex + batchSize);
   const promises = slice.map((item) => {
     const identifier = typeof item === "object" ? item.name : item;
@@ -423,11 +422,33 @@ export async function fetchPokemonBatch(items, startIndex, batchSize = 10) {
   };
 }
 
+export function isItemInGenRange(pokemonItem, activeGen) {
+  if (activeGen === "all") return true;
+  const range = GEN_RANGES[activeGen];
+  if (!range) return true;
+
+  const id = typeof pokemonItem === "object" ? pokemonItem.id : Number(pokemonItem);
+  if (id && id <= 1025) {
+    return id >= range.start && id <= range.end;
+  }
+
+  // Allow variant and special forms beyond ID 1025 by checking tags
+  const name = typeof pokemonItem === "object" ? pokemonItem.name : String(pokemonItem);
+  const specialMatch = SPECIAL_FORM_REGISTRY.find((entry) => entry.name === name);
+  if (specialMatch) {
+    if (activeGen === "7" && specialMatch.tags.includes("alola")) return true;
+    if (activeGen === "8" && (specialMatch.tags.includes("galar") || specialMatch.tags.includes("gmax"))) return true;
+    if (activeGen === "9" && specialMatch.tags.includes("paldea")) return true;
+    if (activeGen === "6" && specialMatch.tags.includes("mega")) return true;
+  }
+
+  return false;
+}
+
 /**
  * COMPREHENSIVE SPECIAL & REGIONAL FORMS REGISTRY
- * Double-checked against all 57 canonical regional forms + battle forms
  */
-const SPECIAL_FORM_REGISTRY = [
+export const SPECIAL_FORM_REGISTRY = [
   // --- Alolan Forms ---
   { name: "rattata-alola", base: "rattata", tags: ["alola", "alolan", "regional"] },
   { name: "raticate-alola", base: "raticate", tags: ["alola", "alolan", "regional"] },
@@ -562,16 +583,21 @@ const SPECIAL_FORM_REGISTRY = [
 
 export async function fetchFullPokedexDirectory() {
   try {
-    const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=1025");
+    // Uncapped query to load every single Pokémon and form from PokeAPI
+    const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000");
     const data = await res.json();
 
-    const baseList = data.results.map((p, idx) => ({
-      id: idx + 1,
-      name: p.name,
-      baseSpecies: p.name.toLowerCase(),
-      displayName: formatPokemonName(p.name),
-      forms: [],
-    }));
+    const baseList = data.results.map((p) => {
+      const urlParts = p.url.split("/").filter(Boolean);
+      const pokeId = parseInt(urlParts[urlParts.length - 1], 10);
+      return {
+        id: pokeId,
+        name: p.name,
+        baseSpecies: p.name.split("-")[0].toLowerCase(),
+        displayName: formatPokemonName(p.name),
+        forms: [],
+      };
+    });
 
     const formEntries = SPECIAL_FORM_REGISTRY.map((item, idx) => ({
       id: 10000 + idx,
