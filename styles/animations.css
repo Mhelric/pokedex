@@ -156,3 +156,102 @@
 .pokedex-voice-bar.speaking .voice-label {
   color: #ef5350;
 }
+
+/* ==========================================
+   POKÉBALL OPENING INTRO ANIMATION
+   ========================================== */
+.pokeball-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  pointer-events: all;
+  overflow: hidden;
+  transition: visibility 0s 1.2s;
+}
+
+.pokeball-overlay.opened {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Halves */
+.pokeball-half {
+  flex: 1;
+  width: 100%;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+  will-change: transform;
+}
+
+.pokeball-top {
+  background-color: #ef5350;
+  border-bottom: 10px solid #111827;
+}
+
+.pokeball-bottom {
+  background-color: #f8fafc;
+  border-top: 10px solid #111827;
+}
+
+/* Center Stripe & Button */
+.pokeball-middle-stripe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.3s ease, transform 0.8s ease;
+}
+
+.pokeball-center-outer {
+  width: 90px;
+  height: 90px;
+  background-color: #111827;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+}
+
+.pokeball-center-inner {
+  width: 65px;
+  height: 65px;
+  background-color: #ffffff;
+  border: 6px solid #111827;
+  border-radius: 50%;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+  animation: pokeballPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pokeballPulse {
+  0% {
+    transform: scale(0.95);
+    background-color: #ffffff;
+  }
+  100% {
+    transform: scale(1.05);
+    background-color: #fca5a5;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+  }
+}
+
+/* Open Animation Trigger */
+.pokeball-overlay.open .pokeball-top {
+  transform: translateY(-100%);
+}
+
+.pokeball-overlay.open .pokeball-bottom {
+  transform: translateY(100%);
+}
+
+.pokeball-overlay.open .pokeball-middle-stripe {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.3);
+}
