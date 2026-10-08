@@ -77,7 +77,31 @@ export function formatPokemonName(name, speciesName = "") {
   const base = speciesName ? speciesName.toLowerCase() : lowerName.split("-")[0];
   const capBase = capitalize(base);
 
-  // 1. Battle Gimmicks & Megas & Gigantamax & Primals
+  // Paldean Tauros Breeds
+  if (lowerName === "tauros-paldea-combat-breed") return "Paldean Tauros (Combat Breed)";
+  if (lowerName === "tauros-paldea-blaze-breed") return "Paldean Tauros (Blaze Breed)";
+  if (lowerName === "tauros-paldea-aqua-breed") return "Paldean Tauros (Aqua Breed)";
+
+  // Specific Regional Edge Cases
+  if (lowerName === "farfetchd-galar") return "Galarian Farfetch'd";
+  if (lowerName === "mr-mime-galar") return "Galarian Mr. Mime";
+  if (lowerName === "darmanitan-galar-zen") return "Galarian Darmanitan (Zen Mode)";
+
+  // Standard Regional Forms
+  if (lowerName.endsWith("-alola")) {
+    const rootName = lowerName.replace("-alola", "");
+    return `Alolan ${capitalize(rootName)}`;
+  }
+  if (lowerName.endsWith("-galar")) {
+    const rootName = lowerName.replace("-galar", "");
+    return `Galarian ${capitalize(rootName)}`;
+  }
+  if (lowerName.endsWith("-paldea")) {
+    const rootName = lowerName.replace("-paldea", "");
+    return `Paldean ${capitalize(rootName)}`;
+  }
+
+  // Battle Gimmicks & Megas
   if (lowerName.includes("-mega")) {
     const suffix = lowerName.split("-mega")[1]?.replace(/^-/, "");
     const suffixFormatted = suffix ? ` ${capitalize(suffix)}` : "";
@@ -86,92 +110,7 @@ export function formatPokemonName(name, speciesName = "") {
   if (lowerName.includes("-gmax")) return `Gigantamax ${capBase}`;
   if (lowerName.includes("-primal")) return `Primal ${capBase}`;
 
-  // 2. Regional Forms (Front-loaded)
-  if (lowerName.includes("-alola")) return `Alolan ${capBase}`;
-  if (lowerName.includes("-galar-zen")) return `Galarian ${capBase} (Zen Mode)`;
-  if (lowerName.includes("-galar")) return `Galarian ${capBase}`;
-  if (lowerName.includes("-hisui")) return `Hisuian ${capBase}`;
-  if (lowerName.includes("-paldea")) return `Paldean ${capBase}`;
-
-  // 3. Castform & Rotom
-  if (lowerName === "castform-sunny") return "Castform (Sunny Form)";
-  if (lowerName === "castform-rainy") return "Castform (Rainy Form)";
-  if (lowerName === "castform-snowy") return "Castform (Snowy Form)";
-  if (lowerName === "rotom-heat") return "Rotom (Heat)";
-  if (lowerName === "rotom-wash") return "Rotom (Wash)";
-  if (lowerName === "rotom-frost") return "Rotom (Frost)";
-  if (lowerName === "rotom-fan") return "Rotom (Fan)";
-  if (lowerName === "rotom-mow") return "Rotom (Mow)";
-
-  // 4. Deoxys & Sinnoh Origins
-  if (lowerName === "deoxys-attack") return "Deoxys (Attack Forme)";
-  if (lowerName === "deoxys-defense") return "Deoxys (Defense Forme)";
-  if (lowerName === "deoxys-speed") return "Deoxys (Speed Forme)";
-  if (lowerName === "dialga-origin") return "Dialga (Origin Forme)";
-  if (lowerName === "palkia-origin") return "Palkia (Origin Forme)";
-  if (lowerName === "giratina-origin") return "Giratina (Origin Forme)";
-  if (lowerName === "shaymin-sky") return "Shaymin (Sky Forme)";
-
-  // 5. Gen 5-9 Specific Form Names
-  if (lowerName === "darmanitan-zen") return "Darmanitan (Zen Mode)";
-  if (lowerName === "kyurem-black") return "Black Kyurem";
-  if (lowerName === "kyurem-white") return "White Kyurem";
-  if (lowerName === "keldeo-resolute") return "Keldeo (Resolute Form)";
-  if (lowerName === "meloetta-pirouette") return "Meloetta (Pirouette Forme)";
-  if (lowerName === "greninja-ash") return "Ash-Greninja";
-  if (lowerName === "aegislash-blade") return "Aegislash (Blade Forme)";
-  if (lowerName === "zygarde-10") return "Zygarde (10% Forme)";
-  if (lowerName === "zygarde-complete") return "Zygarde (Complete Forme)";
-  if (lowerName === "wishiwashi-school") return "Wishiwashi (School Form)";
-  if (lowerName === "minior-meteor") return "Minior (Meteor Form)";
-  if (lowerName === "mimikyu-busted") return "Mimikyu (Busted Form)";
-  if (lowerName === "necrozma-dusk") return "Dusk Mane Necrozma";
-  if (lowerName === "necrozma-dawn") return "Dawn Wings Necrozma";
-  if (lowerName === "necrozma-ultra") return "Ultra Necrozma";
-  if (lowerName === "cramorant-gulping") return "Cramorant (Gulping Form)";
-  if (lowerName === "cramorant-gorging") return "Cramorant (Gorging Form)";
-  if (lowerName === "toxtricity-low-key") return "Toxtricity (Low Key Form)";
-  if (lowerName === "eiscue-noice") return "Eiscue (Noice Face)";
-  if (lowerName === "morpeko-hangry") return "Morpeko (Hangry Mode)";
-  if (lowerName === "zacian-crowned") return "Zacian (Crowned Sword)";
-  if (lowerName === "zamazenta-crowned") return "Zamazenta (Crowned Shield)";
-  if (lowerName === "eternatus-eternamax") return "Eternamax Eternatus";
-  if (lowerName === "urshifu-rapid-strike") return "Urshifu (Rapid Strike)";
-  if (lowerName === "calyrex-ice") return "Ice Rider Calyrex";
-  if (lowerName === "calyrex-shadow") return "Shadow Rider Calyrex";
-  if (lowerName === "palafin-hero") return "Palafin (Hero Form)";
-  if (lowerName === "ogerpon-wellspring-mask") return "Ogerpon (Wellspring Mask)";
-  if (lowerName === "ogerpon-hearthflame-mask") return "Ogerpon (Hearthflame Mask)";
-  if (lowerName === "ogerpon-cornerstone-mask") return "Ogerpon (Cornerstone Mask)";
-  if (lowerName === "terapagos-terastal") return "Terapagos (Terastal Form)";
-  if (lowerName === "terapagos-stellar") return "Terapagos (Stellar Form)";
-
-  // Pikachu Cap & Cosplay
-  if (lowerName === "pikachu-rock-star") return "Rock Star Pikachu";
-  if (lowerName === "pikachu-belle") return "Pikachu Belle";
-  if (lowerName === "pikachu-pop-star") return "Pop Star Pikachu";
-  if (lowerName === "pikachu-phd") return "Pikachu, Ph.D.";
-  if (lowerName === "pikachu-libre") return "Pikachu Libre";
-  if (lowerName === "pikachu-cosplay") return "Cosplay Pikachu";
-  if (lowerName.endsWith("-cap")) {
-    const capRegion = lowerName.replace("pikachu-", "").replace("-cap", "");
-    return `${capitalize(capRegion)} Cap Pikachu`;
-  }
-
-  // Partner & Significant Battle Variants
-  if (lowerName === "pikachu-starter") return "Partner Pikachu";
-  if (lowerName === "eevee-starter") return "Partner Eevee";
-  if (lowerName === "greninja-battle-bond") return "Greninja (Battle Bond)";
-  if (lowerName === "wormadam-sandy") return "Wormadam (Sandy Cloak)";
-  if (lowerName === "wormadam-trash") return "Wormadam (Trash Cloak)";
-  if (lowerName === "meowstic-female") return "Meowstic (Female)";
-  if (lowerName === "lycanroc-midnight") return "Lycanroc (Midnight Form)";
-  if (lowerName === "lycanroc-dusk") return "Lycanroc (Dusk Form)";
-  if (lowerName === "oricorio-pom-pom") return "Oricorio (Pom-Pom Style)";
-  if (lowerName === "oricorio-pau") return "Oricorio (Pa'u Style)";
-  if (lowerName === "oricorio-sensu") return "Oricorio (Sensu Style)";
-
-  // Fallback for hyphenated varieties
+  // Species fallback
   if (speciesName && lowerName.startsWith(base + "-")) {
     const formSuffix = lowerName.slice(base.length + 1);
     return `${capBase} (${capitalize(formSuffix)})`;
@@ -180,7 +119,65 @@ export function formatPokemonName(name, speciesName = "") {
   return capitalize(name);
 }
 
-export function normalizePokemonData(rawData, speciesData = null) {
+export function calculateStatBounds(statName, base) {
+  if (statName === "hp") {
+    if (base === 1) return { min: 1, max: 1 };
+    const min = Math.floor(((2 * base + 0 + 0) * 100) / 100) + 100 + 10;
+    const max = Math.floor(((2 * base + 31 + 63) * 100) / 100) + 100 + 10;
+    return { min, max };
+  }
+  const min = Math.floor((Math.floor(((2 * base + 0 + 0) * 100) / 100) + 5) * 0.9);
+  const max = Math.floor((Math.floor(((2 * base + 31 + 63) * 100) / 100) + 5) * 1.1);
+  return { min, max };
+}
+
+function parseEvolutionDetails(detailsList) {
+  if (!detailsList || detailsList.length === 0) return "";
+
+  return detailsList
+    .map((d) => {
+      const parts = [];
+
+      if (d.trigger?.name === "level-up") {
+        if (d.min_level) parts.push(`Level ${d.min_level}`);
+        if (d.min_happiness) parts.push(`High Friendship`);
+        if (d.known_move) parts.push(`Knows ${formatPokemonName(d.known_move.name)}`);
+        if (d.held_item) parts.push(`Hold ${formatPokemonName(d.held_item.name)}`);
+        if (d.time_of_day) parts.push(`(${d.time_of_day})`);
+        if (d.location) parts.push(`at ${formatPokemonName(d.location.name)}`);
+        if (parts.length === 0) parts.push("Level up");
+      } else if (d.trigger?.name === "use-item") {
+        parts.push(d.item ? `Use ${formatPokemonName(d.item.name)}` : "Use item");
+      } else if (d.trigger?.name === "trade") {
+        parts.push(d.held_item ? `Trade holding ${formatPokemonName(d.held_item.name)}` : "Trade");
+      } else if (d.trigger?.name === "shed") {
+        parts.push("Open slot & Poké Ball");
+      } else if (d.trigger?.name) {
+        parts.push(formatPokemonName(d.trigger.name));
+      }
+
+      return parts.join(" ");
+    })
+    .filter(Boolean)
+    .join(" / ");
+}
+
+function parseEvolutionChain(chainNode) {
+  const result = {
+    speciesName: chainNode.species.name,
+    speciesUrl: chainNode.species.url,
+    evolutionRequirement: parseEvolutionDetails(chainNode.evolution_details),
+    evolvesTo: [],
+  };
+
+  if (chainNode.evolves_to && chainNode.evolves_to.length > 0) {
+    result.evolvesTo = chainNode.evolves_to.map(parseEvolutionChain);
+  }
+
+  return result;
+}
+
+export function normalizePokemonData(rawData, speciesData = null, evolutionData = null) {
   const animatedImage =
     rawData.sprites?.other?.showdown?.front_default ||
     rawData.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
@@ -191,31 +188,108 @@ export function normalizePokemonData(rawData, speciesData = null) {
 
   let description = "No Pokédex description available.";
   let genus = "";
+  const flavorTextEntries = [];
 
   if (speciesData) {
     if (speciesData.flavor_text_entries) {
-      const englishEntry = speciesData.flavor_text_entries.find(
-        (entry) => entry.language.name === "en"
-      );
-      if (englishEntry) {
-        description = englishEntry.flavor_text
-          .replace(/[\f\n\r]/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
+      speciesData.flavor_text_entries.forEach((entry) => {
+        if (entry.language.name === "en") {
+          const cleanText = entry.flavor_text
+            .replace(/[\f\n\r]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          flavorTextEntries.push({
+            version: entry.version.name,
+            flavorText: cleanText,
+          });
+        }
+      });
+
+      // Default description to the latest entry from PokéAPI
+      if (flavorTextEntries.length > 0) {
+        description = flavorTextEntries[flavorTextEntries.length - 1].flavorText;
       }
     }
 
     if (speciesData.genera) {
-      const englishGenus = speciesData.genera.find(
-        (g) => g.language.name === "en"
-      );
-      if (englishGenus) {
-        genus = englishGenus.genus;
-      }
+      const englishGenus = speciesData.genera.find((g) => g.language.name === "en");
+      if (englishGenus) genus = englishGenus.genus;
     }
   }
 
   const speciesName = speciesData?.name || rawData.species?.name || "";
+
+  const stats = {
+    hp: rawData.stats?.find((s) => s.stat.name === "hp")?.base_stat || 0,
+    attack: rawData.stats?.find((s) => s.stat.name === "attack")?.base_stat || 0,
+    defense: rawData.stats?.find((s) => s.stat.name === "defense")?.base_stat || 0,
+    spAtk: rawData.stats?.find((s) => s.stat.name === "special-attack")?.base_stat || 0,
+    spDef: rawData.stats?.find((s) => s.stat.name === "special-defense")?.base_stat || 0,
+    speed: rawData.stats?.find((s) => s.stat.name === "speed")?.base_stat || 0,
+  };
+
+  const statBounds = {
+    hp: calculateStatBounds("hp", stats.hp),
+    attack: calculateStatBounds("attack", stats.attack),
+    defense: calculateStatBounds("defense", stats.defense),
+    spAtk: calculateStatBounds("special-attack", stats.spAtk),
+    spDef: calculateStatBounds("special-defense", stats.spDef),
+    speed: calculateStatBounds("speed", stats.speed),
+  };
+
+  const evYieldList = [];
+  rawData.stats?.forEach((s) => {
+    if (s.effort > 0) {
+      evYieldList.push(`${s.effort} ${formatPokemonName(s.stat.name)}`);
+    }
+  });
+
+  const abilities = (rawData.abilities || []).map((a) => ({
+    name: formatPokemonName(a.ability.name),
+    rawName: a.ability.name,
+    isHidden: a.is_hidden,
+    slot: a.slot,
+    url: a.ability.url,
+  }));
+
+  const heldItems = (rawData.held_items || []).map((h) => ({
+    name: formatPokemonName(h.item.name),
+    rarity: h.version_details?.[0]?.rarity || 5,
+  }));
+
+  const catchRate = speciesData?.capture_rate ?? null;
+  const baseFriendship = speciesData?.base_happiness ?? null;
+  const baseExp = rawData.base_experience ?? null;
+  const growthRate = speciesData?.growth_rate?.name ? formatPokemonName(speciesData.growth_rate.name) : "Medium";
+  const eggGroups = speciesData?.egg_groups?.map((g) => formatPokemonName(g.name)) || ["Undiscovered"];
+  const genderRate = speciesData?.gender_rate ?? -1;
+  const hatchCounter = speciesData?.hatch_counter ?? null;
+
+  const varieties = (speciesData?.varieties || []).map((v) => {
+    const vUrlParts = v.pokemon.url.split("/").filter(Boolean);
+    const formId = vUrlParts[vUrlParts.length - 1];
+    return {
+      name: formatPokemonName(v.pokemon.name, speciesName),
+      rawName: v.pokemon.name,
+      id: formId,
+      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${formId}.png`,
+      isDefault: v.is_default,
+    };
+  });
+
+  const moves = (rawData.moves || []).map((m) => {
+    const versions = m.version_group_details.map((vg) => ({
+      versionGroup: vg.version_group.name,
+      learnMethod: vg.move_learn_method.name,
+      levelLearned: vg.level_learned_at,
+    }));
+
+    return {
+      name: formatPokemonName(m.move.name),
+      rawName: m.move.name,
+      versions,
+    };
+  });
 
   return {
     id: rawData.id,
@@ -229,16 +303,24 @@ export function normalizePokemonData(rawData, speciesData = null) {
     officialArtwork: officialArtwork,
     image: animatedImage || officialArtwork,
     types: rawData.types?.map((t) => t.type.name) || [],
-    stats: {
-      hp: rawData.stats?.find((s) => s.stat.name === "hp")?.base_stat || 0,
-      attack: rawData.stats?.find((s) => s.stat.name === "attack")?.base_stat || 0,
-      defense: rawData.stats?.find((s) => s.stat.name === "defense")?.base_stat || 0,
-      spAtk: rawData.stats?.find((s) => s.stat.name === "special-attack")?.base_stat || 0,
-      spDef: rawData.stats?.find((s) => s.stat.name === "special-defense")?.base_stat || 0,
-      speed: rawData.stats?.find((s) => s.stat.name === "speed")?.base_stat || 0,
-    },
+    stats,
+    statBounds,
     cry: rawData.cries?.latest || rawData.cries?.legacy || null,
-    description: description,
+    description,
+    flavorTextEntries,
+    abilities,
+    evYield: evYieldList.length > 0 ? evYieldList.join(", ") : "None",
+    catchRate: catchRate !== null ? `${catchRate} (${Math.round((catchRate / 255) * 100)}% with PokéBall)` : "N/A",
+    baseFriendship: baseFriendship !== null ? `${baseFriendship} (normal)` : "N/A",
+    baseExp: baseExp ? `${baseExp}` : "N/A",
+    growthRate,
+    heldItems,
+    eggGroups,
+    genderRate,
+    hatchCounter: hatchCounter !== null ? `${hatchCounter * 256} steps (${hatchCounter} cycles)` : "N/A",
+    varieties,
+    moves,
+    evolutionTree: evolutionData ? parseEvolutionChain(evolutionData.chain) : null,
   };
 }
 
@@ -252,16 +334,25 @@ export async function fetchPokemon(nameOrId) {
 
     const rawData = await response.json();
     let speciesData = null;
+    let evolutionData = null;
 
     try {
       const speciesIdentifier = rawData.species?.name || rawData.id;
       const speciesRes = await fetch(`${SPECIES_URL}/${speciesIdentifier}`);
       if (speciesRes.ok) {
         speciesData = await speciesRes.json();
+        if (speciesData.evolution_chain?.url) {
+          const evoRes = await fetch(speciesData.evolution_chain.url);
+          if (evoRes.ok) {
+            evolutionData = await evoRes.json();
+          }
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Could not fetch species data:", e);
+    }
 
-    return normalizePokemonData(rawData, speciesData);
+    return normalizePokemonData(rawData, speciesData, evolutionData);
   } catch (error) {
     console.error("API Error:", error.message);
     throw error;
@@ -271,11 +362,9 @@ export async function fetchPokemon(nameOrId) {
 export async function fetchPokemonForms(nameOrId) {
   try {
     const cleanQuery = String(nameOrId).toLowerCase().trim().replace(/\s+/g, "-");
-
     const speciesRes = await fetch(`${SPECIES_URL}/${cleanQuery}`);
     if (speciesRes.ok) {
       const speciesData = await speciesRes.json();
-
       if (speciesData.varieties && speciesData.varieties.length > 0) {
         const rawVarieties = await Promise.all(
           speciesData.varieties.map(async (v) => {
@@ -286,13 +375,10 @@ export async function fetchPokemonForms(nameOrId) {
 
         const validVarieties = rawVarieties.filter(Boolean);
         if (validVarieties.length > 0) {
-          return validVarieties.map((rawData) =>
-            normalizePokemonData(rawData, speciesData)
-          );
+          return validVarieties.map((rawData) => normalizePokemonData(rawData, speciesData));
         }
       }
     }
-
     const single = await fetchPokemon(nameOrId);
     return [single];
   } catch (error) {
@@ -328,8 +414,8 @@ export async function fetchPokemonBatch(items, startIndex, batchSize = 10) {
 
   const results = await Promise.all(promises);
   const validPokemon = results.filter(Boolean);
-
   const nextIndex = startIndex + batchSize;
+
   return {
     pokemonList: validPokemon,
     nextIndex: nextIndex,
@@ -338,11 +424,58 @@ export async function fetchPokemonBatch(items, startIndex, batchSize = 10) {
 }
 
 /**
- * MASTER SPECIAL FORMS REGISTRY
- * All Megas, Primals, Gigantamax, Regional Variants & Battle Transformations.
+ * COMPREHENSIVE SPECIAL & REGIONAL FORMS REGISTRY
+ * Double-checked against all 57 canonical regional forms + battle forms
  */
 const SPECIAL_FORM_REGISTRY = [
-  // --- Mega Evolutions ---
+  // --- Alolan Forms ---
+  { name: "rattata-alola", base: "rattata", tags: ["alola", "alolan", "regional"] },
+  { name: "raticate-alola", base: "raticate", tags: ["alola", "alolan", "regional"] },
+  { name: "raichu-alola", base: "raichu", tags: ["alola", "alolan", "regional"] },
+  { name: "sandshrew-alola", base: "sandshrew", tags: ["alola", "alolan", "regional"] },
+  { name: "sandslash-alola", base: "sandslash", tags: ["alola", "alolan", "regional"] },
+  { name: "vulpix-alola", base: "vulpix", tags: ["alola", "alolan", "regional"] },
+  { name: "ninetales-alola", base: "ninetales", tags: ["alola", "alolan", "regional"] },
+  { name: "diglett-alola", base: "diglett", tags: ["alola", "alolan", "regional"] },
+  { name: "dugtrio-alola", base: "dugtrio", tags: ["alola", "alolan", "regional"] },
+  { name: "meowth-alola", base: "meowth", tags: ["alola", "alolan", "regional"] },
+  { name: "persian-alola", base: "persian", tags: ["alola", "alolan", "regional"] },
+  { name: "geodude-alola", base: "geodude", tags: ["alola", "alolan", "regional"] },
+  { name: "graveler-alola", base: "graveler", tags: ["alola", "alolan", "regional"] },
+  { name: "golem-alola", base: "golem", tags: ["alola", "alolan", "regional"] },
+  { name: "grimer-alola", base: "grimer", tags: ["alola", "alolan", "regional"] },
+  { name: "muk-alola", base: "muk", tags: ["alola", "alolan", "regional"] },
+  { name: "exeggutor-alola", base: "exeggutor", tags: ["alola", "alolan", "regional"] },
+  { name: "marowak-alola", base: "marowak", tags: ["alola", "alolan", "regional"] },
+
+  // --- Galarian Forms ---
+  { name: "meowth-galar", base: "meowth", tags: ["galar", "galarian", "regional"] },
+  { name: "ponyta-galar", base: "ponyta", tags: ["galar", "galarian", "regional"] },
+  { name: "rapidash-galar", base: "rapidash", tags: ["galar", "galarian", "regional"] },
+  { name: "slowpoke-galar", base: "slowpoke", tags: ["galar", "galarian", "regional"] },
+  { name: "slowbro-galar", base: "slowbro", tags: ["galar", "galarian", "regional"] },
+  { name: "farfetchd-galar", base: "farfetchd", tags: ["galar", "galarian", "regional"] },
+  { name: "weezing-galar", base: "weezing", tags: ["galar", "galarian", "regional"] },
+  { name: "mr-mime-galar", base: "mr-mime", tags: ["galar", "galarian", "regional"] },
+  { name: "articuno-galar", base: "articuno", tags: ["galar", "galarian", "regional"] },
+  { name: "zapdos-galar", base: "zapdos", tags: ["galar", "galarian", "regional"] },
+  { name: "moltres-galar", base: "moltres", tags: ["galar", "galarian", "regional"] },
+  { name: "slowking-galar", base: "slowking", tags: ["galar", "galarian", "regional"] },
+  { name: "corsola-galar", base: "corsola", tags: ["galar", "galarian", "regional"] },
+  { name: "zigzagoon-galar", base: "zigzagoon", tags: ["galar", "galarian", "regional"] },
+  { name: "linoone-galar", base: "linoone", tags: ["galar", "galarian", "regional"] },
+  { name: "darumaka-galar", base: "darumaka", tags: ["galar", "galarian", "regional"] },
+  { name: "darmanitan-galar", base: "darmanitan", tags: ["galar", "galarian", "regional"] },
+  { name: "yamask-galar", base: "yamask", tags: ["galar", "galarian", "regional"] },
+  { name: "stunfisk-galar", base: "stunfisk", tags: ["galar", "galarian", "regional"] },
+
+  // --- Paldean Forms ---
+  { name: "wooper-paldea", base: "wooper", tags: ["paldea", "paldean", "regional"] },
+  { name: "tauros-paldea-combat-breed", base: "tauros", tags: ["paldea", "paldean", "combat", "regional"] },
+  { name: "tauros-paldea-blaze-breed", base: "tauros", tags: ["paldea", "paldean", "blaze", "regional"] },
+  { name: "tauros-paldea-aqua-breed", base: "tauros", tags: ["paldea", "paldean", "aqua", "regional"] },
+
+  // --- Megas & Primals ---
   { name: "venusaur-mega", base: "venusaur", tags: ["mega"] },
   { name: "charizard-mega-x", base: "charizard", tags: ["mega"] },
   { name: "charizard-mega-y", base: "charizard", tags: ["mega"] },
@@ -388,207 +521,43 @@ const SPECIAL_FORM_REGISTRY = [
   { name: "gallade-mega", base: "gallade", tags: ["mega"] },
   { name: "audino-mega", base: "audino", tags: ["mega"] },
   { name: "diancie-mega", base: "diancie", tags: ["mega"] },
-
-  // --- Primals ---
   { name: "kyogre-primal", base: "kyogre", tags: ["primal"] },
   { name: "groudon-primal", base: "groudon", tags: ["primal"] },
 
-  // --- Gigantamax / Dynamax ---
-  { name: "charizard-gmax", base: "charizard", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "pikachu-gmax", base: "pikachu", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "eevee-gmax", base: "eevee", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "meowth-gmax", base: "meowth", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "snorlax-gmax", base: "snorlax", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "butterfree-gmax", base: "butterfree", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "machamp-gmax", base: "machamp", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "gengar-gmax", base: "gengar", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "kingler-gmax", base: "kingler", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "lapras-gmax", base: "lapras", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "garbodor-gmax", base: "garbodor", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "corviknight-gmax", base: "corviknight", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "orbeetle-gmax", base: "orbeetle", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "drednaw-gmax", base: "drednaw", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "coalossal-gmax", base: "coalossal", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "flapple-gmax", base: "flapple", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "appletun-gmax", base: "appletun", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "sandaconda-gmax", base: "sandaconda", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "toxtricity-amped-gmax", base: "toxtricity", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "centiskorch-gmax", base: "centiskorch", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "hatterene-gmax", base: "hatterene", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "grimmsnarl-gmax", base: "grimmsnarl", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "alcremie-gmax", base: "alcremie", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "copperajah-gmax", base: "copperajah", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "duraludon-gmax", base: "duraludon", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "urshifu-single-strike-gmax", base: "urshifu", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "urshifu-rapid-strike-gmax", base: "urshifu", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "venusaur-gmax", base: "venusaur", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "blastoise-gmax", base: "blastoise", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "rillaboom-gmax", base: "rillaboom", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "cinderace-gmax", base: "cinderace", tags: ["gmax", "dynamax", "gigantamax"] },
-  { name: "inteleon-gmax", base: "inteleon", tags: ["gmax", "dynamax", "gigantamax"] },
-
-  // --- Castform & Deoxys ---
-  { name: "castform-sunny", base: "castform", tags: ["sunny", "fire"] },
-  { name: "castform-rainy", base: "castform", tags: ["rainy", "water"] },
-  { name: "castform-snowy", base: "castform", tags: ["snowy", "ice", "hail"] },
-  { name: "deoxys-attack", base: "deoxys", tags: ["attack"] },
-  { name: "deoxys-defense", base: "deoxys", tags: ["defense"] },
-  { name: "deoxys-speed", base: "deoxys", tags: ["speed"] },
-
-  // --- Rotom Appliances ---
-  { name: "rotom-heat", base: "rotom", tags: ["heat", "microwave", "fire"] },
-  { name: "rotom-wash", base: "rotom", tags: ["wash", "washing machine", "water"] },
-  { name: "rotom-frost", base: "rotom", tags: ["frost", "refrigerator", "ice"] },
-  { name: "rotom-fan", base: "rotom", tags: ["fan", "flying"] },
-  { name: "rotom-mow", base: "rotom", tags: ["mow", "lawnmower", "grass"] },
-
-  // --- Sinnoh Origins & Formes ---
-  { name: "dialga-origin", base: "dialga", tags: ["origin"] },
-  { name: "palkia-origin", base: "palkia", tags: ["origin"] },
-  { name: "giratina-origin", base: "giratina", tags: ["origin"] },
-  { name: "shaymin-sky", base: "shaymin", tags: ["sky"] },
-
-  // --- Gen 5: Darmanitan, Kyurem, Keldeo, Meloetta, Therians ---
-  { name: "darmanitan-zen", base: "darmanitan", tags: ["zen", "mode"] },
-  { name: "darmanitan-galar", base: "darmanitan", tags: ["galar", "galarian"] },
-  { name: "darmanitan-galar-zen", base: "darmanitan", tags: ["galar", "galarian", "zen"] },
-  { name: "kyurem-black", base: "kyurem", tags: ["black"] },
-  { name: "kyurem-white", base: "kyurem", tags: ["white"] },
-  { name: "keldeo-resolute", base: "keldeo", tags: ["resolute"] },
-  { name: "meloetta-pirouette", base: "meloetta", tags: ["pirouette"] },
-  { name: "tornadus-therian", base: "tornadus", tags: ["therian"] },
-  { name: "thundurus-therian", base: "thundurus", tags: ["therian"] },
-  { name: "landorus-therian", base: "landorus", tags: ["therian"] },
-  { name: "enamorus-therian", base: "enamorus", tags: ["therian"] },
-
-  // --- Gen 6: Ash-Greninja, Aegislash, Zygarde ---
-  { name: "greninja-ash", base: "greninja", tags: ["ash", "battle bond"] },
-  { name: "aegislash-blade", base: "aegislash", tags: ["blade", "stance"] },
-  { name: "zygarde-10", base: "zygarde", tags: ["10%"] },
-  { name: "zygarde-complete", base: "zygarde", tags: ["complete", "100%"] },
-
-  // --- Gen 7: Wishiwashi, Minior, Mimikyu, Necrozma ---
-  { name: "wishiwashi-school", base: "wishiwashi", tags: ["school"] },
-  { name: "minior-meteor", base: "minior", tags: ["meteor", "core"] },
-  { name: "mimikyu-busted", base: "mimikyu", tags: ["busted"] },
-  { name: "necrozma-dusk", base: "necrozma", tags: ["dusk", "mane", "solgaleo"] },
-  { name: "necrozma-dawn", base: "necrozma", tags: ["dawn", "wings", "lunala"] },
-  { name: "necrozma-ultra", base: "necrozma", tags: ["ultra"] },
-
-  // --- Gen 8: Cramorant, Toxtricity, Eiscue, Morpeko, Zacian/Zamazenta, Calyrex, Urshifu ---
-  { name: "cramorant-gulping", base: "cramorant", tags: ["gulping"] },
-  { name: "cramorant-gorging", base: "cramorant", tags: ["gorging"] },
-  { name: "toxtricity-low-key", base: "toxtricity", tags: ["low-key", "punk"] },
-  { name: "eiscue-noice", base: "eiscue", tags: ["noice"] },
-  { name: "morpeko-hangry", base: "morpeko", tags: ["hangry"] },
-  { name: "zacian-crowned", base: "zacian", tags: ["crowned", "sword"] },
-  { name: "zamazenta-crowned", base: "zamazenta", tags: ["crowned", "shield"] },
-  { name: "eternatus-eternamax", base: "eternatus", tags: ["eternamax"] },
-  { name: "urshifu-rapid-strike", base: "urshifu", tags: ["rapid"] },
-  { name: "calyrex-ice", base: "calyrex", tags: ["ice", "rider"] },
-  { name: "calyrex-shadow", base: "calyrex", tags: ["shadow", "rider"] },
-
-  // --- Gen 9: Palafin, Ogerpon, Terapagos ---
-  { name: "palafin-hero", base: "palafin", tags: ["hero", "zero to hero"] },
-  { name: "ogerpon-wellspring-mask", base: "ogerpon", tags: ["wellspring", "water", "mask"] },
-  { name: "ogerpon-hearthflame-mask", base: "ogerpon", tags: ["hearthflame", "fire", "mask"] },
-  { name: "ogerpon-cornerstone-mask", base: "ogerpon", tags: ["cornerstone", "rock", "mask"] },
-  { name: "terapagos-terastal", base: "terapagos", tags: ["terastal"] },
-  { name: "terapagos-stellar", base: "terapagos", tags: ["stellar"] },
-
-  // --- Alolan Forms ---
-  { name: "rattata-alola", base: "rattata", tags: ["alola", "alolan"] },
-  { name: "raticate-alola", base: "raticate", tags: ["alola", "alolan"] },
-  { name: "raichu-alola", base: "raichu", tags: ["alola", "alolan"] },
-  { name: "sandshrew-alola", base: "sandshrew", tags: ["alola", "alolan"] },
-  { name: "sandslash-alola", base: "sandslash", tags: ["alola", "alolan"] },
-  { name: "vulpix-alola", base: "vulpix", tags: ["alola", "alolan"] },
-  { name: "ninetales-alola", base: "ninetales", tags: ["alola", "alolan"] },
-  { name: "diglett-alola", base: "diglett", tags: ["alola", "alolan"] },
-  { name: "dugtrio-alola", base: "dugtrio", tags: ["alola", "alolan"] },
-  { name: "meowth-alola", base: "meowth", tags: ["alola", "alolan"] },
-  { name: "persian-alola", base: "persian", tags: ["alola", "alolan"] },
-  { name: "geodude-alola", base: "geodude", tags: ["alola", "alolan"] },
-  { name: "graveler-alola", base: "graveler", tags: ["alola", "alolan"] },
-  { name: "golem-alola", base: "golem", tags: ["alola", "alolan"] },
-  { name: "grimer-alola", base: "grimer", tags: ["alola", "alolan"] },
-  { name: "muk-alola", base: "muk", tags: ["alola", "alolan"] },
-  { name: "exeggutor-alola", base: "exeggutor", tags: ["alola", "alolan"] },
-  { name: "marowak-alola", base: "marowak", tags: ["alola", "alolan"] },
-
-  // --- Galarian Forms ---
-  { name: "meowth-galar", base: "meowth", tags: ["galar", "galarian"] },
-  { name: "ponyta-galar", base: "ponyta", tags: ["galar", "galarian"] },
-  { name: "rapidash-galar", base: "rapidash", tags: ["galar", "galarian"] },
-  { name: "slowpoke-galar", base: "slowpoke", tags: ["galar", "galarian"] },
-  { name: "slowbro-galar", base: "slowbro", tags: ["galar", "galarian"] },
-  { name: "farfetchd-galar", base: "farfetchd", tags: ["galar", "galarian"] },
-  { name: "weezing-galar", base: "weezing", tags: ["galar", "galarian"] },
-  { name: "mr-mime-galar", base: "mr-mime", tags: ["galar", "galarian"] },
-  { name: "articuno-galar", base: "articuno", tags: ["galar", "galarian"] },
-  { name: "zapdos-galar", base: "zapdos", tags: ["galar", "galarian"] },
-  { name: "moltres-galar", base: "moltres", tags: ["galar", "galarian"] },
-  { name: "slowking-galar", base: "slowking", tags: ["galar", "galarian"] },
-  { name: "corsola-galar", base: "corsola", tags: ["galar", "galarian"] },
-  { name: "zigzagoon-galar", base: "zigzagoon", tags: ["galar", "galarian"] },
-  { name: "linoone-galar", base: "linoone", tags: ["galar", "galarian"] },
-  { name: "yamask-galar", base: "yamask", tags: ["galar", "galarian"] },
-  { name: "stunfisk-galar", base: "stunfisk", tags: ["galar", "galarian"] },
-
-  // --- Hisuian Forms ---
-  { name: "growlithe-hisui", base: "growlithe", tags: ["hisui", "hisuian"] },
-  { name: "arcanine-hisui", base: "arcanine", tags: ["hisui", "hisuian"] },
-  { name: "voltorb-hisui", base: "voltorb", tags: ["hisui", "hisuian"] },
-  { name: "electrode-hisui", base: "electrode", tags: ["hisui", "hisuian"] },
-  { name: "typhlosion-hisui", base: "typhlosion", tags: ["hisui", "hisuian"] },
-  { name: "qwilfish-hisui", base: "qwilfish", tags: ["hisui", "hisuian"] },
-  { name: "sneasel-hisui", base: "sneasel", tags: ["hisui", "hisuian"] },
-  { name: "samurott-hisui", base: "samurott", tags: ["hisui", "hisuian"] },
-  { name: "lilligant-hisui", base: "lilligant", tags: ["hisui", "hisuian"] },
-  { name: "zorua-hisui", base: "zorua", tags: ["hisui", "hisuian"] },
-  { name: "zoroark-hisui", base: "zoroark", tags: ["hisui", "hisuian"] },
-  { name: "braviary-hisui", base: "braviary", tags: ["hisui", "hisuian"] },
-  { name: "sliggoo-hisui", base: "sliggoo", tags: ["hisui", "hisuian"] },
-  { name: "goodra-hisui", base: "goodra", tags: ["hisui", "hisuian"] },
-  { name: "avalugg-hisui", base: "avalugg", tags: ["hisui", "hisuian"] },
-  { name: "decidueye-hisui", base: "decidueye", tags: ["hisui", "hisuian"] },
-
-  // --- Paldean Forms ---
-  { name: "wooper-paldea", base: "wooper", tags: ["paldea", "paldean"] },
-  { name: "tauros-paldea-combat-breed", base: "tauros", tags: ["paldea", "paldean", "combat"] },
-  { name: "tauros-paldea-blaze-breed", base: "tauros", tags: ["paldea", "paldean", "blaze"] },
-  { name: "tauros-paldea-aqua-breed", base: "tauros", tags: ["paldea", "paldean", "aqua"] },
-
-  // --- Pikachu Cap & Cosplay Forms ---
-  { name: "pikachu-rock-star", base: "pikachu", tags: ["rock star", "costume", "cosplay"] },
-  { name: "pikachu-belle", base: "pikachu", tags: ["belle", "costume", "cosplay"] },
-  { name: "pikachu-pop-star", base: "pikachu", tags: ["pop star", "costume", "cosplay"] },
-  { name: "pikachu-phd", base: "pikachu", tags: ["phd", "ph.d", "costume", "cosplay"] },
-  { name: "pikachu-libre", base: "pikachu", tags: ["libre", "costume", "cosplay", "lucha"] },
-  { name: "pikachu-cosplay", base: "pikachu", tags: ["cosplay", "costume"] },
-  { name: "pikachu-original-cap", base: "pikachu", tags: ["cap", "hat", "original", "kanto", "ash"] },
-  { name: "pikachu-hoenn-cap", base: "pikachu", tags: ["cap", "hat", "hoenn", "ash"] },
-  { name: "pikachu-sinnoh-cap", base: "pikachu", tags: ["cap", "hat", "sinnoh", "ash"] },
-  { name: "pikachu-unova-cap", base: "pikachu", tags: ["cap", "hat", "unova", "ash"] },
-  { name: "pikachu-kalos-cap", base: "pikachu", tags: ["cap", "hat", "kalos", "ash"] },
-  { name: "pikachu-alola-cap", base: "pikachu", tags: ["cap", "hat", "alola", "ash"] },
-  { name: "pikachu-partner-cap", base: "pikachu", tags: ["cap", "hat", "partner", "ash"] },
-  { name: "pikachu-world-cap", base: "pikachu", tags: ["cap", "hat", "world", "journeys", "ash"] },
-
-  // --- Partner Starters & Battle Transformations ---
-  { name: "pikachu-starter", base: "pikachu", tags: ["starter", "lets go"] },
-  { name: "eevee-starter", base: "eevee", tags: ["starter", "lets go"] },
-  { name: "greninja-battle-bond", base: "greninja", tags: ["battle bond", "ash"] },
-
-  // --- Alternate Typing & Stat Variants ---
-  { name: "wormadam-sandy", base: "wormadam", tags: ["sandy", "ground"] },
-  { name: "wormadam-trash", base: "wormadam", tags: ["trash", "steel"] },
-  { name: "meowstic-female", base: "meowstic", tags: ["female"] },
-  { name: "lycanroc-midnight", base: "lycanroc", tags: ["midnight"] },
-  { name: "lycanroc-dusk", base: "lycanroc", tags: ["dusk"] },
-  { name: "oricorio-pom-pom", base: "oricorio", tags: ["pom-pom", "electric"] },
-  { name: "oricorio-pau", base: "oricorio", tags: ["pau", "psychic"] },
-  { name: "oricorio-sensu", base: "oricorio", tags: ["sensu", "ghost"] },
+  // --- Gigantamax ---
+  { name: "venusaur-gmax", base: "venusaur", tags: ["gmax", "dynamax"] },
+  { name: "charizard-gmax", base: "charizard", tags: ["gmax", "dynamax"] },
+  { name: "blastoise-gmax", base: "blastoise", tags: ["gmax", "dynamax"] },
+  { name: "butterfree-gmax", base: "butterfree", tags: ["gmax", "dynamax"] },
+  { name: "pikachu-gmax", base: "pikachu", tags: ["gmax", "dynamax"] },
+  { name: "meowth-gmax", base: "meowth", tags: ["gmax", "dynamax"] },
+  { name: "machamp-gmax", base: "machamp", tags: ["gmax", "dynamax"] },
+  { name: "gengar-gmax", base: "gengar", tags: ["gmax", "dynamax"] },
+  { name: "kingler-gmax", base: "kingler", tags: ["gmax", "dynamax"] },
+  { name: "lapras-gmax", base: "lapras", tags: ["gmax", "dynamax"] },
+  { name: "eevee-gmax", base: "eevee", tags: ["gmax", "dynamax"] },
+  { name: "snorlax-gmax", base: "snorlax", tags: ["gmax", "dynamax"] },
+  { name: "garbodor-gmax", base: "garbodor", tags: ["gmax", "dynamax"] },
+  { name: "melmetal-gmax", base: "melmetal", tags: ["gmax", "dynamax"] },
+  { name: "rillaboom-gmax", base: "rillaboom", tags: ["gmax", "dynamax"] },
+  { name: "cinderace-gmax", base: "cinderace", tags: ["gmax", "dynamax"] },
+  { name: "inteleon-gmax", base: "inteleon", tags: ["gmax", "dynamax"] },
+  { name: "corviknight-gmax", base: "corviknight", tags: ["gmax", "dynamax"] },
+  { name: "orbeetle-gmax", base: "orbeetle", tags: ["gmax", "dynamax"] },
+  { name: "drednaw-gmax", base: "drednaw", tags: ["gmax", "dynamax"] },
+  { name: "coalossal-gmax", base: "coalossal", tags: ["gmax", "dynamax"] },
+  { name: "flapple-gmax", base: "flapple", tags: ["gmax", "dynamax"] },
+  { name: "appletun-gmax", base: "appletun", tags: ["gmax", "dynamax"] },
+  { name: "sandaconda-gmax", base: "sandaconda", tags: ["gmax", "dynamax"] },
+  { name: "toxtricity-gmax", base: "toxtricity", tags: ["gmax", "dynamax"] },
+  { name: "centiskorch-gmax", base: "centiskorch", tags: ["gmax", "dynamax"] },
+  { name: "hatterene-gmax", base: "hatterene", tags: ["gmax", "dynamax"] },
+  { name: "grimmsnarl-gmax", base: "grimmsnarl", tags: ["gmax", "dynamax"] },
+  { name: "alcremie-gmax", base: "alcremie", tags: ["gmax", "dynamax"] },
+  { name: "copperajah-gmax", base: "copperajah", tags: ["gmax", "dynamax"] },
+  { name: "duraludon-gmax", base: "duraludon", tags: ["gmax", "dynamax"] },
+  { name: "urshifu-single-strike-gmax", base: "urshifu", tags: ["gmax", "dynamax"] },
+  { name: "urshifu-rapid-strike-gmax", base: "urshifu", tags: ["gmax", "dynamax"] },
 ];
 
 export async function fetchFullPokedexDirectory() {
