@@ -6,15 +6,17 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #f4f6f9;
   margin: 0;
   padding: 0 0 68px 0;
-  color: #2d3748;
+  color: #1e293b;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .app-header {
@@ -135,6 +137,7 @@ body {
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   outline: none;
+  font-family: inherit;
 }
 
 .search-form input[type="text"]:focus {
@@ -179,6 +182,7 @@ body {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  font-family: inherit;
 }
 
 .dropdown-menu {
@@ -379,6 +383,7 @@ body {
   font-size: 0.78rem;
   cursor: pointer;
   transition: background 0.15s ease;
+  font-family: inherit;
 }
 
 .add-team-btn:hover {
@@ -486,7 +491,7 @@ body {
   pointer-events: none;
 }
 
-/* Centered Header Layout (Mobile & Wider Screen) */
+/* Centered Header Layout */
 .modal-top-layout {
   display: flex;
   flex-direction: column;
@@ -819,25 +824,78 @@ body {
 }
 
 /* ==========================================
-   CENTERED EVOLUTION TREE & RADIAL/GRID EEVEELUTIONS
+   COMPACT & RESPONSIVE EVOLUTION TREE
    ========================================== */
 .evolution-tree-container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   padding: 12px 6px;
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
+/* Vertical stack by default for mobile and narrow screens */
 .evo-group {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin: 0 auto;
-  min-width: max-content;
+  gap: 10px;
+  width: 100%;
+}
+
+.evo-branches-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.evo-branch-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.evo-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+}
+
+.evo-arrow {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  transform: rotate(90deg); /* Points downwards on narrow viewports */
+}
+
+/* Desktop & tablet: switch back to horizontal row */
+@media (min-width: 680px) {
+  .evo-group {
+    flex-direction: row;
+    justify-content: center;
+    gap: 14px;
+    width: auto;
+  }
+
+  .evo-branches-wrap {
+    width: auto;
+  }
+
+  .evo-branch-item {
+    flex-direction: row;
+    gap: 12px;
+    width: auto;
+  }
+
+  .evo-arrow {
+    transform: rotate(0deg); /* Points right */
+  }
 }
 
 .evo-node {
@@ -845,8 +903,8 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
   transition: all 0.15s ease;
   border: 1px solid transparent;
   background: #f8fafc;
@@ -864,92 +922,77 @@ body {
 }
 
 .evo-avatar-wrap {
-  width: 60px;
-  height: 60px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .evo-img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
 }
 
 .evo-name {
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #334155;
-  margin-top: 4px;
-}
-
-.evo-branches-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.evo-branch-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.evo-connector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 75px;
+  margin-top: 2px;
 }
 
 .evo-trigger-badge {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #b91c1c;
   background: #fef2f2;
   border: 1px solid #fee2e2;
-  padding: 2px 6px;
-  border-radius: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-.evo-arrow {
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-/* Eeveelutions Responsive Grid Layout */
+/* Compact Eeveelutions Responsive Grid */
 .eevee-grid-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
 }
 
 .eevee-branches-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+  gap: 8px;
   width: 100%;
   justify-items: center;
 }
 
 .eevee-branches-grid .evo-branch-card {
   width: 100%;
-  max-width: 130px;
+  max-width: 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 6px;
+  padding: 4px;
+}
+
+.eevee-branches-grid .evo-avatar-wrap {
+  width: 40px;
+  height: 40px;
+}
+
+.eevee-branches-grid .evo-img {
+  width: 34px;
+  height: 34px;
 }
 
 .eevee-branches-grid .evo-trigger-badge {
-  margin-top: 4px;
-  font-size: 0.62rem;
+  margin-top: 3px;
+  font-size: 0.58rem;
   text-align: center;
   word-break: break-word;
 }
@@ -1063,6 +1106,7 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: inherit;
 }
 
 .tab-btn.active {
@@ -1155,6 +1199,7 @@ body {
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .game-pill-btn:hover {
@@ -1256,6 +1301,7 @@ body {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 #clear-team-btn:hover {

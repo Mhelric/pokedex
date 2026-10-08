@@ -318,7 +318,12 @@ async function loadScrollBatch(isFirstBatch = false) {
 
 async function applyCombinedFilters() {
   scrollState.active = false;
-  gridContainer.innerHTML = '<p class="loading-msg">Filtering Pokédex...</p>';
+  gridContainer.innerHTML = `
+  <div class="search-loader-container">
+      <div class="pokeball-spinner"></div>
+      <span class="search-loader-text">Filtering Pokédex...</span>
+    </div>
+  `;
 
   try {
     let listToBatch = [];
@@ -476,7 +481,12 @@ if (searchInput) {
       }
 
       scrollState.active = false;
-      gridContainer.innerHTML = '<p class="loading-msg">Searching Pokédex...</p>';
+      gridContainer.innerHTML = `
+        <div class="search-loader-container">
+          <div class="pokeball-spinner"></div>
+          <span class="search-loader-text">Searching Pokédex...</span>
+        </div>
+      `;
 
       const directMatches = pokedexDirectory.filter((item) => {
         const idMatch = String(item.id) === cleanQuery;
