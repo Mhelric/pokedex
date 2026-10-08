@@ -398,7 +398,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <span class="modal-card-id">${formattedId}</span>
         <div class="modal-title-row">
           <h2 class="modal-title">${pokemon.name}</h2>
-          ${pokemon.cry ? `<button class="modal-cry-btn" id="modal-play-cry" title="Play Cry" type="button">🔊</button>` : ""}
+          ${pokemon.cry ? `<button class="modal-cry-btn" id="modal-play-cry" title="Play Cry" type="button"><i class="fa-solid fa-volume-high"></i></button>` : ""}
         </div>
         <p class="pokemon-genus">${pokemon.genus}</p>
         <div class="card-types">${typeBadges}</div>
@@ -563,7 +563,6 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
   if (teamList.length === 0) {
     containerElement.innerHTML = `
       <div class="team-empty-state">
-        <p class="empty-icon">⚪</p>
         <p class="empty-title">Your team is empty</p>
         <p class="empty-subtitle">Tap <strong>+ Add to Team</strong> on any Pokémon card to build your roster.</p>
       </div>

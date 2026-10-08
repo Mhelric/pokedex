@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="stylesheet" href="styles/retro-ui.css" />
     <link rel="stylesheet" href="styles/animations.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 <body>
     <!-- Pokeball Intro Opening Screen Overlay -->
@@ -39,7 +40,7 @@
                 <input 
                     type="text" 
                     id="search-input" 
-                    placeholder="Search name, ID, 'mega', 'dynamax', 'gmax'..." 
+                    placeholder="Search name or ID..." 
                     autocomplete="off" 
                 />
             </form>
@@ -210,9 +211,15 @@
     <!-- Glassmorphic Fixed Bottom Action Bar -->
     <nav class="bottom-action-bar">
         <div class="bottom-nav-inner">
-            <button type="button" id="nav-team-btn" class="bottom-nav-item">Team</button>
-            <button type="button" id="nav-scan-btn" class="bottom-nav-item highlight-btn">Scan</button>
-            <button type="button" id="nav-game-btn" class="bottom-nav-item">Game</button>
+            <button type="button" id="nav-team-btn" class="bottom-nav-item" title="Team Builder" aria-label="Team Builder">
+                <i class="fa-solid fa-users"></i>
+            </button>
+            <button type="button" id="nav-scan-btn" class="bottom-nav-item highlight-btn" title="Pokédex Camera Scanner" aria-label="Camera Scanner">
+                <i class="fa-solid fa-camera-retro"></i>
+            </button>
+            <button type="button" id="nav-game-btn" class="bottom-nav-item" title="Who's That Pokémon?" aria-label="Mini Game">
+                <i class="fa-solid fa-gamepad"></i>
+            </button>
         </div>
     </nav>
 
