@@ -157,6 +157,14 @@ export function renderPokemonModal(pokemon, containerElement) {
     <!-- Bottom Section: Description, Measurements, Matchups & Stats -->
     <div class="modal-bottom-details">
       <p class="pokemon-description">"${pokemon.description}"</p>
+
+      <!-- Interactive Voice Wave Indicator -->
+      <div id="modal-voice-indicator" class="pokedex-voice-bar" title="Click to Stop / Replay Pokédex Voice">
+        <div class="voice-wave">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <span class="voice-label" id="modal-voice-status">Pokédex Voice</span>
+      </div>
       
       <div class="modal-measurements">
         <span>Height: <strong>${pokemon.height}</strong></span> | 

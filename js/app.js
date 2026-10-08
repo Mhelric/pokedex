@@ -95,6 +95,96 @@ let scrollState = {
   hasMore: false,
 };
 
+// --- Pokédex Robotic Voice & Audio State ---
+let currentActiveCry = null;
+let activePokemonForVoice = null;
+
+function stopPokedexAudio() {
+  if (currentActiveCry) {
+    currentActiveCry.pause();
+    currentActiveCry.currentTime = 0;
+    currentActiveCry = null;
+  }
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  updateVoiceWaveUI(false);
+}
+
+function updateVoiceWaveUI(isSpeaking) {
+  const bar = document.getElementById("modal-voice-indicator");
+  const label = document.getElementById("modal-voice-status");
+  if (!bar || !label) return;
+
+  if (isSpeaking) {
+    bar.classList.add("speaking");
+    label.textContent = "Speaking... (Click to mute)";
+  } else {
+    bar.classList.remove("speaking");
+    label.textContent = "Play Pokédex Voice";
+  }
+}
+
+function speakPokemonEntry(pokemon) {
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const cleanDescription = (pokemon.description || "")
+    .replace(/["\n\r\f]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const typesText = pokemon.types.join(" and ");
+  const textToRead = `${pokemon.name}. ${pokemon.genus}. ${typesText} type. ${cleanDescription}`;
+
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+
+  // Select an English voice and configure pitch & rate for a friendly robotic feel
+  const voices = window.speechSynthesis.getVoices();
+  const selectedVoice =
+    voices.find(
+      (v) =>
+        v.lang.startsWith("en") &&
+        (v.name.includes("Google") ||
+          v.name.includes("Natural") ||
+          v.name.includes("Samantha"))
+    ) || voices.find((v) => v.lang.startsWith("en"));
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+  }
+
+  utterance.pitch = 1.15; // Slightly elevated pitch for friendly tech feel
+  utterance.rate = 1.0;   // Clear, measured cadence
+
+  utterance.onstart = () => updateVoiceWaveUI(true);
+  utterance.onend = () => updateVoiceWaveUI(false);
+  utterance.onerror = () => updateVoiceWaveUI(false);
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function playPokemonCryAndSpeak(pokemon) {
+  stopPokedexAudio();
+  activePokemonForVoice = pokemon;
+
+  if (pokemon.cry) {
+    currentActiveCry = new Audio(pokemon.cry);
+    currentActiveCry.volume = 0.6;
+
+    currentActiveCry.onended = () => {
+      speakPokemonEntry(pokemon);
+    };
+
+    currentActiveCry.play().catch(() => {
+      // In case browser autoplay restricts audio, fallback directly to speech
+      speakPokemonEntry(pokemon);
+    });
+  } else {
+    speakPokemonEntry(pokemon);
+  }
+}
+
 // --- Helpers ---
 function debounce(func, delay = 200) {
   return (...args) => {
@@ -326,7 +416,9 @@ async function handleInstantSearch(query) {
   if (isKeywordSearch) {
     fullResults = directMatches.filter((item) => {
       const hasTag = item.forms && item.forms.some((tag) => tag.includes(cleanQuery));
-      const hasName = item.displayName.toLowerCase().includes(cleanQuery) || item.name.toLowerCase().includes(cleanQuery);
+      const hasName =
+        item.displayName.toLowerCase().includes(cleanQuery) ||
+        item.name.toLowerCase().includes(cleanQuery);
       return hasTag || hasName;
     });
   } else {
@@ -410,6 +502,13 @@ function initMinigameRound() {
 // INITIALIZATION & EVENT LISTENERS
 // ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
+  // Preload synthesis voices in Chromium browsers
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  }
+
   updateTeamUI();
   updateToggleSwitchUI();
 
@@ -509,11 +608,17 @@ if (gameModal) {
 }
 
 if (modalCloseBtn) {
-  modalCloseBtn.addEventListener("click", () => modalOverlay.classList.add("hidden"));
+  modalCloseBtn.addEventListener("click", () => {
+    stopPokedexAudio();
+    modalOverlay.classList.add("hidden");
+  });
 }
 if (modalOverlay) {
   modalOverlay.addEventListener("click", (e) => {
-    if (e.target === modalOverlay) modalOverlay.classList.add("hidden");
+    if (e.target === modalOverlay) {
+      stopPokedexAudio();
+      modalOverlay.classList.add("hidden");
+    }
   });
 }
 
@@ -526,6 +631,23 @@ if (scannerCloseBtn) scannerCloseBtn.addEventListener("click", closeScanner);
 if (scannerModal) {
   scannerModal.addEventListener("click", (e) => {
     if (e.target === scannerModal) closeScanner();
+  });
+}
+
+// --- Interactive Pokédex Voice Bar Listener (Play/Pause/Replay) ---
+if (modalContent) {
+  modalContent.addEventListener("click", (e) => {
+    const voiceBar = e.target.closest("#modal-voice-indicator");
+    if (!voiceBar || !activePokemonForVoice) return;
+
+    if (
+      window.speechSynthesis.speaking ||
+      (currentActiveCry && !currentActiveCry.paused)
+    ) {
+      stopPokedexAudio();
+    } else {
+      speakPokemonEntry(activePokemonForVoice);
+    }
   });
 }
 
@@ -559,14 +681,9 @@ gridContainer.addEventListener("click", (e) => {
     const pokemon = fetchedCache.get(pokemonId);
 
     if (pokemon) {
-      if (pokemon.cry) {
-        const audio = new Audio(pokemon.cry);
-        audio.volume = 0.6;
-        audio.play().catch((err) => console.error("Audio playback error:", err));
-      }
-
       renderPokemonModal(pokemon, modalContent);
       modalOverlay.classList.remove("hidden");
+      playPokemonCryAndSpeak(pokemon);
     }
   }
 });
@@ -619,13 +736,9 @@ if (captureScanBtn) {
     if (scannedPokemon) {
       setTimeout(() => {
         closeScanner();
-        if (scannedPokemon.cry) {
-          const audio = new Audio(scannedPokemon.cry);
-          audio.volume = 0.6;
-          audio.play().catch((e) => console.error(e));
-        }
         renderPokemonModal(scannedPokemon, modalContent);
         modalOverlay.classList.remove("hidden");
+        playPokemonCryAndSpeak(scannedPokemon);
       }, 1000);
     }
   });
@@ -643,13 +756,9 @@ if (imageUploadInput) {
     if (scannedPokemon) {
       setTimeout(() => {
         closeScanner();
-        if (scannedPokemon.cry) {
-          const audio = new Audio(scannedPokemon.cry);
-          audio.volume = 0.6;
-          audio.play().catch((err) => console.error(err));
-        }
         renderPokemonModal(scannedPokemon, modalContent);
         modalOverlay.classList.remove("hidden");
+        playPokemonCryAndSpeak(scannedPokemon);
       }, 1000);
     }
   });
