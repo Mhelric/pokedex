@@ -96,7 +96,7 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
 }
 
 /**
- * Builds either standard centered evolution branches or a radial circle specifically for Eevee.
+ * Builds standard centered evolution branches or delegates to Eevee's custom layout.
  */
 function buildEvolutionTreeHtml(evoNode, currentRawName) {
   if (!evoNode) return `<p class="empty-note">No evolution data available.</p>`;
@@ -155,56 +155,51 @@ function buildEvolutionTreeHtml(evoNode, currentRawName) {
 }
 
 /**
- * Renders the 8 Eeveelutions in an aesthetic radial circle orbiting Eevee in the center.
+ * Renders Eevee and its 8 evolutions cleanly in a responsive structured layout.
  */
 function buildEeveeCircularEvolutionHtml(eeveeNode, currentRawName) {
   const isEeveeActive = currentRawName.toLowerCase() === "eevee";
   const eeveeId = eeveeNode.speciesUrl.split("/").filter(Boolean).pop();
 
-  const radius = 150; // Radius in pixels
-  const total = eeveeNode.evolvesTo.length;
-
-  const orbitingHtml = eeveeNode.evolvesTo.map((child, index) => {
-    const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2); // Start from top
-    const x = Math.round(radius * Math.cos(angle));
-    const y = Math.round(radius * Math.sin(angle));
-
+  const childrenHtml = eeveeNode.evolvesTo.map((child) => {
     const childId = child.speciesUrl.split("/").filter(Boolean).pop();
     const isCurrent = child.speciesName.toLowerCase() === currentRawName.toLowerCase();
     const triggerDesc = child.evolutionRequirement || "Special";
 
     return `
-      <div class="eevee-orbit-node" style="transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px));">
-        <div class="evo-node ${isCurrent ? 'active' : ''}" data-species="${child.speciesName}">
-          <div class="evo-avatar-wrap">
-            <img 
-              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${childId}.png" 
-              alt="${child.speciesName}" 
-              class="evo-img" 
-              loading="lazy" 
-              onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${childId}.png'"
-            />
-          </div>
-          <span class="evo-name">${formatPokemonName(child.speciesName)}</span>
-          <span class="eevee-orbit-trigger">${triggerDesc}</span>
+      <div class="evo-branch-card evo-node ${isCurrent ? 'active' : ''}" data-species="${child.speciesName}">
+        <div class="evo-avatar-wrap">
+          <img 
+            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${childId}.png" 
+            alt="${child.speciesName}" 
+            class="evo-img" 
+            loading="lazy" 
+            onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${childId}.png'"
+          />
         </div>
+        <span class="evo-name">${formatPokemonName(child.speciesName)}</span>
+        <span class="evo-trigger-badge">${triggerDesc}</span>
       </div>
     `;
   }).join("");
 
   return `
-    <div class="eevee-circle-tree">
-      <div class="eevee-center-node evo-node ${isEeveeActive ? 'active' : ''}" data-species="eevee">
-        <div class="evo-avatar-wrap">
-          <img 
-            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${eeveeId}.png" 
-            alt="Eevee" 
-            class="evo-img" 
-          />
+    <div class="eevee-grid-wrapper">
+      <div class="eevee-root-container">
+        <div class="evo-node ${isEeveeActive ? 'active' : ''}" data-species="eevee">
+          <div class="evo-avatar-wrap">
+            <img 
+              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${eeveeId}.png" 
+              alt="Eevee" 
+              class="evo-img" 
+            />
+          </div>
+          <span class="evo-name">Eevee</span>
         </div>
-        <span class="evo-name">Eevee</span>
       </div>
-      ${orbitingHtml}
+      <div class="eevee-branches-grid">
+        ${childrenHtml}
+      </div>
     </div>
   `;
 }
@@ -393,7 +388,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
   containerElement.innerHTML = `
     <div class="modal-corner-decor top-right"></div>
 
-    <!-- Centered Header Section (Matches Mock Design on Wider Screen) -->
+    <!-- Centered Header Section -->
     <div class="modal-top-layout">
       <div class="modal-image-container">
         <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="modal-image" />
@@ -472,7 +467,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <p class="stat-legend-note">Min: 0 IVs, 0 EVs, Hindering Nature | Max: 31 IVs, 252 EVs, Beneficial Nature</p>
       </section>
 
-      <!-- Evolution Tree (Centered & Radial Eevee) -->
+      <!-- Evolution Tree -->
       <section class="detail-section evolution-section">
         <h4 class="section-title">Evolution Chain</h4>
         <div class="evolution-tree-container" id="modal-evo-tree">

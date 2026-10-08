@@ -475,11 +475,11 @@ body {
   position: absolute;
   top: 0;
   right: 0;
-  width: 95px;
-  height: 65px;
+  width: 140px;
+  height: 100px;
   background: #ef5350;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
-  opacity: 0.9;
+  opacity: 0.95;
   z-index: 1;
   pointer-events: none;
 }
@@ -745,10 +745,17 @@ body {
 }
 
 /* Base / Min / Max Stats */
-.stat-calc-header {
+.stat-calc-header,
+.stat-calc-row {
   display: grid;
-  grid-template-columns: 75px 45px 1fr 65px 65px;
+  grid-template-columns: 55px 35px 1fr 45px 45px;
+  column-gap: 6px;
+  align-items: center;
   font-size: 0.72rem;
+  margin-bottom: 7px;
+}
+
+.stat-calc-header {
   font-weight: 700;
   color: #94a3b8;
   padding-bottom: 6px;
@@ -756,16 +763,17 @@ body {
   margin-bottom: 8px;
 }
 
-.bound-title {
-  text-align: right;
+@media (min-width: 480px) {
+  .stat-calc-header,
+  .stat-calc-row {
+    grid-template-columns: 75px 45px 1fr 65px 65px;
+    column-gap: 10px;
+    font-size: 0.8rem;
+  }
 }
 
-.stat-calc-row {
-  display: grid;
-  grid-template-columns: 75px 45px 1fr 65px 65px;
-  align-items: center;
-  font-size: 0.8rem;
-  margin-bottom: 7px;
+.bound-title {
+  text-align: right;
 }
 
 .stat-name {
@@ -794,7 +802,7 @@ body {
 .stat-bound {
   text-align: right;
   font-family: monospace;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #64748b;
 }
 
@@ -806,15 +814,16 @@ body {
 }
 
 /* ==========================================
-   CENTERED EVOLUTION TREE & RADIAL EEVEELUTIONS
+   CENTERED EVOLUTION TREE & RADIAL/GRID EEVEELUTIONS
    ========================================== */
 .evolution-tree-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 16px 8px;
+  padding: 12px 6px;
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .evo-group {
@@ -823,6 +832,7 @@ body {
   justify-content: center;
   gap: 16px;
   margin: 0 auto;
+  min-width: max-content;
 }
 
 .evo-node {
@@ -906,59 +916,37 @@ body {
   font-size: 0.85rem;
 }
 
-/* Circular Layout Specifically for Eevee Evolution Tree */
-.eevee-circle-tree {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  height: 440px;
-  margin: 10px auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.eevee-center-node {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
-
-.eevee-orbit-node {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+/* Eeveelutions Responsive Grid Layout */
+.eevee-grid-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
-.eevee-orbit-node .evo-node {
-  padding: 4px 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+.eevee-branches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  width: 100%;
+  justify-items: center;
 }
 
-.eevee-orbit-node .evo-avatar-wrap {
-  width: 48px;
-  height: 48px;
+.eevee-branches-grid .evo-branch-card {
+  width: 100%;
+  max-width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 6px;
 }
 
-.eevee-orbit-node .evo-name {
-  font-size: 0.7rem;
-}
-
-.eevee-orbit-trigger {
-  font-size: 0.58rem;
-  font-weight: 700;
-  color: #b91c1c;
-  background: #fef2f2;
-  padding: 1px 4px;
-  border-radius: 4px;
-  margin-top: 2px;
-  white-space: nowrap;
+.eevee-branches-grid .evo-trigger-badge {
+  margin-top: 4px;
+  font-size: 0.62rem;
+  text-align: center;
+  word-break: break-word;
 }
 
 /* Two Columns (Training & Breeding) */
@@ -1141,21 +1129,27 @@ body {
 
 .game-pills-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .game-pill-btn {
-  padding: 6px 14px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  padding: 8px 16px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 20px;
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .game-pill-btn:hover {

@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   triggerPokeballOpening();
 });
 
-// Live Search Input (Includes All Regional Forms)
+// Live Search Input (Loads all matching search results)
 if (searchInput) {
   searchInput.addEventListener(
     "input",
@@ -490,7 +490,16 @@ if (searchInput) {
       };
 
       gridContainer.innerHTML = "";
-      await loadScrollBatch(true);
+      const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
+        uniqueNames,
+        0,
+        uniqueNames.length
+      );
+      pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+      currentDisplayedPokemon = [...pokemonList];
+      renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, false);
+      scrollState.currentIndex = nextIndex;
+      scrollState.hasMore = hasMore;
     }, 200)
   );
 }
