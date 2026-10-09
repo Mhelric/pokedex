@@ -81,6 +81,9 @@ let currentDisplayedPokemon = [];
 let pokedexDirectory = [];
 let searchDebounceTimer = null;
 
+// AbortController for background grid loading tasks
+let backgroundAbortController = null;
+
 let activeType = "all";
 let activeType2 = "all";
 let activeGen = "all";
@@ -95,6 +98,47 @@ let scrollState = {
 
 let currentActiveCry = null;
 let activePokemonForVoice = null;
+
+/**
+ * Cancels any active background fetching operations (search, infinite scroll, batch loads)
+ */
+function abortBackgroundOperations() {
+  if (backgroundAbortController) {
+    backgroundAbortController.abort();
+    backgroundAbortController = null;
+  }
+  scrollState.loading = false;
+  setSearchLoading(false);
+}
+
+/**
+ * Creates and returns a fresh AbortSignal for background operations
+ */
+function createBackgroundSignal() {
+  abortBackgroundOperations();
+  backgroundAbortController = new AbortController();
+  return backgroundAbortController.signal;
+}
+
+/**
+ * Controls the mini loading spinner in the search bar
+ */
+function setSearchLoading(isLoading) {
+  let searchWrapper = document.querySelector(".search-box-wrapper");
+  if (!searchWrapper) return;
+
+  let spinner = document.getElementById("search-input-spinner");
+  if (isLoading) {
+    if (!spinner) {
+      spinner = document.createElement("div");
+      spinner.id = "search-input-spinner";
+      spinner.className = "input-spinner";
+      searchWrapper.appendChild(spinner);
+    }
+  } else {
+    if (spinner) spinner.remove();
+  }
+}
 
 function stopPokedexAudio() {
   if (currentActiveCry) {
@@ -182,8 +226,9 @@ function playPokemonCryAndSpeak(pokemon, explicitDescription = null) {
   }
 }
 
-function debounce(func, delay = 200) {
+function debounce(func, delay = 350) {
   return (...args) => {
+    setSearchLoading(true);
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => func(...args), delay);
   };
@@ -289,6 +334,7 @@ async function loadScrollBatch(isFirstBatch = false) {
   if (!scrollState.active || scrollState.loading || !scrollState.hasMore) return;
 
   scrollState.loading = true;
+  const signal = createBackgroundSignal();
 
   if (!isFirstBatch) {
     let scrollLoader = document.getElementById("scroll-loader");
@@ -305,7 +351,8 @@ async function loadScrollBatch(isFirstBatch = false) {
     const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
-      24
+      24,
+      signal
     );
 
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
@@ -321,6 +368,7 @@ async function loadScrollBatch(isFirstBatch = false) {
     scrollState.currentIndex = nextIndex;
     scrollState.hasMore = hasMore;
   } catch (error) {
+    if (error.name === "AbortError") return;
     const scrollLoader = document.getElementById("scroll-loader");
     if (scrollLoader) scrollLoader.remove();
     console.error("Scroll load error:", error);
@@ -330,6 +378,7 @@ async function loadScrollBatch(isFirstBatch = false) {
 }
 
 async function applyCombinedFilters() {
+  abortBackgroundOperations();
   refreshFilterIndicator();
   scrollState.active = false;
   gridContainer.innerHTML = `
@@ -386,22 +435,31 @@ async function applyCombinedFilters() {
     gridContainer.innerHTML = "";
     await loadScrollBatch(true);
   } catch (error) {
+    if (error.name === "AbortError") return;
     gridContainer.innerHTML = `<p class="error-msg">❌ ${error.message}</p>`;
   }
 }
 
 async function openPokemonModal(identifier) {
+  // CRITICAL: Stop background search and batch operations immediately
+  abortBackgroundOperations();
+
   modalContent.innerHTML = `<div class="modal-loading-state"><p>Loading complete Pokédex data...</p></div>`;
   modalOverlay.classList.remove("hidden");
 
   try {
-    const fullPokemon = await fetchPokemon(identifier);
+    // If already in memory cache, load instantly
+    let fullPokemon = fetchedCache.get(Number(identifier)) || fetchedCache.get(identifier);
+    if (!fullPokemon) {
+      fullPokemon = await fetchPokemon(identifier);
+      fetchedCache.set(fullPokemon.id, fullPokemon);
+    }
     currentActivePokemon = fullPokemon;
-    fetchedCache.set(fullPokemon.id, fullPokemon);
 
     renderPokemonModal(fullPokemon, modalContent, currentModalGame);
     playPokemonCryAndSpeak(fullPokemon);
   } catch (err) {
+    if (err.name === "AbortError") return;
     renderError(`Could not load Pokémon details: ${err.message}`, modalContent);
   }
 }
@@ -445,7 +503,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateToggleSwitchUI();
   refreshFilterIndicator();
 
-  // Expanding Filter Drawer Toggle
   if (filterExpandBtn && filterDrawer) {
     filterExpandBtn.addEventListener("click", () => {
       filterDrawer.classList.toggle("collapsed");
@@ -488,16 +545,20 @@ if (gridContainer) {
   });
 }
 
-// Search Input
+// Debounced Live Search with Loading Indicator & Background Cancellation
 if (searchInput) {
   searchInput.addEventListener(
     "input",
     debounce(async (e) => {
       const cleanQuery = e.target.value.toLowerCase().trim();
       if (!cleanQuery) {
+        setSearchLoading(false);
         applyCombinedFilters();
         return;
       }
+
+      abortBackgroundOperations();
+      const signal = createBackgroundSignal();
 
       if (pokedexDirectory.length === 0) {
         pokedexDirectory = await fetchFullPokedexDirectory();
@@ -521,6 +582,7 @@ if (searchInput) {
       });
 
       if (directMatches.length === 0) {
+        setSearchLoading(false);
         gridContainer.innerHTML = `<p class="status-message">No Pokémon found matching "${e.target.value}".</p>`;
         return;
       }
@@ -535,17 +597,25 @@ if (searchInput) {
       };
 
       gridContainer.innerHTML = "";
-      const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
-        uniqueNames,
-        0,
-        uniqueNames.length
-      );
-      pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-      currentDisplayedPokemon = [...pokemonList];
-      renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, false);
-      scrollState.currentIndex = nextIndex;
-      scrollState.hasMore = hasMore;
-    }, 200)
+      try {
+        const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
+          uniqueNames,
+          0,
+          uniqueNames.length,
+          signal
+        );
+        pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+        currentDisplayedPokemon = [...pokemonList];
+        renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, false);
+        scrollState.currentIndex = nextIndex;
+        scrollState.hasMore = hasMore;
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        console.error("Search batch error:", err);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 350)
   );
 }
 
@@ -568,6 +638,7 @@ if (navTeamBtn) {
 
 if (navScanBtn) {
   navScanBtn.addEventListener("click", () => {
+    abortBackgroundOperations();
     if (scannerModal) {
       scannerModal.classList.remove("hidden");
       startCameraStream(scannerVideo, scannerStatus);
@@ -577,6 +648,7 @@ if (navScanBtn) {
 
 if (navGameBtn) {
   navGameBtn.addEventListener("click", () => {
+    abortBackgroundOperations();
     if (nextPokemonBtn) nextPokemonBtn.style.display = "none";
     startNewRound(gameImg, gameOptions, gameFeedback, streakCount, highscoreCount);
     gameModal.classList.remove("hidden");
@@ -675,7 +747,7 @@ if (modalContent) {
   });
 }
 
-// Card Delegations: Caught, Favorite, Add to Team & Modal Inspection
+// Card Delegations
 gridContainer.addEventListener("click", (e) => {
   // 1. Caught / Identified Toggle
   const caughtBtn = e.target.closest(".caught-btn");
@@ -730,7 +802,7 @@ gridContainer.addEventListener("click", (e) => {
     return;
   }
 
-  // 4. Open Modal Card View
+  // 4. Open Modal Card View (Halts background jobs immediately)
   const card = e.target.closest(".pokemon-card");
   if (card) {
     const pokemonId = Number(card.dataset.id);

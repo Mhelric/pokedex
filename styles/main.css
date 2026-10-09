@@ -1878,3 +1878,22 @@ body {
   transform: translateY(-6px) scale(1.04);
   box-shadow: 0 6px 20px rgba(239, 83, 80, 0.55);
 }
+
+/* Inline Search Spinner Indicator */
+.input-spinner {
+  position: absolute;
+  right: 48px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #ef4444;
+  border-radius: 50%;
+  animation: spinInput 0.7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinInput {
+  to {
+    transform: rotate(360deg);
+  }
+}

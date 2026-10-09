@@ -323,10 +323,10 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
   };
 }
 
-export async function fetchPokemon(nameOrId) {
+export async function fetchPokemon(nameOrId, signal = null) {
   try {
     const cleanQuery = String(nameOrId).toLowerCase().trim().replace(/\s+/g, "-");
-    const response = await fetch(`${BASE_URL}/${cleanQuery}`);
+    const response = await fetch(`${BASE_URL}/${cleanQuery}`, { signal });
     if (!response.ok) {
       throw new Error(`Pokémon "${nameOrId}" not found.`);
     }
@@ -337,22 +337,26 @@ export async function fetchPokemon(nameOrId) {
 
     try {
       const speciesIdentifier = rawData.species?.name || rawData.id;
-      const speciesRes = await fetch(`${SPECIES_URL}/${speciesIdentifier}`);
+      const speciesRes = await fetch(`${SPECIES_URL}/${speciesIdentifier}`, { signal });
       if (speciesRes.ok) {
         speciesData = await speciesRes.json();
         if (speciesData.evolution_chain?.url) {
-          const evoRes = await fetch(speciesData.evolution_chain.url);
+          const evoRes = await fetch(speciesData.evolution_chain.url, { signal });
           if (evoRes.ok) {
             evolutionData = await evoRes.json();
           }
         }
       }
     } catch (e) {
+      if (e.name === "AbortError") throw e;
       console.warn("Could not fetch species data:", e);
     }
 
     return normalizePokemonData(rawData, speciesData, evolutionData);
   } catch (error) {
+    if (error.name === "AbortError") {
+      throw error;
+    }
     console.error("API Error:", error.message);
     throw error;
   }
@@ -401,11 +405,12 @@ export async function getPokemonListByType(typeName) {
   });
 }
 
-export async function fetchPokemonBatch(items, startIndex, batchSize = 30) {
+export async function fetchPokemonBatch(items, startIndex, batchSize = 30, signal = null) {
   const slice = items.slice(startIndex, startIndex + batchSize);
   const promises = slice.map((item) => {
     const identifier = typeof item === "object" ? item.name : item;
-    return fetchPokemon(identifier).catch((err) => {
+    return fetchPokemon(identifier, signal).catch((err) => {
+      if (err.name === "AbortError") throw err;
       console.warn(`Skipped Pokémon ${identifier}:`, err);
       return null;
     });
