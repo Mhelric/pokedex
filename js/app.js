@@ -8,6 +8,7 @@ import {
   fetchPokemonBatch,
   fetchFullPokedexDirectory,
   GEN_RANGES,
+  isItemInGenRange,
 } from "./api.js";
 import {
   startCameraStream,
@@ -412,10 +413,10 @@ async function applyCombinedFilters() {
     }
 
     if (activeGen !== "all") {
-      const range = GEN_RANGES[activeGen];
-      listToBatch = listToBatch.filter((p) => {
-        const id = typeof p === "object" ? p.id : p;
-        return (id >= range.start && id <= range.end) || id >= 10000;
+      listToBatch = listToBatch.filter((item) => {
+        // Ensure ID is numeric if an object is passed
+        const pokeItem = typeof item === "object" ? { ...item, id: Number(item.id) } : Number(item);
+        return isItemInGenRange(pokeItem, activeGen);
       });
     }
 
