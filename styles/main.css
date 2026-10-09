@@ -1,13 +1,13 @@
-/* ==========================================
-   1. GLOBAL STYLES & HEADER
-   ========================================== */
+/* ==========================================================================
+   1. GLOBAL STYLES, MOVING BACKGROUND & HEADER
+   ========================================================================== */
 * {
   box-sizing: border-box;
 }
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f4f6f9;
+  background-color: #f8fafc;
   margin: 0;
   padding: 0 0 68px 0;
   color: #1e293b;
@@ -17,13 +17,37 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* Subtle Dynamic Moving Mesh Background */
+.moving-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: radial-gradient(circle at 15% 20%, rgba(239, 68, 68, 0.08) 0%, transparent 45%),
+              radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
+              radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 55%),
+              #f8fafc;
+  background-size: 200% 200%;
+  animation: moveGradient 18s ease infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes moveGradient {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 50% 0%; }
 }
 
 .app-header {
   background-color: #ef5350;
   color: #ffffff;
   padding: 0.7rem 1.2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,9 +58,25 @@ body {
   min-height: 54px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Iconic Pokédex Blue Camera/Sensor Lens */
+.pokedex-lens {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #38bdf8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
 .header-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -103,9 +143,9 @@ body {
   transform: translateX(20px);
 }
 
-/* ==========================================
-   2. APP CONTAINER & CONTROLS
-   ========================================== */
+/* ==========================================================================
+   2. APP CONTAINER, EMBEDDED SEARCH & EXPANDABLE FILTER DRAWER
+   ========================================================================== */
 #app {
   flex: 1;
   display: flex;
@@ -115,52 +155,152 @@ body {
 }
 
 .controls {
+  position: relative;
+  z-index: 50; /* Stays above the pokemon card grid */
+  overflow: visible;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.8rem 0.8rem 0.6rem 0.8rem;
-  background-color: #ffffff;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.search-form {
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   width: 100%;
-  max-width: 700px;
-  margin-bottom: 8px;
 }
 
-.search-form input[type="text"] {
+.search-box-wrapper {
+  position: relative;
   width: 100%;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  outline: none;
-  font-family: inherit;
-}
-
-.search-form input[type="text"]:focus {
-  border-color: #ef5350;
-}
-
-.filter-bar {
+  max-width: 680px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.search-box-wrapper input[type="text"] {
   width: 100%;
-  max-width: 700px;
-  margin: 2px auto 0 auto;
+  padding: 10px 48px 10px 38px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-#type-dropdown,
-#type2-dropdown {
-  flex: 1 1 calc(50% - 3px);
-  min-width: 120px;
+.search-box-wrapper input[type="text"]:focus {
+  border-color: #ef5350;
+  box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15);
 }
 
-#gen-dropdown {
-  flex: 1 1 100%;
+/* Filter Toggle Button Embedded On the Right of Search Bar */
+.filter-toggle-btn {
+  position: absolute;
+  right: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-toggle-btn:hover,
+.filter-toggle-btn.active {
+  background: #ef5350;
+  color: #ffffff;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+
+.filter-badge.hidden {
+  display: none;
+}
+
+/* Downward Expanding Filter Drawer */
+.filter-drawer {
+  display: grid;
+  grid-template-rows: 1fr;
+  width: 100%;
+  max-width: 650px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 60;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
+  opacity: 1;
+}
+
+.filter-drawer.collapsed {
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.filter-drawer.collapsed .drawer-inner {
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
+}
+
+.drawer-inner {
+  overflow: visible; /* Allows dropdown menus to spill out freely over cards */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  min-height: 0;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.filter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.3px;
 }
 
 .custom-dropdown {
@@ -169,10 +309,10 @@ body {
 
 .dropdown-trigger {
   width: 100%;
-  height: 32px;
-  padding: 0 8px;
-  font-size: 0.8rem;
-  border-radius: 6px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.82rem;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -183,21 +323,26 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
   font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.dropdown-trigger:hover {
+  border-color: #94a3b8;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   max-height: 220px;
   overflow-y: auto;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  z-index: 120;
+  border-radius: 8px;
+  z-index: 999; /* Higher than any cards */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .custom-dropdown.open .dropdown-menu {
@@ -205,8 +350,8 @@ body {
 }
 
 .dropdown-option {
-  padding: 6px 8px;
-  font-size: 0.78rem;
+  padding: 7px 10px;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
@@ -216,85 +361,122 @@ body {
   font-weight: 600;
 }
 
-/* ==========================================
+/* ==========================================================================
    3. POKÉMON GRID & CARDS
-   ========================================== */
+   ========================================================================== */
 .pokemon-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
   align-content: start;
-  gap: 10px;
-  padding: 0.8rem 0.6rem;
-  max-width: 1200px;
+  gap: 14px;
+  padding: 1rem 0.8rem;
+  max-width: 1240px;
   width: 100%;
   margin: 0 auto;
   overflow-y: auto;
-  background-color: #f8fafc;
+  background: transparent;
 }
 
 @media (min-width: 640px) {
   .pokemon-grid {
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
     gap: 16px;
-    padding: 1.2rem;
+    padding: 1.25rem;
   }
 }
 
 .pokemon-card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 10px 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: fit-content;
   cursor: pointer;
+  position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-@media (min-width: 640px) {
-  .pokemon-card {
-    padding: 14px;
-  }
-}
-
 .pokemon-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: #cbd5e1;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
-.card-image {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  margin: 0 auto;
-  display: block;
-}
-
-@media (min-width: 640px) {
-  .card-image {
-    width: 96px;
-    height: 96px;
-  }
+/* Card Top Bar with Identification and Love buttons */
+.card-top-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .card-id {
   font-size: 0.74rem;
   color: #94a3b8;
-  align-self: flex-start;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.card-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-toggle-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-toggle-btn:hover {
+  transform: scale(1.2);
+}
+
+.icon-toggle-btn.caught-btn.active {
+  color: #16a34a;
+}
+
+.icon-toggle-btn.fav-btn.active {
+  color: #ef4444;
+}
+
+.card-media {
+  width: 100%;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0 6px 0;
+}
+
+.card-image {
+  max-width: 92px;
+  max-height: 92px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
 }
 
 .pokemon-name {
   margin: 4px 0 2px 0;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: #1e293b;
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .pokemon-genus {
@@ -343,28 +525,88 @@ body {
 .type-dark { background-color: #775544; }
 .type-normal { background-color: #aaaa99; color: #000; }
 
-.card-stats {
-  font-size: 0.74rem;
-  color: #64748b;
-  width: 100%;
+/* Metrics Row: Height & Weight */
+.card-metrics-row {
   display: flex;
-  justify-content: space-around;
-  margin: 4px 0;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.72rem;
   font-weight: 600;
+  color: #64748b;
+  margin: 4px 0;
 }
 
+.card-metrics-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Abilities Pill */
+.card-ability-pill {
+  font-size: 0.72rem;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin: 4px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.card-ability-pill .pill-label {
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* Description / Pokédex Entry */
 .pokemon-description {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-style: italic;
   color: #475569;
   background-color: #f8fafc;
   border-left: 3px solid #ef5350;
-  padding: 8px 10px;
+  padding: 7px 9px;
   margin: 6px 0;
   border-radius: 0 6px 6px 0;
-  line-height: 1.4;
+  line-height: 1.35;
   width: 100%;
 }
+
+/* Stats Progress Grid */
+.card-stats-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.stat-mini {
+  display: grid;
+  grid-template-columns: 28px 1fr 24px;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.mini-bar-track {
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.mini-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.mini-bar-fill.hp { background: #10b981; }
+.mini-bar-fill.atk { background: #ef4444; }
+.mini-bar-fill.def { background: #3b82f6; }
 
 .card-actions {
   width: 100%;
@@ -374,11 +616,11 @@ body {
 
 .add-team-btn {
   width: 100%;
-  padding: 6px 4px;
+  padding: 7px 4px;
   background-color: #16a34a;
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 700;
   font-size: 0.78rem;
   cursor: pointer;
@@ -394,14 +636,14 @@ body {
   grid-column: 1 / -1;
   text-align: center;
   color: #64748b;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  padding: 2rem 0;
+  padding: 2.5rem 0;
 }
 
-/* ==========================================
-   4. MODALS (NO VISIBLE SCROLLBAR & CENTERED HEADERS)
-   ========================================== */
+/* ==========================================================================
+   4. MODALS (DETAIL VIEW & TEAM BUILDER)
+   ========================================================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -435,7 +677,7 @@ body {
   border: 1px solid #e2e8f0;
 }
 
-/* Strip visible scrollbars completely */
+/* Invisible Clean Scrollbars */
 #pokemon-modal .modal-card,
 #pokemon-modal .modal-bottom-details,
 #pokemon-modal .table-scroll-wrap,
@@ -491,7 +733,6 @@ body {
   pointer-events: none;
 }
 
-/* Centered Header Layout */
 .modal-top-layout {
   display: flex;
   flex-direction: column;
@@ -597,13 +838,6 @@ body {
   transform: scale(1.08);
 }
 
-.pokemon-genus {
-  font-size: 0.85rem;
-  font-style: italic;
-  color: #64748b;
-  margin: 4px 0 10px 0;
-}
-
 .modal-header-info .card-types {
   margin-bottom: 0;
   gap: 6px;
@@ -615,7 +849,6 @@ body {
   }
 }
 
-/* Sections */
 .detail-section {
   background: #ffffff;
   border: 1px solid #eef2f6;
@@ -661,7 +894,6 @@ body {
   font-weight: 700;
 }
 
-/* Forms with Official Artwork Grid */
 .varieties-artwork-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -714,7 +946,6 @@ body {
   line-height: 1.25;
 }
 
-/* Abilities */
 .abilities-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -823,9 +1054,9 @@ body {
   font-style: italic;
 }
 
-/* ==========================================
+/* ==========================================================================
    COMPACT & RESPONSIVE EVOLUTION TREE
-   ========================================== */
+   ========================================================================== */
 .evolution-tree-container {
   display: flex;
   justify-content: center;
@@ -835,7 +1066,6 @@ body {
   overflow-x: auto;
 }
 
-/* Vertical stack by default for mobile and narrow screens */
 .evo-group {
   display: flex;
   flex-direction: column;
@@ -871,10 +1101,9 @@ body {
 .evo-arrow {
   color: #94a3b8;
   font-size: 0.75rem;
-  transform: rotate(90deg); /* Points downwards on narrow viewports */
+  transform: rotate(90deg);
 }
 
-/* Desktop & tablet: switch back to horizontal row */
 @media (min-width: 680px) {
   .evo-group {
     flex-direction: row;
@@ -894,7 +1123,7 @@ body {
   }
 
   .evo-arrow {
-    transform: rotate(0deg); /* Points right */
+    transform: rotate(0deg);
   }
 }
 
@@ -954,7 +1183,7 @@ body {
   line-height: 1.1;
 }
 
-/* Compact Eeveelutions Responsive Grid */
+/* Eeveelutions Responsive Grid */
 .eevee-grid-wrapper {
   display: flex;
   flex-direction: column;
@@ -1158,7 +1387,7 @@ body {
   border-radius: 4px;
 }
 
-/* Polished Bottom Game / Generation Selector Button & Panel */
+/* Generation / Game Setting Selection */
 .game-selector-bottom-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -1222,7 +1451,6 @@ body {
   font-weight: 600;
 }
 
-/* Matchup Badges */
 .matchup-group {
   margin-bottom: 10px;
 }
@@ -1272,9 +1500,9 @@ body {
   color: #16a34a;
 }
 
-/* ==========================================
+/* ==========================================================================
    5. TEAM MODAL STYLING
-   ========================================== */
+   ========================================================================== */
 .team-header {
   display: flex;
   justify-content: space-between;
@@ -1513,9 +1741,9 @@ body {
   margin: 0;
 }
 
-/* ==========================================
-   6. SCANNER CARD & BOTTOM NAV
-   ========================================== */
+/* ==========================================================================
+   6. SCANNER CARD & BOTTOM ACTION BAR
+   ========================================================================== */
 .scanner-card {
   background: #1e293b;
   color: #ffffff;
@@ -1564,7 +1792,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1579,12 +1807,12 @@ body {
   align-items: center;
   gap: 12px;
   padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 40px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .bottom-nav-item {
@@ -1610,15 +1838,15 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* Enlarged Highlighted Center Scan Button */
+/* Scanner Button with Modern Pokédex Scan Reticle Accent */
 .bottom-nav-item.highlight-btn {
   width: 56px;
   height: 56px;
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   background: #ef5350;
   color: #ffffff;
   border-color: #ef5350;
-  box-shadow: 0 4px 14px rgba(239, 83, 80, 0.45);
+  box-shadow: 0 4px 16px rgba(239, 83, 80, 0.45);
   transform: translateY(-4px);
 }
 
@@ -1626,5 +1854,5 @@ body {
   background: #dc2626;
   color: #ffffff;
   transform: translateY(-6px) scale(1.04);
-  box-shadow: 0 6px 18px rgba(239, 83, 80, 0.55);
+  box-shadow: 0 6px 20px rgba(239, 83, 80, 0.55);
 }

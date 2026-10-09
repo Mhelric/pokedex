@@ -10,26 +10,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Dynamic Moving Background Mesh -->
+    <div class="moving-bg"></div>
+
     <!-- Pokeball Intro Opening Screen Overlay -->
     <div id="pokeball-overlay" class="pokeball-overlay">
-    <div class="pokeball-half pokeball-top"></div>
-    <div class="pokeball-middle-stripe">
-        <div class="pokeball-center-outer">
-        <div class="pokeball-center-inner"></div>
-        </div>
+      <div class="pokeball-half pokeball-top"></div>
+      <div class="pokeball-middle-stripe">
+          <div class="pokeball-center-outer">
+            <div class="pokeball-center-inner"></div>
+          </div>
+      </div>
+      <div class="pokeball-half pokeball-bottom"></div>
     </div>
-    <div class="pokeball-half pokeball-bottom"></div>
-    </div>
+
     <header class="app-header">
-        <h1 class="header-title">Pokédex</h1>
+        <div class="header-left">
+            <div class="pokedex-lens"></div>
+            <h1 class="header-title">Pokédex</h1>
+        </div>
         
-        <!-- Smooth Mode Toggle on the Top-Right Red Header -->
+        <!-- Toggle Artwork / Sprites -->
         <div class="header-toggle-container">
             <span class="toggle-mode-label" id="toggle-mode-text">Official Artwork</span>
-            <label class="switch" for="sprite-toggle-input" title="Toggle between Official Artwork and Animated Sprites">
+            <label class="switch" for="sprite-toggle-input" title="Toggle Artwork or Sprites">
                 <input type="checkbox" id="sprite-toggle-input" />
                 <span class="slider"></span>
             </label>
@@ -37,94 +44,107 @@
     </header>
 
     <main id="app">
-        <!-- Controls: Live Search and Filter Bar -->
+        <!-- Controls: Search Bar with Embedded Filter Button & Expandable Downward Drawer -->
         <section class="controls">
-            <form id="search-form" class="search-form" onsubmit="return false;">
+            <div class="search-box-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input 
                     type="text" 
                     id="search-input" 
-                    placeholder="Search name or ID..." 
+                    placeholder="Search Pokémon by name or ID..." 
                     autocomplete="off" 
                 />
-            </form>
+                <button type="button" id="filter-expand-btn" class="filter-toggle-btn" aria-label="Toggle Filters" title="Filter Pokémon">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="filter-badge hidden" id="active-filter-indicator"></span>
+                </button>
+            </div>
 
-            <!-- Compact Side-by-Side Custom Filter Bar -->
-            <div class="filter-bar">
-                <!-- Primary Type Dropdown -->
-                <div class="custom-dropdown" id="type-dropdown">
-                    <button class="dropdown-trigger" type="button">
-                        <span class="trigger-label">Type 1: All</span>
-                        <span class="dropdown-arrow">▾</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-option active" data-value="all">Type 1: All</div>
-                        <div class="dropdown-option" data-value="fire">Fire</div>
-                        <div class="dropdown-option" data-value="water">Water</div>
-                        <div class="dropdown-option" data-value="grass">Grass</div>
-                        <div class="dropdown-option" data-value="electric">Electric</div>
-                        <div class="dropdown-option" data-value="ice">Ice</div>
-                        <div class="dropdown-option" data-value="fighting">Fighting</div>
-                        <div class="dropdown-option" data-value="poison">Poison</div>
-                        <div class="dropdown-option" data-value="ground">Ground</div>
-                        <div class="dropdown-option" data-value="flying">Flying</div>
-                        <div class="dropdown-option" data-value="psychic">Psychic</div>
-                        <div class="dropdown-option" data-value="bug">Bug</div>
-                        <div class="dropdown-option" data-value="rock">Rock</div>
-                        <div class="dropdown-option" data-value="ghost">Ghost</div>
-                        <div class="dropdown-option" data-value="dragon">Dragon</div>
-                        <div class="dropdown-option" data-value="steel">Steel</div>
-                        <div class="dropdown-option" data-value="fairy">Fairy</div>
-                        <div class="dropdown-option" data-value="dark">Dark</div>
-                        <div class="dropdown-option" data-value="normal">Normal</div>
+            <!-- Downward Expanding Filter Drawer -->
+            <div id="filter-drawer" class="filter-drawer collapsed">
+                <div class="drawer-inner">
+                    <div class="filter-group">
+                        <span class="filter-label">Primary Type</span>
+                        <div class="custom-dropdown" id="type-dropdown">
+                            <button class="dropdown-trigger" type="button">
+                                <span class="trigger-label">Type 1: All</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-option active" data-value="all">Type 1: All</div>
+                                <div class="dropdown-option" data-value="fire">Fire</div>
+                                <div class="dropdown-option" data-value="water">Water</div>
+                                <div class="dropdown-option" data-value="grass">Grass</div>
+                                <div class="dropdown-option" data-value="electric">Electric</div>
+                                <div class="dropdown-option" data-value="ice">Ice</div>
+                                <div class="dropdown-option" data-value="fighting">Fighting</div>
+                                <div class="dropdown-option" data-value="poison">Poison</div>
+                                <div class="dropdown-option" data-value="ground">Ground</div>
+                                <div class="dropdown-option" data-value="flying">Flying</div>
+                                <div class="dropdown-option" data-value="psychic">Psychic</div>
+                                <div class="dropdown-option" data-value="bug">Bug</div>
+                                <div class="dropdown-option" data-value="rock">Rock</div>
+                                <div class="dropdown-option" data-value="ghost">Ghost</div>
+                                <div class="dropdown-option" data-value="dragon">Dragon</div>
+                                <div class="dropdown-option" data-value="steel">Steel</div>
+                                <div class="dropdown-option" data-value="fairy">Fairy</div>
+                                <div class="dropdown-option" data-value="dark">Dark</div>
+                                <div class="dropdown-option" data-value="normal">Normal</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Secondary Type Dropdown -->
-                <div class="custom-dropdown" id="type2-dropdown">
-                    <button class="dropdown-trigger" type="button">
-                        <span class="trigger-label">Type 2: All</span>
-                        <span class="dropdown-arrow">▾</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-option active" data-value="all">Type 2: All</div>
-                        <div class="dropdown-option" data-value="fire">Fire</div>
-                        <div class="dropdown-option" data-value="water">Water</div>
-                        <div class="dropdown-option" data-value="grass">Grass</div>
-                        <div class="dropdown-option" data-value="electric">Electric</div>
-                        <div class="dropdown-option" data-value="ice">Ice</div>
-                        <div class="dropdown-option" data-value="fighting">Fighting</div>
-                        <div class="dropdown-option" data-value="poison">Poison</div>
-                        <div class="dropdown-option" data-value="ground">Ground</div>
-                        <div class="dropdown-option" data-value="flying">Flying</div>
-                        <div class="dropdown-option" data-value="psychic">Psychic</div>
-                        <div class="dropdown-option" data-value="bug">Bug</div>
-                        <div class="dropdown-option" data-value="rock">Rock</div>
-                        <div class="dropdown-option" data-value="ghost">Ghost</div>
-                        <div class="dropdown-option" data-value="dragon">Dragon</div>
-                        <div class="dropdown-option" data-value="steel">Steel</div>
-                        <div class="dropdown-option" data-value="fairy">Fairy</div>
-                        <div class="dropdown-option" data-value="dark">Dark</div>
-                        <div class="dropdown-option" data-value="normal">Normal</div>
+                    <div class="filter-group">
+                        <span class="filter-label">Secondary Type</span>
+                        <div class="custom-dropdown" id="type2-dropdown">
+                            <button class="dropdown-trigger" type="button">
+                                <span class="trigger-label">Type 2: All</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-option active" data-value="all">Type 2: All</div>
+                                <div class="dropdown-option" data-value="fire">Fire</div>
+                                <div class="dropdown-option" data-value="water">Water</div>
+                                <div class="dropdown-option" data-value="grass">Grass</div>
+                                <div class="dropdown-option" data-value="electric">Electric</div>
+                                <div class="dropdown-option" data-value="ice">Ice</div>
+                                <div class="dropdown-option" data-value="fighting">Fighting</div>
+                                <div class="dropdown-option" data-value="poison">Poison</div>
+                                <div class="dropdown-option" data-value="ground">Ground</div>
+                                <div class="dropdown-option" data-value="flying">Flying</div>
+                                <div class="dropdown-option" data-value="psychic">Psychic</div>
+                                <div class="dropdown-option" data-value="bug">Bug</div>
+                                <div class="dropdown-option" data-value="rock">Rock</div>
+                                <div class="dropdown-option" data-value="ghost">Ghost</div>
+                                <div class="dropdown-option" data-value="dragon">Dragon</div>
+                                <div class="dropdown-option" data-value="steel">Steel</div>
+                                <div class="dropdown-option" data-value="fairy">Fairy</div>
+                                <div class="dropdown-option" data-value="dark">Dark</div>
+                                <div class="dropdown-option" data-value="normal">Normal</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Generation Dropdown -->
-                <div class="custom-dropdown" id="gen-dropdown">
-                    <button class="dropdown-trigger" type="button">
-                        <span class="trigger-label">All Generations</span>
-                        <span class="dropdown-arrow">▾</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-option active" data-value="all">All Generations</div>
-                        <div class="dropdown-option" data-value="1">Generation 1: Kanto</div>
-                        <div class="dropdown-option" data-value="2">Generation 2: Johto</div>
-                        <div class="dropdown-option" data-value="3">Generation 3: Hoenn</div>
-                        <div class="dropdown-option" data-value="4">Generation 4: Sinnoh</div>
-                        <div class="dropdown-option" data-value="5">Generation 5: Unova</div>
-                        <div class="dropdown-option" data-value="6">Generation 6: Kalos</div>
-                        <div class="dropdown-option" data-value="7">Generation 7: Alola</div>
-                        <div class="dropdown-option" data-value="8">Generation 8: Galar</div>
-                        <div class="dropdown-option" data-value="9">Generation 9: Paldea</div>
+                    <div class="filter-group full-width">
+                        <span class="filter-label">Generation</span>
+                        <div class="custom-dropdown" id="gen-dropdown">
+                            <button class="dropdown-trigger" type="button">
+                                <span class="trigger-label">All Generations</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-option active" data-value="all">All Generations</div>
+                                <div class="dropdown-option" data-value="1">Generation 1: Kanto</div>
+                                <div class="dropdown-option" data-value="2">Generation 2: Johto</div>
+                                <div class="dropdown-option" data-value="3">Generation 3: Hoenn</div>
+                                <div class="dropdown-option" data-value="4">Generation 4: Sinnoh</div>
+                                <div class="dropdown-option" data-value="5">Generation 5: Unova</div>
+                                <div class="dropdown-option" data-value="6">Generation 6: Kalos</div>
+                                <div class="dropdown-option" data-value="7">Generation 7: Alola</div>
+                                <div class="dropdown-option" data-value="8">Generation 8: Galar</div>
+                                <div class="dropdown-option" data-value="9">Generation 9: Paldea</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -143,9 +163,7 @@
                     <h2>My Team (<span id="team-count">0</span>/6)</h2>
                     <button id="clear-team-btn" class="btn-secondary" type="button">Clear team</button>
                 </div>
-                <div id="team-grid" class="team-grid">
-                    <!-- Dynamic team slot cards -->
-                </div>
+                <div id="team-grid" class="team-grid"></div>
             </div>
         </div>
 
@@ -164,12 +182,8 @@
                     <div class="silhouette-container">
                         <img id="game-pokemon-img" class="silhouette" src="" alt="Mystery Pokemon" />
                     </div>
-                    <div id="game-feedback" class="game-feedback">
-                        Guess the Pokémon!
-                    </div>
-                    <div id="game-options" class="game-options">
-                        <!-- Multiple Choice Buttons -->
-                    </div>
+                    <div id="game-feedback" class="game-feedback">Guess the Pokémon!</div>
+                    <div id="game-options" class="game-options"></div>
                     <button id="next-pokemon-btn" class="btn-primary" style="display: none">Next Pokemon</button>
                 </div>
             </div>
@@ -179,9 +193,7 @@
         <div id="pokemon-modal" class="modal-overlay hidden">
             <div class="modal-card">
                 <button id="modal-close-btn" class="modal-close" type="button" aria-label="Close Info Modal">&times;</button>
-                <div id="modal-content" class="modal-body">
-                    <!-- Dynamic details rendered here -->
-                </div>
+                <div id="modal-content" class="modal-body"></div>
             </div>
         </div>
 
@@ -202,23 +214,21 @@
 
                 <div class="scanner-controls">
                     <button id="capture-scan-btn" class="btn-primary" type="button">Scan Target</button>
-                    <label for="image-upload-input" class="btn-secondary file-upload-label">
-                        Upload Photo
-                    </label>
+                    <label for="image-upload-input" class="btn-secondary file-upload-label">Upload Photo</label>
                     <input type="file" id="image-upload-input" accept="image/*" style="display: none;" />
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Glassmorphic Fixed Bottom Action Bar -->
+    <!-- Glassmorphic Fixed Bottom Action Bar with Gemini-Style Scanner -->
     <nav class="bottom-action-bar">
         <div class="bottom-nav-inner">
             <button type="button" id="nav-team-btn" class="bottom-nav-item" title="Team Builder" aria-label="Team Builder">
                 <i class="fa-solid fa-users"></i>
             </button>
-            <button type="button" id="nav-scan-btn" class="bottom-nav-item highlight-btn" title="Pokédex Camera Scanner" aria-label="Camera Scanner">
-                <i class="fa-solid fa-camera-retro"></i>
+            <button type="button" id="nav-scan-btn" class="bottom-nav-item highlight-btn" title="Scan with Pokédex Lens" aria-label="Scan">
+                <i class="fa-solid fa-expand"></i> <!-- Modern reticle / scan icon -->
             </button>
             <button type="button" id="nav-game-btn" class="bottom-nav-item" title="Who's That Pokémon?" aria-label="Mini Game">
                 <i class="fa-solid fa-gamepad"></i>

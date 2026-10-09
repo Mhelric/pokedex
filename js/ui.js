@@ -36,6 +36,8 @@ function getTeamSynergy(teamList) {
 
 export function createPokemonCard(pokemon, useAnimated = true) {
   const formattedId = `#${String(pokemon.id).padStart(3, "0")}`;
+  const primaryType = pokemon.types[0] || "normal";
+
   const typeBadges = pokemon.types
     .map((type) => `<span class="type-badge type-${type}">${type}</span>`)
     .join("");
@@ -44,10 +46,32 @@ export function createPokemonCard(pokemon, useAnimated = true) {
     ? pokemon.animatedImage || pokemon.officialArtwork
     : pokemon.officialArtwork;
 
+  const abilitiesText = (pokemon.abilities || [])
+    .slice(0, 2)
+    .map((a) => a.name)
+    .join(", ") || "None";
+
+  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
+  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+
   return `
-    <article class="pokemon-card" data-id="${pokemon.id}">
-      <span class="card-id">${formattedId}</span>
-      <img src="${displayImage}" alt="${pokemon.name}" class="card-image" loading="lazy" />
+    <article class="pokemon-card type-glow-${primaryType}" data-id="${pokemon.id}">
+      <div class="card-top-bar">
+        <span class="card-id">${formattedId}</span>
+        <div class="card-top-actions">
+          <button class="icon-toggle-btn caught-btn ${isCaught ? 'active' : ''}" data-id="${pokemon.id}" title="${isCaught ? 'Identified / Caught' : 'Mark Caught'}" type="button">
+            <i class="fa-solid fa-circle-check"></i>
+          </button>
+          <button class="icon-toggle-btn fav-btn ${isFav ? 'active' : ''}" data-id="${pokemon.id}" title="${isFav ? 'Favorited' : 'Favorite'}" type="button">
+            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-media">
+        <img src="${displayImage}" alt="${pokemon.name}" class="card-image" loading="lazy" />
+      </div>
+
       <h3 class="pokemon-name">${pokemon.name}</h3>
       <p class="pokemon-genus">${pokemon.genus}</p>
       
@@ -55,13 +79,34 @@ export function createPokemonCard(pokemon, useAnimated = true) {
         ${typeBadges}
       </div>
 
-      <div class="card-stats">
-        <p>HP: ${pokemon.stats.hp}</p>
-        <p>ATK: ${pokemon.stats.attack}</p>
-        <p>DEF: ${pokemon.stats.defense}</p>
+      <div class="card-metrics-row">
+        <span><i class="fa-solid fa-ruler-vertical"></i> ${pokemon.height}</span>
+        <span><i class="fa-solid fa-weight-hanging"></i> ${pokemon.weight}</span>
+      </div>
+
+      <div class="card-ability-pill">
+        <span class="pill-label">Ability:</span> ${abilitiesText}
       </div>
 
       <p class="pokemon-description">"${pokemon.description}"</p>
+
+      <div class="card-stats-preview">
+        <div class="stat-mini">
+          <span>HP</span>
+          <div class="mini-bar-track"><div class="mini-bar-fill hp" style="width: ${Math.min(100, (pokemon.stats.hp / 255) * 100)}%"></div></div>
+          <strong>${pokemon.stats.hp}</strong>
+        </div>
+        <div class="stat-mini">
+          <span>ATK</span>
+          <div class="mini-bar-track"><div class="mini-bar-fill atk" style="width: ${Math.min(100, (pokemon.stats.attack / 255) * 100)}%"></div></div>
+          <strong>${pokemon.stats.attack}</strong>
+        </div>
+        <div class="stat-mini">
+          <span>DEF</span>
+          <div class="mini-bar-track"><div class="mini-bar-fill def" style="width: ${Math.min(100, (pokemon.stats.defense / 255) * 100)}%"></div></div>
+          <strong>${pokemon.stats.defense}</strong>
+        </div>
+      </div>
 
       <div class="card-actions">
         <button class="add-team-btn" data-id="${pokemon.id}">+ Add to Team</button>
@@ -95,13 +140,9 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
   }
 }
 
-/**
- * Builds standard centered evolution branches or delegates to Eevee's custom layout.
- */
 function buildEvolutionTreeHtml(evoNode, currentRawName) {
   if (!evoNode) return `<p class="empty-note">No evolution data available.</p>`;
 
-  // Check if root is Eevee with its 8 branched evolutions
   if (evoNode.speciesName.toLowerCase() === "eevee" && evoNode.evolvesTo && evoNode.evolvesTo.length >= 8) {
     return buildEeveeCircularEvolutionHtml(evoNode, currentRawName);
   }
@@ -154,9 +195,6 @@ function buildEvolutionTreeHtml(evoNode, currentRawName) {
   return `<div class="evo-group final">${nodeCard}</div>`;
 }
 
-/**
- * Renders Eevee and its 8 evolutions cleanly in a responsive structured layout.
- */
 function buildEeveeCircularEvolutionHtml(eeveeNode, currentRawName) {
   const isEeveeActive = currentRawName.toLowerCase() === "eevee";
   const eeveeId = eeveeNode.speciesUrl.split("/").filter(Boolean).pop();
@@ -388,7 +426,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
   containerElement.innerHTML = `
     <div class="modal-corner-decor top-right"></div>
 
-    <!-- Centered Header Section -->
     <div class="modal-top-layout">
       <div class="modal-image-container">
         <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="modal-image" />
@@ -406,7 +443,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     </div>
 
     <div class="modal-bottom-details">
-      <!-- Pokedex Description & Audio Wave -->
       <section class="detail-section entry-section">
         <p class="pokemon-description" id="modal-flavor-text">"${currentFlavorText}"</p>
         <div id="modal-voice-indicator" class="pokedex-voice-bar" title="Play / Stop Pokédex Voice">
@@ -415,7 +451,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <!-- Forms with Artwork -->
       ${pokemon.varieties && pokemon.varieties.length > 1 ? `
         <section class="detail-section forms-section">
           <h4 class="section-title">Forms & Gimmicks</h4>
@@ -425,7 +460,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </section>
       ` : ""}
 
-      <!-- Abilities Section -->
       <section class="detail-section abilities-section">
         <h4 class="section-title">Abilities</h4>
         <div class="abilities-list">
@@ -433,7 +467,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <!-- Defensive Type Matchups -->
       <section class="detail-section matchups-section">
         <h4 class="section-title">Defensive Type Matchups</h4>
         <div class="modal-matchups">
@@ -448,7 +481,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <!-- Base & Min/Max Stats -->
       <section class="detail-section stats-section">
         <div class="section-title-row">
           <h4 class="section-title">Stats</h4>
@@ -467,7 +499,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <p class="stat-legend-note">Min: 0 IVs, 0 EVs, Hindering Nature | Max: 31 IVs, 252 EVs, Beneficial Nature</p>
       </section>
 
-      <!-- Evolution Tree -->
       <section class="detail-section evolution-section">
         <h4 class="section-title">Evolution Chain</h4>
         <div class="evolution-tree-container" id="modal-evo-tree">
@@ -475,7 +506,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <!-- Training & Breeding Double Column -->
       <div class="modal-two-columns">
         <section class="detail-section">
           <h4 class="section-title">Training</h4>
@@ -504,7 +534,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </section>
       </div>
 
-      <!-- Moves & Movepool Section -->
       <section class="detail-section moves-section">
         <div class="movepool-header">
           <h4 class="section-title">Movepool</h4>
@@ -532,7 +561,6 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <!-- Polished Game / Generation Selector at Card Bottom -->
       <section class="detail-section game-selector-bottom-card">
         <div class="game-selector-header">
           <h4 class="section-title">Game / Generation Setting</h4>

@@ -27,8 +27,11 @@ import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
 
 // --- DOM References ---
-const searchForm = document.getElementById("search-form");
 const searchInput = document.getElementById("search-input");
+const filterExpandBtn = document.getElementById("filter-expand-btn");
+const filterDrawer = document.getElementById("filter-drawer");
+const activeFilterIndicator = document.getElementById("active-filter-indicator");
+
 const gridContainer = document.getElementById("pokemon-grid");
 const teamGrid = document.getElementById("team-grid");
 const teamCount = document.getElementById("team-count");
@@ -226,6 +229,16 @@ function updateToggleSwitchUI() {
   }
 }
 
+function refreshFilterIndicator() {
+  if (activeFilterIndicator) {
+    if (activeType !== "all" || activeType2 !== "all" || activeGen !== "all") {
+      activeFilterIndicator.classList.remove("hidden");
+    } else {
+      activeFilterIndicator.classList.add("hidden");
+    }
+  }
+}
+
 function reRenderGrid() {
   if (currentDisplayedPokemon.length > 0) {
     renderPokemonGrid(currentDisplayedPokemon, gridContainer, useAnimatedSprites, false);
@@ -317,9 +330,10 @@ async function loadScrollBatch(isFirstBatch = false) {
 }
 
 async function applyCombinedFilters() {
+  refreshFilterIndicator();
   scrollState.active = false;
   gridContainer.innerHTML = `
-  <div class="search-loader-container">
+    <div class="search-loader-container">
       <div class="pokeball-spinner"></div>
       <span class="search-loader-text">Filtering Pokédex...</span>
     </div>
@@ -429,6 +443,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   updateTeamUI();
   updateToggleSwitchUI();
+  refreshFilterIndicator();
+
+  // Expanding Filter Drawer Toggle
+  if (filterExpandBtn && filterDrawer) {
+    filterExpandBtn.addEventListener("click", () => {
+      filterDrawer.classList.toggle("collapsed");
+      filterExpandBtn.classList.toggle("active");
+    });
+  }
 
   setupCustomDropdown("type-dropdown", (selectedType) => {
     activeType = selectedType;
@@ -453,7 +476,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   triggerPokeballOpening();
 });
 
-// Infinite Scroll Event: Automatically loads more items as user scrolls down
+// Infinite Scroll Event
 if (gridContainer) {
   gridContainer.addEventListener("scroll", () => {
     if (
@@ -465,7 +488,7 @@ if (gridContainer) {
   });
 }
 
-// Live Search Input (Loads all matching search results)
+// Search Input
 if (searchInput) {
   searchInput.addEventListener(
     "input",
@@ -526,10 +549,6 @@ if (searchInput) {
   );
 }
 
-if (searchForm) {
-  searchForm.addEventListener("submit", (e) => e.preventDefault());
-}
-
 if (spriteToggleInput) {
   spriteToggleInput.addEventListener("change", (e) => {
     useAnimatedSprites = e.target.checked;
@@ -539,7 +558,7 @@ if (spriteToggleInput) {
   });
 }
 
-// Navigation Actions
+// Bottom Action Bar Buttons
 if (navTeamBtn) {
   navTeamBtn.addEventListener("click", () => {
     updateTeamUI();
@@ -597,7 +616,6 @@ if (scannerModal) scannerModal.addEventListener("click", (e) => { if (e.target =
 // Modal Interactive Delegations
 if (modalContent) {
   modalContent.addEventListener("click", (e) => {
-    // 1. Bottom Game Pill Selected
     const gamePill = e.target.closest(".game-pill-btn");
     if (gamePill) {
       modalContent.querySelectorAll(".game-pill-btn").forEach((p) => p.classList.remove("active"));
@@ -618,7 +636,6 @@ if (modalContent) {
       return;
     }
 
-    // 2. Movepool Category Tabs
     const tabBtn = e.target.closest(".tab-btn");
     if (tabBtn) {
       modalContent.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -628,7 +645,6 @@ if (modalContent) {
       return;
     }
 
-    // 3. Form / Variety Card Click (with Artwork)
     const varietyCard = e.target.closest(".variety-card-item");
     if (varietyCard) {
       const targetName = varietyCard.dataset.name;
@@ -638,7 +654,6 @@ if (modalContent) {
       return;
     }
 
-    // 4. Clickable Evolution Tree Node
     const evoNode = e.target.closest(".evo-node");
     if (evoNode) {
       const speciesTarget = evoNode.dataset.species;
@@ -648,7 +663,6 @@ if (modalContent) {
       return;
     }
 
-    // 5. Voice Wave Bar
     const voiceBar = e.target.closest("#modal-voice-indicator");
     if (voiceBar && activePokemonForVoice) {
       if (window.speechSynthesis.speaking || (currentActiveCry && !currentActiveCry.paused)) {
@@ -661,8 +675,39 @@ if (modalContent) {
   });
 }
 
-// Card and Grid Clicks
+// Card Delegations: Caught, Favorite, Add to Team & Modal Inspection
 gridContainer.addEventListener("click", (e) => {
+  // 1. Caught / Identified Toggle
+  const caughtBtn = e.target.closest(".caught-btn");
+  if (caughtBtn) {
+    e.stopPropagation();
+    const pokeId = caughtBtn.dataset.id;
+    const isCaught = localStorage.getItem(`caught_${pokeId}`) === "true";
+    localStorage.setItem(`caught_${pokeId}`, (!isCaught).toString());
+    caughtBtn.classList.toggle("active", !isCaught);
+    caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
+    showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+    return;
+  }
+
+  // 2. Favorite / Love Toggle
+  const favBtn = e.target.closest(".fav-btn");
+  if (favBtn) {
+    e.stopPropagation();
+    const pokeId = favBtn.dataset.id;
+    const isFav = localStorage.getItem(`fav_${pokeId}`) === "true";
+    localStorage.setItem(`fav_${pokeId}`, (!isFav).toString());
+    favBtn.classList.toggle("active", !isFav);
+    favBtn.title = !isFav ? "Favorited" : "Favorite";
+    const icon = favBtn.querySelector("i");
+    if (icon) {
+      icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+    }
+    showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+    return;
+  }
+
+  // 3. Add to Team
   if (e.target.classList.contains("add-team-btn")) {
     const pokemonId = Number(e.target.dataset.id);
     const pokemon = fetchedCache.get(pokemonId);
@@ -685,6 +730,7 @@ gridContainer.addEventListener("click", (e) => {
     return;
   }
 
+  // 4. Open Modal Card View
   const card = e.target.closest(".pokemon-card");
   if (card) {
     const pokemonId = Number(card.dataset.id);
