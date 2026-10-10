@@ -1064,97 +1064,127 @@ body {
 }
 
 /* ==========================================================================
-   5. EVOLUTION TREE: RESPONSIVE HORIZONTAL CIRCUIT & BATTLE FORMS
+   5. EVOLUTION TREE: RESPONSIVE FLOW WITH PARALLEL BATTLE FORKS
    ========================================================================== */
 .evolution-tree-container {
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
   align-items: center;
-  padding: 8px 4px;
+  justify-content: center;
+  padding: 12px 6px;
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-@media (min-width: 680px) {
-  .evolution-tree-container {
-    justify-content: center;
-    padding: 12px 6px;
-  }
-}
-
 .evo-stage-node {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .evo-node-cluster {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
 }
 
+/* Sibling Evolution Branches (e.g., Pikachu -> Raichu / Alolan Raichu) */
 .evo-stage-branches {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
 }
 
 .evo-branch-col {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex: 1 1 auto;
 }
 
-/* Connectors */
-.evo-connector-badge {
+/* Battle Transformations (Mega X & Y) side-by-side under the Pokémon */
+.battle-forms-fork-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.battle-fork-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Connectors on Mobile (Arrow pointing downwards) */
+.evo-arrow-char {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1;
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+.evo-connector-badge,
+.battle-connector {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-width: 75px;
-  max-width: 105px;
-  text-align: center;
-  flex-shrink: 0;
+  gap: 4px;
 }
 
 .evo-trigger-pill {
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #b91c1c;
   background: #fef2f2;
   border: 1px solid #fee2e2;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 6px;
-  line-height: 1.15;
   text-align: center;
-  word-break: break-word;
+  max-width: 150px;
 }
 
-.evo-arrow-char {
-  color: #94a3b8;
-  font-size: 0.82rem;
-  line-height: 1;
+.battle-trigger-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #4338ca;
+  background: #e0e7ff;
+  border: 1px solid #c7d2fe;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-align: center;
+  max-width: 140px;
 }
 
-/* Evolution Node Card */
+/* Card Styling */
 .evo-node {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 12px;
+  padding: 8px 10px;
+  border-radius: 14px;
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  min-width: 74px;
-  max-width: 90px;
+  min-width: 90px;
+  max-width: 125px;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
 }
@@ -1172,81 +1202,9 @@ body {
   box-shadow: 0 0 0 2px rgba(239, 83, 80, 0.15);
 }
 
-/* Avatar fills ~75% of node frame */
-.evo-avatar-wrap {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.evo-img {
-  width: 46px;
-  height: 46px;
-  object-fit: contain;
-  transition: transform 0.15s ease;
-}
-
-.evo-node:hover .evo-img {
-  transform: scale(1.1);
-}
-
-.evo-name {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #334155;
-  margin-top: 3px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-/* ==========================================
-   BATTLE FORMS (Megas, Primals, Ash-Greninja)
-   ========================================== */
-.battle-forms-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  background: rgba(241, 245, 249, 0.7);
-  padding: 6px 6px;
-  border-radius: 10px;
-  border: 1px dashed #cbd5e1;
-}
-
-.battle-forms-header {
-  font-size: 0.58rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: #64748b;
-  letter-spacing: 0.3px;
-}
-
-.battle-forms-grid {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
-}
-
 .battle-form-card {
   background: #ffffff !important;
-  border: 1.5px solid #e0e7ff !important;
-  position: relative;
-  min-width: 68px;
-  max-width: 82px;
-}
-
-.battle-form-card:hover {
-  border-color: #6366f1 !important;
-}
-
-.battle-form-card.active {
-  border-color: #ef5350 !important;
+  border: 1.5px solid #c7d2fe !important;
 }
 
 .battle-form-tag {
@@ -1254,21 +1212,31 @@ body {
   font-weight: 800;
   color: #4f46e5;
   background: #eef2ff;
-  padding: 1px 4px;
+  padding: 1px 5px;
   border-radius: 4px;
   margin-bottom: 2px;
 }
 
-.battle-trigger-badge {
-  font-size: 0.55rem;
+.evo-avatar-wrap {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evo-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.evo-name {
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #4338ca;
-  background: #e0e7ff;
-  border-radius: 4px;
-  padding: 1px 4px;
-  margin-top: 2px;
+  color: #334155;
+  margin-top: 4px;
   text-align: center;
-  line-height: 1.1;
   word-break: break-word;
 }
 
@@ -1576,6 +1544,47 @@ body {
 .matchup-pill.resist .pill-multiplier {
   background: #dcfce7;
   color: #16a34a;
+}
+
+/* ==========================================================================
+   DESKTOP VIEW: Left-to-Right Horizontal Flow (min-width: 768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .evolution-tree-container {
+    flex-direction: row;
+    padding: 16px 8px;
+    overflow-x: auto;
+  }
+
+  .evo-stage-node {
+    flex-direction: row;
+    width: auto;
+  }
+
+  .evo-stage-branches {
+    flex-direction: column;
+    align-items: flex-start;
+    width: auto;
+  }
+
+  .evo-branch-col {
+    flex-direction: row;
+    width: auto;
+  }
+
+  .battle-forms-fork-container {
+    flex-direction: column;
+    align-items: flex-start;
+    width: auto;
+  }
+
+  .battle-fork-item {
+    flex-direction: row;
+  }
+
+  .evo-arrow-char {
+    transform: rotate(0deg); /* Horizontal arrows (➜) */
+  }
 }
 
 /* ==========================================================================

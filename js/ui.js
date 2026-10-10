@@ -152,43 +152,57 @@ function getArtworkForEvoNode(evoNode) {
   return `https://play.pokemonshowdown.com/sprites/gen5/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 }
 
-function renderBattleFormsDeck(battleForms, currentRawName) {
+function renderBattleFormsRow(battleForms, currentRawName) {
   if (!battleForms || battleForms.length === 0) return "";
 
   const cardsHtml = battleForms
     .map((form) => {
       const isCurrent = form.name.toLowerCase() === currentRawName.toLowerCase();
-      const imgUrl = !isNaN(Number(form.id))
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`
-        : `https://play.pokemonshowdown.com/sprites/gen5/${form.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
+      const primaryImg = getBattleFormImageSrc(form);
+      const fallbackImg = getBaseArtworkFallback(form);
 
       return `
-        <div class="battle-form-card evo-node ${isCurrent ? "active" : ""}" data-species="${form.name}" title="${form.displayName}">
-          <div class="battle-form-tag">⚡ Form</div>
-          <div class="evo-avatar-wrap">
-            <img 
-              src="${imgUrl}" 
-              alt="${form.displayName}" 
-              class="evo-img" 
-              loading="lazy" 
-              onerror="this.onerror=null; this.src='https://play.pokemonshowdown.com/sprites/gen5/${form.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.png';"
-            />
+        <div class="battle-fork-item">
+          <div class="battle-connector">
+            <span class="battle-trigger-pill">${form.trigger}</span>
+            <span class="evo-arrow-char">➜</span>
           </div>
-          <span class="evo-name">${form.displayName}</span>
-          <span class="battle-trigger-badge">${form.trigger}</span>
+          <div class="evo-node battle-form-card ${isCurrent ? "active" : ""}" data-species="${form.name}" title="${form.displayName}">
+            <div class="battle-form-tag">⚡ Mega Form</div>
+            <div class="evo-avatar-wrap">
+              <img 
+                src="${primaryImg}" 
+                alt="${form.displayName}" 
+                class="evo-img" 
+                loading="lazy" 
+                onerror="this.onerror=null; this.src='${fallbackImg}';"
+              />
+            </div>
+            <span class="evo-name">${form.displayName}</span>
+          </div>
         </div>
       `;
     })
     .join("");
 
   return `
-    <div class="battle-forms-wrapper">
-      <div class="battle-forms-header">Battle Transformations</div>
-      <div class="battle-forms-grid">
-        ${cardsHtml}
-      </div>
+    <div class="battle-forms-fork-container">
+      ${cardsHtml}
     </div>
   `;
+}
+
+function getBattleFormImageSrc(form) {
+  if (!isNaN(Number(form.id))) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`;
+  }
+  const cleanName = form.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `https://play.pokemonshowdown.com/sprites/dex/${cleanName}.png`;
+}
+
+function getBaseArtworkFallback(form) {
+  const baseName = form.baseSpecies || form.name.split("-")[0];
+  return `https://play.pokemonshowdown.com/sprites/dex/${baseName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 }
 
 export function buildEvolutionTreeHtml(evoNode, currentRawName) {
@@ -201,7 +215,7 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName) {
   const isCurrent = evoNode.speciesName.toLowerCase() === currentRawName.toLowerCase();
   const artworkUrl = getArtworkForEvoNode(evoNode);
   const displayName = evoNode.displayName || formatPokemonName(evoNode.speciesName);
-  const fallbackUrl = `https://play.pokemonshowdown.com/sprites/gen5/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
+  const fallbackUrl = `https://play.pokemonshowdown.com/sprites/dex/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 
   const nodeCard = `
     <div class="evo-node ${isCurrent ? "active" : ""}" data-species="${evoNode.speciesName}">
@@ -218,45 +232,34 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName) {
     </div>
   `;
 
+  // Render battle transformations (Mega X, Mega Y) directly grouped under this node
   const battleFormsHtml = evoNode.battleForms && evoNode.battleForms.length > 0
-    ? renderBattleFormsDeck(evoNode.battleForms, currentRawName)
+    ? renderBattleFormsRow(evoNode.battleForms, currentRawName)
     : "";
 
-  if (evoNode.evolvesTo && evoNode.evolvesTo.length > 0) {
-    const branches = evoNode.evolvesTo
-      .map((child) => {
-        const triggerDesc = child.evolutionRequirement || "Level up";
-        return `
-          <div class="evo-branch-col">
-            <div class="evo-connector-badge">
-              <span class="evo-trigger-pill">${triggerDesc}</span>
-              <span class="evo-arrow-char">➜</span>
-            </div>
-            ${buildEvolutionTreeHtml(child, currentRawName)}
+  // Render next evolution stages
+  const standardBranchesHtml = (evoNode.evolvesTo || [])
+    .map((child) => {
+      const triggerDesc = child.evolutionRequirement || "Level up";
+      return `
+        <div class="evo-branch-col">
+          <div class="evo-connector-badge">
+            <span class="evo-trigger-pill">${triggerDesc}</span>
+            <span class="evo-arrow-char">➜</span>
           </div>
-        `;
-      })
-      .join("");
-
-    return `
-      <div class="evo-stage-node">
-        <div class="evo-node-cluster">
-          ${nodeCard}
-          ${battleFormsHtml}
+          ${buildEvolutionTreeHtml(child, currentRawName)}
         </div>
-        <div class="evo-stage-branches">
-          ${branches}
-        </div>
-      </div>
-    `;
-  }
+      `;
+    })
+    .join("");
 
   return `
-    <div class="evo-stage-node final">
+    <div class="evo-stage-node">
       <div class="evo-node-cluster">
         ${nodeCard}
         ${battleFormsHtml}
       </div>
+      ${standardBranchesHtml ? `<div class="evo-stage-branches">${standardBranchesHtml}</div>` : ""}
     </div>
   `;
 }

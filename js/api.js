@@ -141,32 +141,33 @@ export function calculateStatBounds(statName, base) {
 function parseEvolutionDetails(detailsList) {
   if (!detailsList || detailsList.length === 0) return "";
 
-  return detailsList
-    .map((d) => {
-      const parts = [];
+  const uniqueConditions = new Set();
 
-      if (d.trigger?.name === "level-up") {
-        if (d.min_level) parts.push(`Level ${d.min_level}`);
-        if (d.min_happiness) parts.push(`High Friendship`);
-        if (d.known_move) parts.push(`Knows ${formatPokemonName(d.known_move.name)}`);
-        if (d.held_item) parts.push(`Hold ${formatPokemonName(d.held_item.name)}`);
-        if (d.time_of_day) parts.push(`(${d.time_of_day})`);
-        if (d.location) parts.push(`at ${formatPokemonName(d.location.name)}`);
-        if (parts.length === 0) parts.push("Level up");
-      } else if (d.trigger?.name === "use-item") {
-        parts.push(d.item ? `Use ${formatPokemonName(d.item.name)}` : "Use item");
-      } else if (d.trigger?.name === "trade") {
-        parts.push(d.held_item ? `Trade holding ${formatPokemonName(d.held_item.name)}` : "Trade");
-      } else if (d.trigger?.name === "shed") {
-        parts.push("Open slot & Poké Ball");
-      } else if (d.trigger?.name) {
-        parts.push(formatPokemonName(d.trigger.name));
-      }
+  detailsList.forEach((d) => {
+    const parts = [];
+    if (d.trigger?.name === "level-up") {
+      if (d.min_level) parts.push(`Level ${d.min_level}`);
+      if (d.min_happiness) parts.push(`High Friendship`);
+      if (d.known_move) parts.push(`Knows ${formatPokemonName(d.known_move.name)}`);
+      if (d.held_item) parts.push(`Hold ${formatPokemonName(d.held_item.name)}`);
+      if (d.time_of_day) parts.push(`(${d.time_of_day})`);
+      if (d.location) parts.push(`at ${formatPokemonName(d.location.name)}`);
+      if (parts.length === 0) parts.push("Level up");
+    } else if (d.trigger?.name === "use-item") {
+      parts.push(d.item ? `Use ${formatPokemonName(d.item.name)}` : "Use item");
+    } else if (d.trigger?.name === "trade") {
+      parts.push(d.held_item ? `Trade holding ${formatPokemonName(d.held_item.name)}` : "Trade");
+    } else if (d.trigger?.name === "shed") {
+      parts.push("Open slot & Poké Ball");
+    } else if (d.trigger?.name) {
+      parts.push(formatPokemonName(d.trigger.name));
+    }
 
-      return parts.join(" ");
-    })
-    .filter(Boolean)
-    .join(" / ");
+    const text = parts.join(" ").trim();
+    if (text) uniqueConditions.add(text);
+  });
+
+  return Array.from(uniqueConditions).join(" / ");
 }
 
 function parseEvolutionChain(chainNode) {
@@ -190,7 +191,7 @@ function parseEvolutionChain(chainNode) {
 // Separated from standard evolution stages
 // ==========================================
 export const BATTLE_FORMS_REGISTRY = {
-  // Kanto
+  // Gen 1 (Kanto)
   venusaur: [{ name: "venusaur-mega", displayName: "Mega Venusaur", trigger: "Venusaurite", id: 10033 }],
   charizard: [
     { name: "charizard-mega-x", displayName: "Mega Charizard X", trigger: "Charizardite X", id: 10034 },
@@ -199,34 +200,38 @@ export const BATTLE_FORMS_REGISTRY = {
   blastoise: [{ name: "blastoise-mega", displayName: "Mega Blastoise", trigger: "Blastoisinite", id: 10036 }],
   beedrill: [{ name: "beedrill-mega", displayName: "Mega Beedrill", trigger: "Beedrillite", id: 10090 }],
   pidgeot: [{ name: "pidgeot-mega", displayName: "Mega Pidgeot", trigger: "Pidgeotite", id: 10073 }],
-  clefable: [{ name: "clefable-mega", displayName: "Mega Clefable", trigger: "Clefablite", id: "clefable-mega" }],
-  victreebel: [{ name: "victreebel-mega", displayName: "Mega Victreebel", trigger: "Victreebelite", id: "victreebel-mega" }],
+  raichu: [
+    { name: "raichu-mega-x", displayName: "Mega Raichu X", trigger: "Raichunite X", id: "raichu-mega-x", baseSpecies: "raichu" },
+    { name: "raichu-mega-y", displayName: "Mega Raichu Y", trigger: "Raichunite Y", id: "raichu-mega-y", baseSpecies: "raichu" }
+  ],
+  clefable: [{ name: "clefable-mega", displayName: "Mega Clefable", trigger: "Clefablite", id: "clefable-mega", baseSpecies: "clefable" }],
+  victreebel: [{ name: "victreebel-mega", displayName: "Mega Victreebel", trigger: "Victreebelite", id: "victreebel-mega", baseSpecies: "victreebel" }],
   alakazam: [{ name: "alakazam-mega", displayName: "Mega Alakazam", trigger: "Alakazite", id: 10037 }],
   slowbro: [{ name: "slowbro-mega", displayName: "Mega Slowbro", trigger: "Slowbronite", id: 10071 }],
   gengar: [{ name: "gengar-mega", displayName: "Mega Gengar", trigger: "Gengarite", id: 10038 }],
   kangaskhan: [{ name: "kangaskhan-mega", displayName: "Mega Kangaskhan", trigger: "Kangaskhanite", id: 10039 }],
-  starmie: [{ name: "starmie-mega", displayName: "Mega Starmie", trigger: "Starminite", id: "starmie-mega" }],
+  starmie: [{ name: "starmie-mega", displayName: "Mega Starmie", trigger: "Starminite", id: "starmie-mega", baseSpecies: "starmie" }],
   pinsir: [{ name: "pinsir-mega", displayName: "Mega Pinsir", trigger: "Pinsirite", id: 10040 }],
   gyarados: [{ name: "gyarados-mega", displayName: "Mega Gyarados", trigger: "Gyaradosite", id: 10041 }],
   aerodactyl: [{ name: "aerodactyl-mega", displayName: "Mega Aerodactyl", trigger: "Aerodactylite", id: 10042 }],
-  dragonite: [{ name: "dragonite-mega", displayName: "Mega Dragonite", trigger: "Dragonitite", id: "dragonite-mega" }],
+  dragonite: [{ name: "dragonite-mega", displayName: "Mega Dragonite", trigger: "Dragoninite", id: "dragonite-mega", baseSpecies: "dragonite" }],
   mewtwo: [
     { name: "mewtwo-mega-x", displayName: "Mega Mewtwo X", trigger: "Mewtwonite X", id: 10043 },
     { name: "mewtwo-mega-y", displayName: "Mega Mewtwo Y", trigger: "Mewtwonite Y", id: 10044 }
   ],
 
-  // Johto
-  meganium: [{ name: "meganium-mega", displayName: "Mega Meganium", trigger: "Meganiumite", id: "meganium-mega" }],
-  feraligatr: [{ name: "feraligatr-mega", displayName: "Mega Feraligatr", trigger: "Feraligatrite", id: "feraligatr-mega" }],
+  // Gen 2 (Johto)
+  meganium: [{ name: "meganium-mega", displayName: "Mega Meganium", trigger: "Meganiumite", id: "meganium-mega", baseSpecies: "meganium" }],
+  feraligatr: [{ name: "feraligatr-mega", displayName: "Mega Feraligatr", trigger: "Feraligite", id: "feraligatr-mega", baseSpecies: "feraligatr" }],
   ampharos: [{ name: "ampharos-mega", displayName: "Mega Ampharos", trigger: "Ampharosite", id: 10045 }],
   steelix: [{ name: "steelix-mega", displayName: "Mega Steelix", trigger: "Steelixite", id: 10072 }],
   scizor: [{ name: "scizor-mega", displayName: "Mega Scizor", trigger: "Scizorite", id: 10046 }],
   heracross: [{ name: "heracross-mega", displayName: "Mega Heracross", trigger: "Heracronite", id: 10047 }],
-  skarmory: [{ name: "skarmory-mega", displayName: "Mega Skarmory", trigger: "Skarmorite", id: "skarmory-mega" }],
+  skarmory: [{ name: "skarmory-mega", displayName: "Mega Skarmory", trigger: "Skarmorite", id: "skarmory-mega", baseSpecies: "skarmory" }],
   houndoom: [{ name: "houndoom-mega", displayName: "Mega Houndoom", trigger: "Houndoominite", id: 10048 }],
   tyranitar: [{ name: "tyranitar-mega", displayName: "Mega Tyranitar", trigger: "Tyranitarite", id: 10049 }],
 
-  // Hoenn
+  // Gen 3 (Hoenn)
   sceptile: [{ name: "sceptile-mega", displayName: "Mega Sceptile", trigger: "Sceptilite", id: 10065 }],
   blaziken: [{ name: "blaziken-mega", displayName: "Mega Blaziken", trigger: "Blazikenite", id: 10050 }],
   swampert: [{ name: "swampert-mega", displayName: "Mega Swampert", trigger: "Swampertite", id: 10064 }],
@@ -240,8 +245,12 @@ export const BATTLE_FORMS_REGISTRY = {
   camerupt: [{ name: "camerupt-mega", displayName: "Mega Camerupt", trigger: "Cameruptite", id: 10087 }],
   altaria: [{ name: "altaria-mega", displayName: "Mega Altaria", trigger: "Altarianite", id: 10067 }],
   banette: [{ name: "banette-mega", displayName: "Mega Banette", trigger: "Banettite", id: 10056 }],
-  absol: [{ name: "absol-mega", displayName: "Mega Absol", trigger: "Absolite", id: 10057 }],
+  absol: [
+    { name: "absol-mega", displayName: "Mega Absol", trigger: "Absolite", id: 10057 },
+    { name: "absol-mega-z", displayName: "Mega Absol Z", trigger: "Absolite Z", id: "absol-mega-z", baseSpecies: "absol" }
+  ],
   glalie: [{ name: "glalie-mega", displayName: "Mega Glalie", trigger: "Glalitite", id: 10074 }],
+  chimecho: [{ name: "chimecho-mega", displayName: "Mega Chimecho", trigger: "Chimechite", id: "chimecho-mega", baseSpecies: "chimecho" }],
   salamence: [{ name: "salamence-mega", displayName: "Mega Salamence", trigger: "Salamencite", id: 10089 }],
   metagross: [{ name: "metagross-mega", displayName: "Mega Metagross", trigger: "Metagrossite", id: 10076 }],
   latias: [{ name: "latias-mega", displayName: "Mega Latias", trigger: "Latiasite", id: 10062 }],
@@ -250,32 +259,72 @@ export const BATTLE_FORMS_REGISTRY = {
   groudon: [{ name: "groudon-primal", displayName: "Primal Groudon", trigger: "Red Orb Reversion", id: 10078 }],
   rayquaza: [{ name: "rayquaza-mega", displayName: "Mega Rayquaza", trigger: "Knows Dragon Ascent", id: 10079 }],
 
-  // Sinnoh
+  // Gen 4 (Sinnoh)
+  staraptor: [{ name: "staraptor-mega", displayName: "Mega Staraptor", trigger: "Staraptite", id: "staraptor-mega", baseSpecies: "staraptor" }],
   lopunny: [{ name: "lopunny-mega", displayName: "Mega Lopunny", trigger: "Lopunnite", id: 10088 }],
-  garchomp: [{ name: "garchomp-mega", displayName: "Mega Garchomp", trigger: "Garchompite", id: 10058 }],
-  lucario: [{ name: "lucario-mega", displayName: "Mega Lucario", trigger: "Lucarionite", id: 10059 }],
+  garchomp: [
+    { name: "garchomp-mega", displayName: "Mega Garchomp", trigger: "Garchompite", id: 10058 },
+    { name: "garchomp-mega-z", displayName: "Mega Garchomp Z", trigger: "Garchompite Z", id: "garchomp-mega-z", baseSpecies: "garchomp" }
+  ],
+  lucario: [
+    { name: "lucario-mega", displayName: "Mega Lucario", trigger: "Lucarionite", id: 10059 },
+    { name: "lucario-mega-z", displayName: "Mega Lucario Z", trigger: "Lucarionite Z", id: "lucario-mega-z", baseSpecies: "lucario" }
+  ],
   abomasnow: [{ name: "abomasnow-mega", displayName: "Mega Abomasnow", trigger: "Abomasite", id: 10060 }],
   gallade: [{ name: "gallade-mega", displayName: "Mega Gallade", trigger: "Galladite", id: 10068 }],
-  froslass: [{ name: "froslass-mega", displayName: "Mega Froslass", trigger: "Froslassite", id: "froslass-mega" }],
+  froslass: [{ name: "froslass-mega", displayName: "Mega Froslass", trigger: "Froslassite", id: "froslass-mega", baseSpecies: "froslass" }],
+  heatran: [{ name: "heatran-mega", displayName: "Mega Heatran", trigger: "Heatranite", id: "heatran-mega", baseSpecies: "heatran" }],
+  darkrai: [{ name: "darkrai-mega", displayName: "Mega Darkrai", trigger: "Darkranite", id: "darkrai-mega", baseSpecies: "darkrai" }],
 
-  // Unova
-  emboar: [{ name: "emboar-mega", displayName: "Mega Emboar", trigger: "Emboarite", id: "emboar-mega" }],
-  excadrill: [{ name: "excadrill-mega", displayName: "Mega Excadrill", trigger: "Excadrillite", id: "excadrill-mega" }],
-  scolipede: [{ name: "scolipede-mega", displayName: "Mega Scolipede", trigger: "Scolipedite", id: "scolipede-mega" }],
+  // Gen 5 (Unova)
+  emboar: [{ name: "emboar-mega", displayName: "Mega Emboar", trigger: "Emboarite", id: "emboar-mega", baseSpecies: "emboar" }],
+  excadrill: [{ name: "excadrill-mega", displayName: "Mega Excadrill", trigger: "Excadrite", id: "excadrill-mega", baseSpecies: "excadrill" }],
+  scolipede: [{ name: "scolipede-mega", displayName: "Mega Scolipede", trigger: "Scolipite", id: "scolipede-mega", baseSpecies: "scolipede" }],
   audino: [{ name: "audino-mega", displayName: "Mega Audino", trigger: "Audinite", id: 10069 }],
-  chandelure: [{ name: "chandelure-mega", displayName: "Mega Chandelure", trigger: "Chandelurite", id: "chandelure-mega" }],
+  scrafty: [{ name: "scrafty-mega", displayName: "Mega Scrafty", trigger: "Scraftinite", id: "scrafty-mega", baseSpecies: "scrafty" }],
+  eelektross: [{ name: "eelektross-mega", displayName: "Mega Eelektross", trigger: "Eelektrossite", id: "eelektross-mega", baseSpecies: "eelektross" }],
+  chandelure: [{ name: "chandelure-mega", displayName: "Mega Chandelure", trigger: "Chandelurite", id: "chandelure-mega", baseSpecies: "chandelure" }],
+  golurk: [{ name: "golurk-mega", displayName: "Mega Golurk", trigger: "Golurkite", id: "golurk-mega", baseSpecies: "golurk" }],
 
-  // Kalos
-  chesnaught: [{ name: "chesnaught-mega", displayName: "Mega Chesnaught", trigger: "Chesnaughtite", id: "chesnaught-mega" }],
-  delphox: [{ name: "delphox-mega", displayName: "Mega Delphox", trigger: "Delphoxite", id: "delphox-mega" }],
+  // Gen 6 (Kalos)
+  chesnaught: [{ name: "chesnaught-mega", displayName: "Mega Chesnaught", trigger: "Chesnaughtite", id: "chesnaught-mega", baseSpecies: "chesnaught" }],
+  delphox: [{ name: "delphox-mega", displayName: "Mega Delphox", trigger: "Delphoxite", id: "delphox-mega", baseSpecies: "delphox" }],
   greninja: [
-    { name: "greninja-ash", displayName: "Ash-Greninja", trigger: "Battle Bond (Needs KO in battle)", id: 10117 },
-    { name: "greninja-mega", displayName: "Mega Greninja", trigger: "Greninjite", id: "greninja-mega" }
+    { name: "greninja-ash", displayName: "Ash-Greninja", trigger: "Battle Bond", id: 10117 },
+    { name: "greninja-mega", displayName: "Mega Greninja", trigger: "Greninjite", id: "greninja-mega", baseSpecies: "greninja" }
   ],
-  malamar: [{ name: "malamar-mega", displayName: "Mega Malamar", trigger: "Malamarite", id: "malamar-mega" }],
-  barbaracle: [{ name: "barbaracle-mega", displayName: "Mega Barbaracle", trigger: "Barbaraclite", id: "barbaracle-mega" }],
-  hawlucha: [{ name: "hawlucha-mega", displayName: "Mega Hawlucha", trigger: "Hawluchanite", id: "hawlucha-mega" }],
-  diancie: [{ name: "diancie-mega", displayName: "Mega Diancie", trigger: "Diancite", id: 10075 }]
+  pyroar: [{ name: "pyroar-mega", displayName: "Mega Pyroar", trigger: "Pyroarite", id: "pyroar-mega", baseSpecies: "pyroar" }],
+  floette: [{ name: "floette-eternal-mega", displayName: "Mega Floette (Eternal)", trigger: "Floettite", id: "floette-eternal-mega", baseSpecies: "floette" }],
+  meowstic: [{ name: "meowstic-mega", displayName: "Mega Meowstic", trigger: "Meowsticite", id: "meowstic-mega", baseSpecies: "meowstic" }],
+  malamar: [{ name: "malamar-mega", displayName: "Mega Malamar", trigger: "Malamarite", id: "malamar-mega", baseSpecies: "malamar" }],
+  barbaracle: [{ name: "barbaracle-mega", displayName: "Mega Barbaracle", trigger: "Barbaracite", id: "barbaracle-mega", baseSpecies: "barbaracle" }],
+  dragalge: [{ name: "dragalge-mega", displayName: "Mega Dragalge", trigger: "Dragalgite", id: "dragalge-mega", baseSpecies: "dragalge" }],
+  hawlucha: [{ name: "hawlucha-mega", displayName: "Mega Hawlucha", trigger: "Hawluchanite", id: "hawlucha-mega", baseSpecies: "hawlucha" }],
+  diancie: [{ name: "diancie-mega", displayName: "Mega Diancie", trigger: "Diancite", id: 10075 }],
+  zygarde: [{ name: "zygarde-mega", displayName: "Mega Zygarde", trigger: "Zygardite", id: "zygarde-mega", baseSpecies: "zygarde" }],
+
+  // Gen 7 (Alola)
+  crabominable: [{ name: "crabominable-mega", displayName: "Mega Crabominable", trigger: "Crabominite", id: "crabominable-mega", baseSpecies: "crabominable" }],
+  golisopod: [{ name: "golisopod-mega", displayName: "Mega Golisopod", trigger: "Golisopite", id: "golisopod-mega", baseSpecies: "golisopod" }],
+  drampa: [{ name: "drampa-mega", displayName: "Mega Drampa", trigger: "Drampanite", id: "drampa-mega", baseSpecies: "drampa" }],
+  magearna: [
+    { name: "magearna-mega", displayName: "Mega Magearna", trigger: "Magearnite", id: "magearna-mega", baseSpecies: "magearna" },
+    { name: "magearna-original-mega", displayName: "Mega Magearna (Original)", trigger: "Magearnite", id: "magearna-original-mega", baseSpecies: "magearna" }
+  ],
+  zeraora: [{ name: "zeraora-mega", displayName: "Mega Zeraora", trigger: "Zeraorite", id: "zeraora-mega", baseSpecies: "zeraora" }],
+
+  // Gen 8 (Galar)
+  falinks: [{ name: "falinks-mega", displayName: "Mega Falinks", trigger: "Falinksite", id: "falinks-mega", baseSpecies: "falinks" }],
+
+  // Gen 9 (Paldea)
+  scovillain: [{ name: "scovillain-mega", displayName: "Mega Scovillain", trigger: "Scovillainite", id: "scovillain-mega", baseSpecies: "scovillain" }],
+  tatsugiri: [
+    { name: "tatsugiri-curly-mega", displayName: "Mega Tatsugiri (Curly)", trigger: "Tatsugirinite", id: "tatsugiri-curly-mega", baseSpecies: "tatsugiri" },
+    { name: "tatsugiri-droopy-mega", displayName: "Mega Tatsugiri (Droopy)", trigger: "Tatsugirinite", id: "tatsugiri-droopy-mega", baseSpecies: "tatsugiri" },
+    { name: "tatsugiri-stretchy-mega", displayName: "Mega Tatsugiri (Stretchy)", trigger: "Tatsugirinite", id: "tatsugiri-stretchy-mega", baseSpecies: "tatsugiri" }
+  ],
+  glimmora: [{ name: "glimmora-mega", displayName: "Mega Glimmora", trigger: "Glimmoranite", id: "glimmora-mega", baseSpecies: "glimmora" }],
+  baxcalibur: [{ name: "baxcalibur-mega", displayName: "Mega Baxcalibur", trigger: "Baxcalibrite", id: "baxcalibur-mega", baseSpecies: "baxcalibur" }]
 };
 
 // ==========================================
