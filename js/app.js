@@ -414,7 +414,6 @@ async function applyCombinedFilters() {
 
     if (activeGen !== "all") {
       listToBatch = listToBatch.filter((item) => {
-        // Ensure ID is numeric if an object is passed
         const pokeItem = typeof item === "object" ? { ...item, id: Number(item.id) } : Number(item);
         return isItemInGenRange(pokeItem, activeGen);
       });
@@ -442,7 +441,7 @@ async function applyCombinedFilters() {
 }
 
 async function openPokemonModal(identifier) {
-  // CRITICAL: Stop background search and batch operations immediately
+  // Stop background search and batch operations immediately
   abortBackgroundOperations();
 
   modalContent.innerHTML = `<div class="modal-loading-state"><p>Loading complete Pokédex data...</p></div>`;
@@ -450,10 +449,13 @@ async function openPokemonModal(identifier) {
 
   try {
     // If already in memory cache, load instantly
-    let fullPokemon = fetchedCache.get(Number(identifier)) || fetchedCache.get(identifier);
+    const numId = Number(identifier);
+    let fullPokemon = (!isNaN(numId) && fetchedCache.get(numId)) || fetchedCache.get(String(identifier).toLowerCase());
+    
     if (!fullPokemon) {
       fullPokemon = await fetchPokemon(identifier);
       fetchedCache.set(fullPokemon.id, fullPokemon);
+      fetchedCache.set(fullPokemon.rawName.toLowerCase(), fullPokemon);
     }
     currentActivePokemon = fullPokemon;
 
@@ -605,7 +607,10 @@ if (searchInput) {
           uniqueNames.length,
           signal
         );
-        pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+        pokemonList.forEach((p) => {
+          fetchedCache.set(p.id, p);
+          fetchedCache.set(p.rawName.toLowerCase(), p);
+        });
         currentDisplayedPokemon = [...pokemonList];
         renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, false);
         scrollState.currentIndex = nextIndex;
@@ -727,11 +732,17 @@ if (modalContent) {
       return;
     }
 
+    // Direct evolution node click handler (opens variants, megas, and species)
     const evoNode = e.target.closest(".evo-node");
     if (evoNode) {
-      const speciesTarget = evoNode.dataset.species;
-      if (speciesTarget && (!currentActivePokemon || currentActivePokemon.speciesName.toLowerCase() !== speciesTarget.toLowerCase())) {
-        openPokemonModal(speciesTarget);
+      const evoTarget = evoNode.dataset.species;
+      if (
+        evoTarget &&
+        (!currentActivePokemon ||
+          (currentActivePokemon.rawName.toLowerCase() !== evoTarget.toLowerCase() &&
+            currentActivePokemon.speciesName.toLowerCase() !== evoTarget.toLowerCase()))
+      ) {
+        openPokemonModal(evoTarget);
       }
       return;
     }
@@ -803,7 +814,7 @@ gridContainer.addEventListener("click", (e) => {
     return;
   }
 
-  // 4. Open Modal Card View (Halts background jobs immediately)
+  // 4. Open Modal Card View
   const card = e.target.closest(".pokemon-card");
   if (card) {
     const pokemonId = Number(card.dataset.id);

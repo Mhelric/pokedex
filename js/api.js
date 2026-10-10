@@ -82,10 +82,13 @@ export function formatPokemonName(name, speciesName = "") {
   if (lowerName === "tauros-paldea-blaze-breed") return "Paldean Tauros (Blaze Breed)";
   if (lowerName === "tauros-paldea-aqua-breed") return "Paldean Tauros (Aqua Breed)";
 
-  // Specific Regional Edge Cases
+  // Specific Regional & Special Edge Cases
   if (lowerName === "farfetchd-galar") return "Galarian Farfetch'd";
   if (lowerName === "mr-mime-galar") return "Galarian Mr. Mime";
   if (lowerName === "darmanitan-galar-zen") return "Galarian Darmanitan (Zen Mode)";
+  if (lowerName === "greninja-ash") return "Ash-Greninja";
+  if (lowerName === "basculin-white-striped") return "White-Striped Basculin";
+  if (lowerName === "ursaluna-bloodmoon") return "Bloodmoon Ursaluna";
 
   // Standard Regional Forms
   if (lowerName.endsWith("-alola")) {
@@ -99,6 +102,10 @@ export function formatPokemonName(name, speciesName = "") {
   if (lowerName.endsWith("-paldea")) {
     const rootName = lowerName.replace("-paldea", "");
     return `Paldean ${capitalize(rootName)}`;
+  }
+  if (lowerName.endsWith("-hisui")) {
+    const rootName = lowerName.replace("-hisui", "");
+    return `Hisuian ${capitalize(rootName)}`;
   }
 
   // Battle Gimmicks & Megas
@@ -168,6 +175,7 @@ function parseEvolutionChain(chainNode) {
     speciesUrl: chainNode.species.url,
     evolutionRequirement: parseEvolutionDetails(chainNode.evolution_details),
     evolvesTo: [],
+    battleForms: []
   };
 
   if (chainNode.evolves_to && chainNode.evolves_to.length > 0) {
@@ -175,6 +183,277 @@ function parseEvolutionChain(chainNode) {
   }
 
   return result;
+}
+
+// ==========================================
+// BATTLE FORMS & GIMMICKS REGISTRY (Megas, Primals, Battle Bond)
+// Separated from standard evolution stages
+// ==========================================
+export const BATTLE_FORMS_REGISTRY = {
+  // Kanto
+  venusaur: [{ name: "venusaur-mega", displayName: "Mega Venusaur", trigger: "Venusaurite", id: 10033 }],
+  charizard: [
+    { name: "charizard-mega-x", displayName: "Mega Charizard X", trigger: "Charizardite X", id: 10034 },
+    { name: "charizard-mega-y", displayName: "Mega Charizard Y", trigger: "Charizardite Y", id: 10035 }
+  ],
+  blastoise: [{ name: "blastoise-mega", displayName: "Mega Blastoise", trigger: "Blastoisinite", id: 10036 }],
+  beedrill: [{ name: "beedrill-mega", displayName: "Mega Beedrill", trigger: "Beedrillite", id: 10090 }],
+  pidgeot: [{ name: "pidgeot-mega", displayName: "Mega Pidgeot", trigger: "Pidgeotite", id: 10073 }],
+  clefable: [{ name: "clefable-mega", displayName: "Mega Clefable", trigger: "Clefablite", id: "clefable-mega" }],
+  victreebel: [{ name: "victreebel-mega", displayName: "Mega Victreebel", trigger: "Victreebelite", id: "victreebel-mega" }],
+  alakazam: [{ name: "alakazam-mega", displayName: "Mega Alakazam", trigger: "Alakazite", id: 10037 }],
+  slowbro: [{ name: "slowbro-mega", displayName: "Mega Slowbro", trigger: "Slowbronite", id: 10071 }],
+  gengar: [{ name: "gengar-mega", displayName: "Mega Gengar", trigger: "Gengarite", id: 10038 }],
+  kangaskhan: [{ name: "kangaskhan-mega", displayName: "Mega Kangaskhan", trigger: "Kangaskhanite", id: 10039 }],
+  starmie: [{ name: "starmie-mega", displayName: "Mega Starmie", trigger: "Starminite", id: "starmie-mega" }],
+  pinsir: [{ name: "pinsir-mega", displayName: "Mega Pinsir", trigger: "Pinsirite", id: 10040 }],
+  gyarados: [{ name: "gyarados-mega", displayName: "Mega Gyarados", trigger: "Gyaradosite", id: 10041 }],
+  aerodactyl: [{ name: "aerodactyl-mega", displayName: "Mega Aerodactyl", trigger: "Aerodactylite", id: 10042 }],
+  dragonite: [{ name: "dragonite-mega", displayName: "Mega Dragonite", trigger: "Dragonitite", id: "dragonite-mega" }],
+  mewtwo: [
+    { name: "mewtwo-mega-x", displayName: "Mega Mewtwo X", trigger: "Mewtwonite X", id: 10043 },
+    { name: "mewtwo-mega-y", displayName: "Mega Mewtwo Y", trigger: "Mewtwonite Y", id: 10044 }
+  ],
+
+  // Johto
+  meganium: [{ name: "meganium-mega", displayName: "Mega Meganium", trigger: "Meganiumite", id: "meganium-mega" }],
+  feraligatr: [{ name: "feraligatr-mega", displayName: "Mega Feraligatr", trigger: "Feraligatrite", id: "feraligatr-mega" }],
+  ampharos: [{ name: "ampharos-mega", displayName: "Mega Ampharos", trigger: "Ampharosite", id: 10045 }],
+  steelix: [{ name: "steelix-mega", displayName: "Mega Steelix", trigger: "Steelixite", id: 10072 }],
+  scizor: [{ name: "scizor-mega", displayName: "Mega Scizor", trigger: "Scizorite", id: 10046 }],
+  heracross: [{ name: "heracross-mega", displayName: "Mega Heracross", trigger: "Heracronite", id: 10047 }],
+  skarmory: [{ name: "skarmory-mega", displayName: "Mega Skarmory", trigger: "Skarmorite", id: "skarmory-mega" }],
+  houndoom: [{ name: "houndoom-mega", displayName: "Mega Houndoom", trigger: "Houndoominite", id: 10048 }],
+  tyranitar: [{ name: "tyranitar-mega", displayName: "Mega Tyranitar", trigger: "Tyranitarite", id: 10049 }],
+
+  // Hoenn
+  sceptile: [{ name: "sceptile-mega", displayName: "Mega Sceptile", trigger: "Sceptilite", id: 10065 }],
+  blaziken: [{ name: "blaziken-mega", displayName: "Mega Blaziken", trigger: "Blazikenite", id: 10050 }],
+  swampert: [{ name: "swampert-mega", displayName: "Mega Swampert", trigger: "Swampertite", id: 10064 }],
+  gardevoir: [{ name: "gardevoir-mega", displayName: "Mega Gardevoir", trigger: "Gardevoirite", id: 10051 }],
+  sableye: [{ name: "sableye-mega", displayName: "Mega Sableye", trigger: "Sablenite", id: 10066 }],
+  mawile: [{ name: "mawile-mega", displayName: "Mega Mawile", trigger: "Mawilite", id: 10052 }],
+  aggron: [{ name: "aggron-mega", displayName: "Mega Aggron", trigger: "Aggronite", id: 10053 }],
+  medicham: [{ name: "medicham-mega", displayName: "Mega Medicham", trigger: "Medichamite", id: 10054 }],
+  manectric: [{ name: "manectric-mega", displayName: "Mega Manectric", trigger: "Manectite", id: 10055 }],
+  sharpedo: [{ name: "sharpedo-mega", displayName: "Mega Sharpedo", trigger: "Sharpedonite", id: 10070 }],
+  camerupt: [{ name: "camerupt-mega", displayName: "Mega Camerupt", trigger: "Cameruptite", id: 10087 }],
+  altaria: [{ name: "altaria-mega", displayName: "Mega Altaria", trigger: "Altarianite", id: 10067 }],
+  banette: [{ name: "banette-mega", displayName: "Mega Banette", trigger: "Banettite", id: 10056 }],
+  absol: [{ name: "absol-mega", displayName: "Mega Absol", trigger: "Absolite", id: 10057 }],
+  glalie: [{ name: "glalie-mega", displayName: "Mega Glalie", trigger: "Glalitite", id: 10074 }],
+  salamence: [{ name: "salamence-mega", displayName: "Mega Salamence", trigger: "Salamencite", id: 10089 }],
+  metagross: [{ name: "metagross-mega", displayName: "Mega Metagross", trigger: "Metagrossite", id: 10076 }],
+  latias: [{ name: "latias-mega", displayName: "Mega Latias", trigger: "Latiasite", id: 10062 }],
+  latios: [{ name: "latios-mega", displayName: "Mega Latios", trigger: "Latiosite", id: 10063 }],
+  kyogre: [{ name: "kyogre-primal", displayName: "Primal Kyogre", trigger: "Blue Orb Reversion", id: 10077 }],
+  groudon: [{ name: "groudon-primal", displayName: "Primal Groudon", trigger: "Red Orb Reversion", id: 10078 }],
+  rayquaza: [{ name: "rayquaza-mega", displayName: "Mega Rayquaza", trigger: "Knows Dragon Ascent", id: 10079 }],
+
+  // Sinnoh
+  lopunny: [{ name: "lopunny-mega", displayName: "Mega Lopunny", trigger: "Lopunnite", id: 10088 }],
+  garchomp: [{ name: "garchomp-mega", displayName: "Mega Garchomp", trigger: "Garchompite", id: 10058 }],
+  lucario: [{ name: "lucario-mega", displayName: "Mega Lucario", trigger: "Lucarionite", id: 10059 }],
+  abomasnow: [{ name: "abomasnow-mega", displayName: "Mega Abomasnow", trigger: "Abomasite", id: 10060 }],
+  gallade: [{ name: "gallade-mega", displayName: "Mega Gallade", trigger: "Galladite", id: 10068 }],
+  froslass: [{ name: "froslass-mega", displayName: "Mega Froslass", trigger: "Froslassite", id: "froslass-mega" }],
+
+  // Unova
+  emboar: [{ name: "emboar-mega", displayName: "Mega Emboar", trigger: "Emboarite", id: "emboar-mega" }],
+  excadrill: [{ name: "excadrill-mega", displayName: "Mega Excadrill", trigger: "Excadrillite", id: "excadrill-mega" }],
+  scolipede: [{ name: "scolipede-mega", displayName: "Mega Scolipede", trigger: "Scolipedite", id: "scolipede-mega" }],
+  audino: [{ name: "audino-mega", displayName: "Mega Audino", trigger: "Audinite", id: 10069 }],
+  chandelure: [{ name: "chandelure-mega", displayName: "Mega Chandelure", trigger: "Chandelurite", id: "chandelure-mega" }],
+
+  // Kalos
+  chesnaught: [{ name: "chesnaught-mega", displayName: "Mega Chesnaught", trigger: "Chesnaughtite", id: "chesnaught-mega" }],
+  delphox: [{ name: "delphox-mega", displayName: "Mega Delphox", trigger: "Delphoxite", id: "delphox-mega" }],
+  greninja: [
+    { name: "greninja-ash", displayName: "Ash-Greninja", trigger: "Battle Bond (Needs KO in battle)", id: 10117 },
+    { name: "greninja-mega", displayName: "Mega Greninja", trigger: "Greninjite", id: "greninja-mega" }
+  ],
+  malamar: [{ name: "malamar-mega", displayName: "Mega Malamar", trigger: "Malamarite", id: "malamar-mega" }],
+  barbaracle: [{ name: "barbaracle-mega", displayName: "Mega Barbaracle", trigger: "Barbaraclite", id: "barbaracle-mega" }],
+  hawlucha: [{ name: "hawlucha-mega", displayName: "Mega Hawlucha", trigger: "Hawluchanite", id: "hawlucha-mega" }],
+  diancie: [{ name: "diancie-mega", displayName: "Mega Diancie", trigger: "Diancite", id: 10075 }]
+};
+
+// ==========================================
+// REGIONAL PRE-EVO SIBLING INJECTIONS
+// Parallel branches added to pre-evos without overwriting regular evos
+// ==========================================
+export const SIBLING_EVO_INJECTIONS = {
+  pikachu: [
+    { speciesName: "raichu-alola", displayName: "Alolan Raichu", id: 10100, requirement: "Thunder Stone in Alola" }
+  ],
+  exeggcute: [
+    { speciesName: "exeggutor-alola", displayName: "Alolan Exeggutor", id: 10114, requirement: "Leaf Stone in Alola" }
+  ],
+  cubone: [
+    { speciesName: "marowak-alola", displayName: "Alolan Marowak", id: 10115, requirement: "Level 28 at Night in Alola" }
+  ],
+  koffing: [
+    { speciesName: "weezing-galar", displayName: "Galarian Weezing", id: 10167, requirement: "Level 35 in Galar" }
+  ],
+  "mime-jr": [
+    { speciesName: "mr-mime-galar", displayName: "Galarian Mr. Mime", id: 10168, requirement: "Level up with Mimic in Galar" }
+  ],
+  quilava: [
+    { speciesName: "typhlosion-hisui", displayName: "Hisuian Typhlosion", id: 10237, requirement: "Level 36 in Hisui" }
+  ],
+  dewott: [
+    { speciesName: "samurott-hisui", displayName: "Hisuian Samurott", id: 10236, requirement: "Level 36 in Hisui" }
+  ],
+  dartrix: [
+    { speciesName: "decidueye-hisui", displayName: "Hisuian Decidueye", id: 10244, requirement: "Level 36 in Hisui" }
+  ],
+  petilil: [
+    { speciesName: "lilligant-hisui", displayName: "Hisuian Lilligant", id: 10238, requirement: "Sun Stone in Hisui" }
+  ],
+  rufflet: [
+    { speciesName: "braviary-hisui", displayName: "Hisuian Braviary", id: 10240, requirement: "Level 54 in Hisui" }
+  ],
+  bergmite: [
+    { speciesName: "avalugg-hisui", displayName: "Hisuian Avalugg", id: 10243, requirement: "Level 37 in Hisui" }
+  ],
+  sliggoo: [
+    { speciesName: "goodra-hisui", displayName: "Hisuian Goodra", id: 10242, requirement: "Level 50 in Rain (Hisui)" }
+  ],
+  scyther: [
+    { speciesName: "kleavor", displayName: "Kleavor", id: 900, requirement: "Black Augurite" }
+  ],
+  stantler: [
+    { speciesName: "wyrdeer", displayName: "Wyrdeer", id: 899, requirement: "Psyshield Bash Agile 20×" }
+  ],
+  ursaring: [
+    { speciesName: "ursaluna", displayName: "Ursaluna", id: 901, requirement: "Peat Block under Full Moon" }
+  ]
+};
+
+// ==========================================
+// DEDICATED REGIONAL EVOLUTION CHAINS
+// ==========================================
+export const ISOLATED_REGIONAL_TREES = {
+  // Alolan forms
+  "rattata-alola": [{ name: "rattata-alola", id: 10091 }, { name: "raticate-alola", id: 10092, req: "Level 20 at Night" }],
+  "raticate-alola": [{ name: "rattata-alola", id: 10091 }, { name: "raticate-alola", id: 10092, req: "Level 20 at Night" }],
+  "sandshrew-alola": [{ name: "sandshrew-alola", id: 10101 }, { name: "sandslash-alola", id: 10102, req: "Ice Stone" }],
+  "sandslash-alola": [{ name: "sandshrew-alola", id: 10101 }, { name: "sandslash-alola", id: 10102, req: "Ice Stone" }],
+  "vulpix-alola": [{ name: "vulpix-alola", id: 10103 }, { name: "ninetales-alola", id: 10104, req: "Ice Stone" }],
+  "ninetales-alola": [{ name: "vulpix-alola", id: 10103 }, { name: "ninetales-alola", id: 10104, req: "Ice Stone" }],
+  "diglett-alola": [{ name: "diglett-alola", id: 10105 }, { name: "dugtrio-alola", id: 10106, req: "Level 26" }],
+  "dugtrio-alola": [{ name: "diglett-alola", id: 10105 }, { name: "dugtrio-alola", id: 10106, req: "Level 26" }],
+  "meowth-alola": [{ name: "meowth-alola", id: 10107 }, { name: "persian-alola", id: 10108, req: "High Friendship" }],
+  "persian-alola": [{ name: "meowth-alola", id: 10107 }, { name: "persian-alola", id: 10108, req: "High Friendship" }],
+  "geodude-alola": [{ name: "geodude-alola", id: 10109 }, { name: "graveler-alola", id: 10110, req: "Level 25" }, { name: "golem-alola", id: 10111, req: "Trade" }],
+  "graveler-alola": [{ name: "geodude-alola", id: 10109 }, { name: "graveler-alola", id: 10110, req: "Level 25" }, { name: "golem-alola", id: 10111, req: "Trade" }],
+  "golem-alola": [{ name: "geodude-alola", id: 10109 }, { name: "graveler-alola", id: 10110, req: "Level 25" }, { name: "golem-alola", id: 10111, req: "Trade" }],
+  "grimer-alola": [{ name: "grimer-alola", id: 10112 }, { name: "muk-alola", id: 10113, req: "Level 38" }],
+  "muk-alola": [{ name: "grimer-alola", id: 10112 }, { name: "muk-alola", id: 10113, req: "Level 38" }],
+
+  // Galarian forms
+  "meowth-galar": [{ name: "meowth-galar", id: 10161 }, { name: "perrserker", id: 863, req: "Level 28" }],
+  "perrserker": [{ name: "meowth-galar", id: 10161 }, { name: "perrserker", id: 863, req: "Level 28" }],
+  "ponyta-galar": [{ name: "ponyta-galar", id: 10162 }, { name: "rapidash-galar", id: 10163, req: "Level 40" }],
+  "rapidash-galar": [{ name: "ponyta-galar", id: 10162 }, { name: "rapidash-galar", id: 10163, req: "Level 40" }],
+  "farfetchd-galar": [{ name: "farfetchd-galar", id: 10166 }, { name: "sirfetchd", id: 865, req: "3 Crits in 1 Battle" }],
+  "sirfetchd": [{ name: "farfetchd-galar", id: 10166 }, { name: "sirfetchd", id: 865, req: "3 Crits in 1 Battle" }],
+  "corsola-galar": [{ name: "corsola-galar", id: 10173 }, { name: "cursola", id: 864, req: "Level 38" }],
+  "cursola": [{ name: "corsola-galar", id: 10173 }, { name: "cursola", id: 864, req: "Level 38" }],
+  "zigzagoon-galar": [{ name: "zigzagoon-galar", id: 10174 }, { name: "linoone-galar", id: 10175, req: "Level 20" }, { name: "obstagoon", id: 862, req: "Level 35 at Night" }],
+  "linoone-galar": [{ name: "zigzagoon-galar", id: 10174 }, { name: "linoone-galar", id: 10175, req: "Level 20" }, { name: "obstagoon", id: 862, req: "Level 35 at Night" }],
+  "obstagoon": [{ name: "zigzagoon-galar", id: 10174 }, { name: "linoone-galar", id: 10175, req: "Level 20" }, { name: "obstagoon", id: 862, req: "Level 35 at Night" }],
+  "darumaka-galar": [{ name: "darumaka-galar", id: 10176 }, { name: "darmanitan-galar", id: 10177, req: "Ice Stone" }],
+  "darmanitan-galar": [{ name: "darumaka-galar", id: 10176 }, { name: "darmanitan-galar", id: 10177, req: "Ice Stone" }],
+  "yamask-galar": [{ name: "yamask-galar", id: 10179 }, { name: "runerigus", id: 867, req: "Take 49+ dmg & visit Stone Arch" }],
+  "runerigus": [{ name: "yamask-galar", id: 10179 }, { name: "runerigus", id: 867, req: "Take 49+ dmg & visit Stone Arch" }],
+  "mr-rime": [{ name: "mime-jr", id: 439 }, { name: "mr-mime-galar", id: 10168, req: "Level up with Mimic" }, { name: "mr-rime", id: 866, req: "Level 42" }],
+
+  // Paldean forms
+  "wooper-paldea": [{ name: "wooper-paldea", id: 10253 }, { name: "clodsire", id: 980, req: "Level 20" }],
+  "clodsire": [{ name: "wooper-paldea", id: 10253 }, { name: "clodsire", id: 980, req: "Level 20" }],
+
+  // Hisuian forms
+  "growlithe-hisui": [{ name: "growlithe-hisui", id: 10229 }, { name: "arcanine-hisui", id: 10230, req: "Fire Stone" }],
+  "arcanine-hisui": [{ name: "growlithe-hisui", id: 10229 }, { name: "arcanine-hisui", id: 10230, req: "Fire Stone" }],
+  "voltorb-hisui": [{ name: "voltorb-hisui", id: 10231 }, { name: "electrode-hisui", id: 10232, req: "Leaf Stone" }],
+  "electrode-hisui": [{ name: "voltorb-hisui", id: 10231 }, { name: "electrode-hisui", id: 10232, req: "Leaf Stone" }],
+  "qwilfish-hisui": [{ name: "qwilfish-hisui", id: 10234 }, { name: "overqwil", id: 904, req: "Barb Barrage Strong 20×" }],
+  "overqwil": [{ name: "qwilfish-hisui", id: 10234 }, { name: "overqwil", id: 904, req: "Barb Barrage Strong 20×" }],
+  "sneasel-hisui": [{ name: "sneasel-hisui", id: 10235 }, { name: "sneasler", id: 903, req: "Razor Claw (Day)" }],
+  "sneasler": [{ name: "sneasel-hisui", id: 10235 }, { name: "sneasler", id: 903, req: "Razor Claw (Day)" }],
+  "zorua-hisui": [{ name: "zorua-hisui", id: 10239 }, { name: "zoroark-hisui", id: 10240, req: "Level 30" }],
+  "zoroark-hisui": [{ name: "zorua-hisui", id: 10239 }, { name: "zoroark-hisui", id: 10240, req: "Level 30" }],
+  "sliggoo-hisui": [{ name: "goomy", id: 704 }, { name: "sliggoo-hisui", id: 10241, req: "Level 40 in Hisui" }, { name: "goodra-hisui", id: 10242, req: "Level 50 in Rain" }],
+  "goodra-hisui": [{ name: "goomy", id: 704 }, { name: "sliggoo-hisui", id: 10241, req: "Level 40 in Hisui" }, { name: "goodra-hisui", id: 10242, req: "Level 50 in Rain" }],
+  "basculin-white-striped": [
+    { name: "basculin-white-striped", id: 10247 },
+    { name: "basculegion-male", id: 902, req: "Lose 294+ recoil HP" }
+  ]
+};
+
+function buildLinearChainNode(steps, index = 0) {
+  if (index >= steps.length) return null;
+  const current = steps[index];
+  const node = {
+    speciesName: current.name,
+    displayName: formatPokemonName(current.name),
+    speciesUrl: String(current.id),
+    customImage: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${current.id}.png`,
+    evolutionRequirement: current.req || "",
+    evolvesTo: [],
+    battleForms: BATTLE_FORMS_REGISTRY[current.name.toLowerCase()] || []
+  };
+  const next = buildLinearChainNode(steps, index + 1);
+  if (next) node.evolvesTo = [next];
+  return node;
+}
+
+export function buildCompleteEvolutionTree(rawName, baseParsedChain) {
+  const lowerName = rawName.toLowerCase();
+
+  // 1. Isolated dedicated regional line check
+  if (ISOLATED_REGIONAL_TREES[lowerName]) {
+    return buildLinearChainNode(ISOLATED_REGIONAL_TREES[lowerName]);
+  }
+
+  // 2. Standard chain traversal with parallel sibling injections and battleForms attachment
+  function processChainNode(node) {
+    if (!node) return null;
+    const cleanKey = node.speciesName.toLowerCase();
+
+    // Attach battle forms (Megas, Primals, Ash-Greninja)
+    node.battleForms = BATTLE_FORMS_REGISTRY[cleanKey] || [];
+
+    // Inject regional parallel branches as siblings
+    const extraSiblings = SIBLING_EVO_INJECTIONS[cleanKey] || [];
+    if (extraSiblings.length > 0) {
+      extraSiblings.forEach((sibling) => {
+        const alreadyExists = node.evolvesTo.some(
+          (c) => c.speciesName.toLowerCase() === sibling.speciesName.toLowerCase()
+        );
+        if (!alreadyExists) {
+          node.evolvesTo.push({
+            speciesName: sibling.speciesName,
+            displayName: sibling.displayName,
+            speciesUrl: String(sibling.id),
+            customImage: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${sibling.id}.png`,
+            evolutionRequirement: sibling.requirement,
+            evolvesTo: [],
+            battleForms: BATTLE_FORMS_REGISTRY[sibling.speciesName.toLowerCase()] || []
+          });
+        }
+      });
+    }
+
+    if (node.evolvesTo && node.evolvesTo.length > 0) {
+      node.evolvesTo.forEach(processChainNode);
+    }
+
+    return node;
+  }
+
+  return processChainNode(baseParsedChain);
 }
 
 export function normalizePokemonData(rawData, speciesData = null, evolutionData = null) {
@@ -290,6 +569,9 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
     };
   });
 
+  const parsedBaseTree = evolutionData ? parseEvolutionChain(evolutionData.chain) : null;
+  const finalEvolutionTree = buildCompleteEvolutionTree(rawData.name, parsedBaseTree);
+
   return {
     id: rawData.id,
     name: formatPokemonName(rawData.name, speciesName),
@@ -319,7 +601,7 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
     hatchCounter: hatchCounter !== null ? `${hatchCounter * 256} steps (${hatchCounter} cycles)` : "N/A",
     varieties,
     moves,
-    evolutionTree: evolutionData ? parseEvolutionChain(evolutionData.chain) : null,
+    evolutionTree: finalEvolutionTree,
   };
 }
 
@@ -437,7 +719,6 @@ export function isItemInGenRange(pokemonItem, activeGen) {
     return id >= range.start && id <= range.end;
   }
 
-  // Allow variant and special forms beyond ID 1025 by checking tags
   const name = typeof pokemonItem === "object" ? pokemonItem.name : String(pokemonItem);
   const specialMatch = SPECIAL_FORM_REGISTRY.find((entry) => entry.name === name);
   if (specialMatch) {
@@ -501,12 +782,36 @@ export const SPECIAL_FORM_REGISTRY = [
   { name: "tauros-paldea-blaze-breed", base: "tauros", tags: ["paldea", "paldean", "blaze", "regional"] },
   { name: "tauros-paldea-aqua-breed", base: "tauros", tags: ["paldea", "paldean", "aqua", "regional"] },
 
+  // --- Hisuian Forms ---
+  { name: "growlithe-hisui", base: "growlithe", tags: ["hisui", "hisuian", "regional"] },
+  { name: "arcanine-hisui", base: "arcanine", tags: ["hisui", "hisuian", "regional"] },
+  { name: "voltorb-hisui", base: "voltorb", tags: ["hisui", "hisuian", "regional"] },
+  { name: "electrode-hisui", base: "electrode", tags: ["hisui", "hisuian", "regional"] },
+  { name: "typhlosion-hisui", base: "typhlosion", tags: ["hisui", "hisuian", "regional"] },
+  { name: "qwilfish-hisui", base: "qwilfish", tags: ["hisui", "hisuian", "regional"] },
+  { name: "sneasel-hisui", base: "sneasel", tags: ["hisui", "hisuian", "regional"] },
+  { name: "samurott-hisui", base: "samurott", tags: ["hisui", "hisuian", "regional"] },
+  { name: "lilligant-hisui", base: "lilligant", tags: ["hisui", "hisuian", "regional"] },
+  { name: "zorua-hisui", base: "zorua", tags: ["hisui", "hisuian", "regional"] },
+  { name: "zoroark-hisui", base: "zoroark", tags: ["hisui", "hisuian", "regional"] },
+  { name: "braviary-hisui", base: "braviary", tags: ["hisui", "hisuian", "regional"] },
+  { name: "sliggoo-hisui", base: "sliggoo", tags: ["hisui", "hisuian", "regional"] },
+  { name: "goodra-hisui", base: "goodra", tags: ["hisui", "hisuian", "regional"] },
+  { name: "avalugg-hisui", base: "avalugg", tags: ["hisui", "hisuian", "regional"] },
+  { name: "decidueye-hisui", base: "decidueye", tags: ["hisui", "hisuian", "regional"] },
+
+  // --- Battle Bond ---
+  { name: "greninja-ash", base: "greninja", tags: ["battle-bond", "ash-greninja", "special"] },
+
   // --- Megas & Primals ---
   { name: "venusaur-mega", base: "venusaur", tags: ["mega"] },
   { name: "charizard-mega-x", base: "charizard", tags: ["mega"] },
   { name: "charizard-mega-y", base: "charizard", tags: ["mega"] },
   { name: "blastoise-mega", base: "blastoise", tags: ["mega"] },
+  { name: "beedrill-mega", base: "beedrill", tags: ["mega"] },
+  { name: "pidgeot-mega", base: "pidgeot", tags: ["mega"] },
   { name: "alakazam-mega", base: "alakazam", tags: ["mega"] },
+  { name: "slowbro-mega", base: "slowbro", tags: ["mega"] },
   { name: "gengar-mega", base: "gengar", tags: ["mega"] },
   { name: "kangaskhan-mega", base: "kangaskhan", tags: ["mega"] },
   { name: "pinsir-mega", base: "pinsir", tags: ["mega"] },
@@ -588,7 +893,6 @@ export const SPECIAL_FORM_REGISTRY = [
 
 export async function fetchFullPokedexDirectory() {
   try {
-    // Uncapped query to load every single Pokémon and form from PokeAPI
     const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000");
     const data = await res.json();
 

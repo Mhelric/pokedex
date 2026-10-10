@@ -156,7 +156,7 @@ body {
 
 .controls {
   position: relative;
-  z-index: 50; /* Stays above the pokemon card grid */
+  z-index: 50;
   overflow: visible;
   flex-shrink: 0;
   display: flex;
@@ -204,7 +204,6 @@ body {
   box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15);
 }
 
-/* Filter Toggle Button Embedded On the Right of Search Bar */
 .filter-toggle-btn {
   position: absolute;
   right: 6px;
@@ -242,7 +241,6 @@ body {
   display: none;
 }
 
-/* Downward Expanding Filter Drawer */
 .filter-drawer {
   display: grid;
   grid-template-rows: 1fr;
@@ -272,7 +270,7 @@ body {
 }
 
 .drawer-inner {
-  overflow: visible; /* Allows dropdown menus to spill out freely over cards */
+  overflow: visible;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -340,7 +338,7 @@ body {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  z-index: 999; /* Higher than any cards */
+  z-index: 999;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: none;
 }
@@ -407,7 +405,6 @@ body {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Card Top Bar with Identification and Love buttons */
 .card-top-bar {
   width: 100%;
   display: flex;
@@ -525,7 +522,6 @@ body {
 .type-dark { background-color: #775544; }
 .type-normal { background-color: #aaaa99; color: #000; }
 
-/* Metrics Row: Height & Weight */
 .card-metrics-row {
   display: flex;
   justify-content: center;
@@ -542,7 +538,6 @@ body {
   gap: 4px;
 }
 
-/* Abilities Pill */
 .card-ability-pill {
   font-size: 0.72rem;
   color: #334155;
@@ -559,7 +554,6 @@ body {
   color: #64748b;
 }
 
-/* Description / Pokédex Entry */
 .pokemon-description {
   font-size: 0.76rem;
   font-style: italic;
@@ -573,7 +567,6 @@ body {
   width: 100%;
 }
 
-/* Stats Progress Grid */
 .card-stats-preview {
   width: 100%;
   display: flex;
@@ -648,7 +641,6 @@ body {
   position: fixed;
   inset: 0;
   width: 100%;
-  /* Use dynamic viewport height (dvh) with fallback */
   height: 100vh;
   height: 100dvh;
   background-color: rgba(15, 23, 42, 0.65);
@@ -657,11 +649,9 @@ body {
   z-index: 2000;
   display: flex;
   justify-content: center;
-  /* Align to center on desktop, but allow flex-start on small devices so it scrolls naturally */
   align-items: center;
   padding: 12px;
   box-sizing: border-box;
-  /* Allow overlay itself to scroll if content overflows on small heights */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -675,18 +665,16 @@ body {
   border-radius: 24px;
   width: 100%;
   max-width: 860px;
-  /* Use dvh and leave clearance for browser toolbars */
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 24px 18px 36px 18px; /* Extra bottom padding so last section isn't clipped */
+  padding: 24px 18px 36px 18px;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
   border: 1px solid #e2e8f0;
-  margin: auto; /* Centers horizontally and vertically when height allows */
+  margin: auto;
 }
 
-/* Ensure mobile screens don't get vertically cut */
 @media (max-height: 700px) {
   .modal-overlay {
     align-items: flex-start;
@@ -699,7 +687,6 @@ body {
   }
 }
 
-/* Invisible Clean Scrollbars */
 #pokemon-modal .modal-card,
 #pokemon-modal .modal-bottom-details,
 #pokemon-modal .table-scroll-wrap,
@@ -1077,175 +1064,244 @@ body {
 }
 
 /* ==========================================================================
-   COMPACT & RESPONSIVE EVOLUTION TREE
+   5. EVOLUTION TREE: RESPONSIVE HORIZONTAL CIRCUIT & BATTLE FORMS
    ========================================================================== */
 .evolution-tree-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 12px 6px;
+  padding: 8px 4px;
   width: 100%;
   overflow-x: auto;
-}
-
-.evo-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.evo-branches-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.evo-branch-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-}
-
-.evo-connector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 60px;
-}
-
-.evo-arrow {
-  color: #94a3b8;
-  font-size: 0.75rem;
-  transform: rotate(90deg);
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 680px) {
-  .evo-group {
-    flex-direction: row;
+  .evolution-tree-container {
     justify-content: center;
-    gap: 14px;
-    width: auto;
-  }
-
-  .evo-branches-wrap {
-    width: auto;
-  }
-
-  .evo-branch-item {
-    flex-direction: row;
-    gap: 12px;
-    width: auto;
-  }
-
-  .evo-arrow {
-    transform: rotate(0deg);
+    padding: 12px 6px;
   }
 }
 
+.evo-stage-node {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.evo-node-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.evo-stage-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evo-branch-col {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Connectors */
+.evo-connector-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 75px;
+  max-width: 105px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.evo-trigger-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1.15;
+  text-align: center;
+  word-break: break-word;
+}
+
+.evo-arrow-char {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+/* Evolution Node Card */
 .evo-node {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 10px;
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
+  padding: 6px 8px;
+  border-radius: 12px;
   background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  min-width: 74px;
+  max-width: 90px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
 }
 
 .evo-node:hover {
-  background: #f1f5f9;
+  background: #ffffff;
   transform: translateY(-2px);
   border-color: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
 
 .evo-node.active {
   border-color: #ef5350;
   background: #fef2f2;
+  box-shadow: 0 0 0 2px rgba(239, 83, 80, 0.15);
 }
 
+/* Avatar fills ~75% of node frame */
 .evo-avatar-wrap {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .evo-img {
-  width: 38px;
-  height: 38px;
+  width: 46px;
+  height: 46px;
   object-fit: contain;
+  transition: transform 0.15s ease;
+}
+
+.evo-node:hover .evo-img {
+  transform: scale(1.1);
 }
 
 .evo-name {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #334155;
-  margin-top: 2px;
+  margin-top: 3px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.evo-trigger-badge {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: #b91c1c;
-  background: #fef2f2;
-  border: 1px solid #fee2e2;
-  padding: 1px 5px;
+/* ==========================================
+   BATTLE FORMS (Megas, Primals, Ash-Greninja)
+   ========================================== */
+.battle-forms-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  background: rgba(241, 245, 249, 0.7);
+  padding: 6px 6px;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+}
+
+.battle-forms-header {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.3px;
+}
+
+.battle-forms-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}
+
+.battle-form-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e0e7ff !important;
+  position: relative;
+  min-width: 68px;
+  max-width: 82px;
+}
+
+.battle-form-card:hover {
+  border-color: #6366f1 !important;
+}
+
+.battle-form-card.active {
+  border-color: #ef5350 !important;
+}
+
+.battle-form-tag {
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 1px 4px;
   border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+.battle-trigger-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #4338ca;
+  background: #e0e7ff;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin-top: 2px;
   text-align: center;
   line-height: 1.1;
+  word-break: break-word;
 }
 
-/* Eeveelutions Responsive Grid */
+/* Eeveelutions Compact Grid */
 .eevee-grid-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
 }
 
 .eevee-branches-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 6px;
   width: 100%;
   justify-items: center;
 }
 
 .eevee-branches-grid .evo-branch-card {
   width: 100%;
-  max-width: 90px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px;
+  max-width: 84px;
 }
 
 .eevee-branches-grid .evo-avatar-wrap {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
 }
 
 .eevee-branches-grid .evo-img {
-  width: 34px;
-  height: 34px;
-}
-
-.eevee-branches-grid .evo-trigger-badge {
-  margin-top: 3px;
-  font-size: 0.58rem;
-  text-align: center;
-  word-break: break-word;
+  width: 40px;
+  height: 40px;
 }
 
 /* Two Columns (Training & Breeding) */
@@ -1523,7 +1579,7 @@ body {
 }
 
 /* ==========================================================================
-   5. TEAM MODAL STYLING
+   6. TEAM MODAL STYLING
    ========================================================================== */
 .team-header {
   display: flex;
@@ -1764,7 +1820,7 @@ body {
 }
 
 /* ==========================================================================
-   6. SCANNER CARD & BOTTOM ACTION BAR
+   7. SCANNER CARD & BOTTOM ACTION BAR
    ========================================================================== */
 .scanner-card {
   background: #1e293b;
@@ -1860,7 +1916,6 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* Scanner Button with Modern Pokédex Scan Reticle Accent */
 .bottom-nav-item.highlight-btn {
   width: 56px;
   height: 56px;
@@ -1879,7 +1934,6 @@ body {
   box-shadow: 0 6px 20px rgba(239, 83, 80, 0.55);
 }
 
-/* Inline Search Spinner Indicator */
 .input-spinner {
   position: absolute;
   right: 48px;

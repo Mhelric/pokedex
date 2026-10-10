@@ -140,41 +140,97 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
   }
 }
 
-function buildEvolutionTreeHtml(evoNode, currentRawName) {
-  if (!evoNode) return `<p class="empty-note">No evolution data available.</p>`;
+function getArtworkForEvoNode(evoNode) {
+  if (evoNode.customImage) return evoNode.customImage;
+
+  const idParts = (evoNode.speciesUrl || "").split("/").filter(Boolean);
+  const numericId = idParts.length > 0 ? idParts[idParts.length - 1] : null;
+
+  if (numericId && !isNaN(Number(numericId))) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${numericId}.png`;
+  }
+  return `https://play.pokemonshowdown.com/sprites/gen5/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
+}
+
+function renderBattleFormsDeck(battleForms, currentRawName) {
+  if (!battleForms || battleForms.length === 0) return "";
+
+  const cardsHtml = battleForms
+    .map((form) => {
+      const isCurrent = form.name.toLowerCase() === currentRawName.toLowerCase();
+      const imgUrl = !isNaN(Number(form.id))
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`
+        : `https://play.pokemonshowdown.com/sprites/gen5/${form.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
+
+      return `
+        <div class="battle-form-card evo-node ${isCurrent ? "active" : ""}" data-species="${form.name}" title="${form.displayName}">
+          <div class="battle-form-tag">⚡ Form</div>
+          <div class="evo-avatar-wrap">
+            <img 
+              src="${imgUrl}" 
+              alt="${form.displayName}" 
+              class="evo-img" 
+              loading="lazy" 
+              onerror="this.onerror=null; this.src='https://play.pokemonshowdown.com/sprites/gen5/${form.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.png';"
+            />
+          </div>
+          <span class="evo-name">${form.displayName}</span>
+          <span class="battle-trigger-badge">${form.trigger}</span>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="battle-forms-wrapper">
+      <div class="battle-forms-header">Battle Transformations</div>
+      <div class="battle-forms-grid">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
+}
+
+export function buildEvolutionTreeHtml(evoNode, currentRawName) {
+  if (!evoNode) return `<p class="empty-note">This Pokémon does not evolve.</p>`;
 
   if (evoNode.speciesName.toLowerCase() === "eevee" && evoNode.evolvesTo && evoNode.evolvesTo.length >= 8) {
     return buildEeveeCircularEvolutionHtml(evoNode, currentRawName);
   }
 
   const isCurrent = evoNode.speciesName.toLowerCase() === currentRawName.toLowerCase();
-  const speciesId = evoNode.speciesUrl.split("/").filter(Boolean).pop();
-  const artworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${speciesId}.png`;
+  const artworkUrl = getArtworkForEvoNode(evoNode);
+  const displayName = evoNode.displayName || formatPokemonName(evoNode.speciesName);
+  const fallbackUrl = `https://play.pokemonshowdown.com/sprites/gen5/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 
   const nodeCard = `
-    <div class="evo-node ${isCurrent ? 'active' : ''}" data-species="${evoNode.speciesName}">
+    <div class="evo-node ${isCurrent ? "active" : ""}" data-species="${evoNode.speciesName}">
       <div class="evo-avatar-wrap">
         <img 
           src="${artworkUrl}" 
-          alt="${evoNode.speciesName}" 
+          alt="${displayName}" 
           class="evo-img" 
           loading="lazy" 
-          onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png'"
+          onerror="this.onerror=null; this.src='${fallbackUrl}';"
         />
       </div>
-      <span class="evo-name">${formatPokemonName(evoNode.speciesName)}</span>
+      <span class="evo-name">${displayName}</span>
     </div>
   `;
+
+  const battleFormsHtml = evoNode.battleForms && evoNode.battleForms.length > 0
+    ? renderBattleFormsDeck(evoNode.battleForms, currentRawName)
+    : "";
 
   if (evoNode.evolvesTo && evoNode.evolvesTo.length > 0) {
     const branches = evoNode.evolvesTo
       .map((child) => {
         const triggerDesc = child.evolutionRequirement || "Level up";
         return `
-          <div class="evo-branch-item">
-            <div class="evo-connector">
-              <span class="evo-trigger-badge">${triggerDesc}</span>
-              <span class="evo-arrow">➜</span>
+          <div class="evo-branch-col">
+            <div class="evo-connector-badge">
+              <span class="evo-trigger-pill">${triggerDesc}</span>
+              <span class="evo-arrow-char">➜</span>
             </div>
             ${buildEvolutionTreeHtml(child, currentRawName)}
           </div>
@@ -183,40 +239,50 @@ function buildEvolutionTreeHtml(evoNode, currentRawName) {
       .join("");
 
     return `
-      <div class="evo-group">
-        ${nodeCard}
-        <div class="evo-branches-wrap">
+      <div class="evo-stage-node">
+        <div class="evo-node-cluster">
+          ${nodeCard}
+          ${battleFormsHtml}
+        </div>
+        <div class="evo-stage-branches">
           ${branches}
         </div>
       </div>
     `;
   }
 
-  return `<div class="evo-group final">${nodeCard}</div>`;
+  return `
+    <div class="evo-stage-node final">
+      <div class="evo-node-cluster">
+        ${nodeCard}
+        ${battleFormsHtml}
+      </div>
+    </div>
+  `;
 }
 
 function buildEeveeCircularEvolutionHtml(eeveeNode, currentRawName) {
   const isEeveeActive = currentRawName.toLowerCase() === "eevee";
-  const eeveeId = eeveeNode.speciesUrl.split("/").filter(Boolean).pop();
+  const eeveeId = eeveeNode.speciesUrl ? eeveeNode.speciesUrl.split("/").filter(Boolean).pop() : "133";
 
   const childrenHtml = eeveeNode.evolvesTo.map((child) => {
-    const childId = child.speciesUrl.split("/").filter(Boolean).pop();
     const isCurrent = child.speciesName.toLowerCase() === currentRawName.toLowerCase();
+    const artwork = getArtworkForEvoNode(child);
     const triggerDesc = child.evolutionRequirement || "Special";
 
     return `
-      <div class="evo-branch-card evo-node ${isCurrent ? 'active' : ''}" data-species="${child.speciesName}">
+      <div class="evo-branch-card evo-node ${isCurrent ? "active" : ""}" data-species="${child.speciesName}">
         <div class="evo-avatar-wrap">
           <img 
-            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${childId}.png" 
+            src="${artwork}" 
             alt="${child.speciesName}" 
             class="evo-img" 
             loading="lazy" 
-            onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${childId}.png'"
+            onerror="this.onerror=null; this.src='https://play.pokemonshowdown.com/sprites/gen5/${child.speciesName.toLowerCase()}.png';"
           />
         </div>
         <span class="evo-name">${formatPokemonName(child.speciesName)}</span>
-        <span class="evo-trigger-badge">${triggerDesc}</span>
+        <span class="evo-trigger-pill">${triggerDesc}</span>
       </div>
     `;
   }).join("");
@@ -224,7 +290,7 @@ function buildEeveeCircularEvolutionHtml(eeveeNode, currentRawName) {
   return `
     <div class="eevee-grid-wrapper">
       <div class="eevee-root-container">
-        <div class="evo-node ${isEeveeActive ? 'active' : ''}" data-species="eevee">
+        <div class="evo-node ${isEeveeActive ? "active" : ""}" data-species="eevee">
           <div class="evo-avatar-wrap">
             <img 
               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${eeveeId}.png" 
@@ -381,9 +447,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     )
     .join("");
 
-  const evolutionChainHtml = pokemon.evolutionTree
-    ? buildEvolutionTreeHtml(pokemon.evolutionTree, pokemon.speciesName)
-    : `<p class="empty-note">This Pokémon does not evolve.</p>`;
+  const evolutionChainHtml = buildEvolutionTreeHtml(pokemon.evolutionTree, pokemon.rawName);
 
   const levelUpMoves = getFilteredMoves(pokemon, selectedGame, "level-up");
   const moveRowsHtml = levelUpMoves.length > 0
