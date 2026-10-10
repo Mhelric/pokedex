@@ -193,11 +193,19 @@ function renderBattleFormsRow(battleForms, currentRawName) {
 }
 
 function getBattleFormImageSrc(form) {
-  if (!isNaN(Number(form.id))) {
+  // 1. If form already has an image property (like in varieties)
+  if (form.image || form.customImage) {
+    return form.image || form.customImage;
+  }
+
+  // 2. If it has a numeric variety ID
+  if (form.id && !isNaN(Number(form.id))) {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`;
   }
-  const cleanName = form.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `https://play.pokemonshowdown.com/sprites/dex/${cleanName}.png`;
+
+  // 3. Fallback to official artwork by form slug (e.g., dragonite-mega.png)
+  const cleanName = (form.name || "").toLowerCase().trim();
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${cleanName}.png`;
 }
 
 function getBaseArtworkFallback(form) {
@@ -205,11 +213,19 @@ function getBaseArtworkFallback(form) {
   return `https://play.pokemonshowdown.com/sprites/dex/${baseName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 }
 
-export function buildEvolutionTreeHtml(evoNode, currentRawName) {
+export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) {
   if (!evoNode) return `<p class="empty-note">This Pokémon does not evolve.</p>`;
 
-  if (evoNode.speciesName.toLowerCase() === "eevee" && evoNode.evolvesTo && evoNode.evolvesTo.length >= 8) {
-    return buildEeveeCircularEvolutionHtml(evoNode, currentRawName);
+  // Enrich battle forms with variety images if available
+  if (evoNode.battleForms && Array.isArray(evoNode.battleForms)) {
+    evoNode.battleForms.forEach((form) => {
+      const match = (varieties || []).find(
+        (v) => (v.rawName || v.name || "").toLowerCase() === (form.name || "").toLowerCase()
+      );
+      if (match && match.image) {
+        form.image = match.image;
+      }
+    });
   }
 
   const isCurrent = evoNode.speciesName.toLowerCase() === currentRawName.toLowerCase();
@@ -515,7 +531,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     )
     .join("");
 
-  const evolutionChainHtml = buildEvolutionTreeHtml(pokemon.evolutionTree, pokemon.rawName);
+  const evolutionChainHtml = buildEvolutionTreeHtml(pokemon.evolutionTree, pokemon.rawName, pokemon.varieties);   
 
   const levelUpMoves = getFilteredMoves(pokemon, selectedGame, "level-up");
   const moveRowsHtml = levelUpMoves.length > 0
