@@ -232,32 +232,97 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName) {
     </div>
   `;
 
-  // Render battle transformations (Mega X, Mega Y) directly grouped under this node
-  const battleFormsHtml = evoNode.battleForms && evoNode.battleForms.length > 0
-    ? renderBattleFormsRow(evoNode.battleForms, currentRawName)
-    : "";
+  const battleForms = evoNode.battleForms || [];
+  let evolvesTo = [...(evoNode.evolvesTo || [])];
 
-  // Render next evolution stages
-  const standardBranchesHtml = (evoNode.evolvesTo || [])
-    .map((child) => {
-      const triggerDesc = child.evolutionRequirement || "Level up";
+  // Fix Sandshrew / combined regional triggers (e.g. Level 22 / Use Ice Stone)
+  if (evoNode.speciesName.toLowerCase() === "sandshrew" && evolvesTo.length === 1) {
+    const origReq = evolvesTo[0].evolutionRequirement || "";
+    if (origReq.includes("Ice Stone") || origReq.includes("/")) {
+      evolvesTo = [
+        {
+          ...evolvesTo[0],
+          displayName: "Sandslash",
+          speciesName: "sandslash",
+          evolutionRequirement: "Level 22"
+        },
+        {
+          ...evolvesTo[0],
+          displayName: "Alolan Sandslash",
+          speciesName: "sandslash-alola",
+          evolutionRequirement: "Use Ice Stone",
+          customImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10102.png"
+        }
+      ];
+    }
+  }
+
+  // Case 1: The Pokemon evolves further AND has a Mega (e.g. Floette -> [Mega Floette] & [Florges])
+  if (evolvesTo.length > 0 && battleForms.length > 0) {
+    const megaBranchesHtml = battleForms.map((form) => {
+      const isFormCurrent = form.name.toLowerCase() === currentRawName.toLowerCase();
+      const primaryImg = getBattleFormImageSrc(form);
+      const fallbackImg = getBaseArtworkFallback(form);
+
       return `
         <div class="evo-branch-col">
           <div class="evo-connector-badge">
-            <span class="evo-trigger-pill">${triggerDesc}</span>
+            <span class="battle-trigger-pill">${form.trigger}</span>
             <span class="evo-arrow-char">➜</span>
           </div>
-          ${buildEvolutionTreeHtml(child, currentRawName)}
+          <div class="evo-node battle-form-card ${isFormCurrent ? "active" : ""}" data-species="${form.name}">
+            <div class="battle-form-tag">⚡ Mega Form</div>
+            <div class="evo-avatar-wrap">
+              <img src="${primaryImg}" alt="${form.displayName}" class="evo-img" loading="lazy" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+            </div>
+            <span class="evo-name">${form.displayName}</span>
+          </div>
         </div>
       `;
-    })
-    .join("");
+    }).join("");
+
+    const regularBranchesHtml = evolvesTo.map((child) => `
+      <div class="evo-branch-col">
+        <div class="evo-connector-badge">
+          <span class="evo-trigger-pill">${child.evolutionRequirement || "Level up"}</span>
+          <span class="evo-arrow-char">➜</span>
+        </div>
+        ${buildEvolutionTreeHtml(child, currentRawName)}
+      </div>
+    `).join("");
+
+    return `
+      <div class="evo-stage-node">
+        <div class="evo-node-cluster">
+          ${nodeCard}
+        </div>
+        <div class="evo-stage-branches">
+          ${megaBranchesHtml}
+          ${regularBranchesHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  // Case 2: Final stage with Megas (e.g. Raichu -> Mega Raichu X / Y)
+  const battleFormsUnderNode = battleForms.length > 0 ? renderBattleFormsRow(battleForms, currentRawName) : "";
+
+  // Regular evolution branches (e.g. Pikachu -> Raichu / Alolan Raichu)
+  const standardBranchesHtml = evolvesTo.map((child) => `
+    <div class="evo-branch-col">
+      <div class="evo-connector-badge">
+        <span class="evo-trigger-pill">${child.evolutionRequirement || "Level up"}</span>
+        <span class="evo-arrow-char">➜</span>
+      </div>
+      ${buildEvolutionTreeHtml(child, currentRawName)}
+    </div>
+  `).join("");
 
   return `
     <div class="evo-stage-node">
       <div class="evo-node-cluster">
         ${nodeCard}
-        ${battleFormsHtml}
+        ${battleFormsUnderNode}
       </div>
       ${standardBranchesHtml ? `<div class="evo-stage-branches">${standardBranchesHtml}</div>` : ""}
     </div>

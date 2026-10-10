@@ -1071,10 +1071,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 6px;
+  padding: 16px 8px;
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .evo-stage-node {
@@ -1089,19 +1088,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 8px;
 }
 
-/* Sibling Evolution Branches (e.g., Pikachu -> Raichu / Alolan Raichu) */
+/* Parallel branches (Florges & Mega Floette, or Raichu & Alolan Raichu) */
 .evo-stage-branches {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
+  flex-wrap: nowrap;
 }
 
 .evo-branch-col {
@@ -1109,18 +1107,15 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  flex: 1 1 auto;
 }
 
-/* Battle Transformations (Mega X & Y) side-by-side under the Pokémon */
+/* Battle forms attached directly under final forms (e.g. Mega Raichu X & Y) */
 .battle-forms-fork-container {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
   gap: 12px;
-  margin-top: 4px;
   width: 100%;
 }
 
@@ -1131,7 +1126,7 @@ body {
   gap: 6px;
 }
 
-/* Connectors on Mobile (Arrow pointing downwards) */
+/* Vertical connector arrow pointing downwards */
 .evo-arrow-char {
   color: #94a3b8;
   font-size: 0.95rem;
@@ -1550,40 +1545,72 @@ body {
    DESKTOP VIEW: Left-to-Right Horizontal Flow (min-width: 768px)
    ========================================================================== */
 @media (min-width: 768px) {
+  /* Keep overall evolution progression flowing vertically downwards */
   .evolution-tree-container {
-    flex-direction: row;
-    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px;
+    width: 100%;
     overflow-x: auto;
   }
 
+  /* Each evolution stage flows downwards to its next stage */
   .evo-stage-node {
-    flex-direction: row;
-    width: auto;
-  }
-
-  .evo-stage-branches {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    width: auto;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
   }
 
-  .evo-branch-col {
-    flex-direction: row;
-    width: auto;
+  /* Cluster holds the parent Pokémon and any Megas attached beneath it */
+  .evo-node-cluster {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
+  /* Megas stay horizontally aligned side-by-side beneath their parent */
   .battle-forms-fork-container {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     align-items: flex-start;
-    width: auto;
+    gap: 16px;
+    width: 100%;
   }
 
   .battle-fork-item {
-    flex-direction: row;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
   }
 
+  /* Sibling evolutions (e.g., Raichu and Alolan Raichu) branch side-by-side */
+  .evo-stage-branches {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .evo-branch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Downward arrow alignment */
   .evo-arrow-char {
-    transform: rotate(0deg); /* Horizontal arrows (➜) */
+    transform: rotate(90deg);
+    display: inline-block;
   }
 }
 
