@@ -709,13 +709,22 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         </div>
       </section>
 
-      <section class="detail-section game-selector-bottom-card">
-        <div class="game-selector-header">
-          <h4 class="section-title">Game / Generation Setting</h4>
-          <span class="game-selector-hint">Updates entry text, abilities & generation movepools</span>
-        </div>
-        <div class="game-pills-container" id="modal-game-pills">
-          ${versionButtonsHtml}
+      <section class="detail-section game-selector-bottom-card" id="game-selector-section">
+        <button type="button" class="game-selector-header" id="game-selector-toggle" aria-expanded="false">
+          <div class="game-selector-titles">
+            <div class="game-selector-title-row">
+              <h4 class="section-title">Game / Generation Setting</h4>
+              <span class="game-selector-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+            </div>
+            <span class="game-selector-hint">Updates entry text, abilities & generation movepools</span>
+          </div>
+        </button>
+        <div class="game-drawer collapsed" id="game-drawer">
+          <div class="game-drawer-inner">
+            <div class="game-pills-container" id="modal-game-pills">
+              ${versionButtonsHtml}
+            </div>
+          </div>
         </div>
       </section>
     </div>

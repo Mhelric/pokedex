@@ -1428,22 +1428,100 @@ body {
   border-radius: 4px;
 }
 
-/* Generation / Game Setting Selection */
+/* ==========================================================================
+   MODAL GAME / GEN ACCORDION
+   ========================================================================== */
 .game-selector-bottom-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
 }
 
 .game-selector-header {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  display: block;
 }
 
+.game-selector-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-selector-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.game-selector-header .section-title {
+  margin: 0;
+}
+
+/* Lowered hint text */
 .game-selector-hint {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: #94a3b8;
-  margin-top: -6px;
+  margin-top: 6px;
+  line-height: 1.35;
+  display: block;
+}
+
+/* Arrow circle placed to the right */
+.game-selector-chevron {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.78rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.game-selector-header:hover .game-selector-chevron {
+  background: #ef5350;
+  border-color: #ef5350;
+  color: #ffffff;
+}
+
+.game-selector-header.active .game-selector-chevron {
+  transform: rotate(180deg);
+  background: #ef5350;
+  border-color: #ef5350;
+  color: #ffffff;
+}
+
+/* Smooth expansion matching filter-drawer */
+.game-drawer {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              margin-top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
+  opacity: 1;
+  margin-top: 14px;
+}
+
+.game-drawer.collapsed {
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.game-drawer-inner {
+  overflow: hidden;
+  min-height: 0;
 }
 
 .game-pills-container {
@@ -1451,7 +1529,6 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
   width: 100%;
 }
 
@@ -1545,7 +1622,6 @@ body {
    DESKTOP VIEW: Left-to-Right Horizontal Flow (min-width: 768px)
    ========================================================================== */
 @media (min-width: 768px) {
-  /* Keep overall evolution progression flowing vertically downwards */
   .evolution-tree-container {
     display: flex;
     flex-direction: column;
@@ -1556,7 +1632,6 @@ body {
     overflow-x: auto;
   }
 
-  /* Each evolution stage flows downwards to its next stage */
   .evo-stage-node {
     display: flex;
     flex-direction: column;
@@ -1565,7 +1640,6 @@ body {
     width: 100%;
   }
 
-  /* Cluster holds the parent Pokémon and any Megas attached beneath it */
   .evo-node-cluster {
     display: flex;
     flex-direction: column;
@@ -1573,7 +1647,6 @@ body {
     gap: 10px;
   }
 
-  /* Megas stay horizontally aligned side-by-side beneath their parent */
   .battle-forms-fork-container {
     display: flex;
     flex-direction: row;
@@ -1590,7 +1663,6 @@ body {
     gap: 6px;
   }
 
-  /* Sibling evolutions (e.g., Raichu and Alolan Raichu) branch side-by-side */
   .evo-stage-branches {
     display: flex;
     flex-direction: row;
@@ -1607,7 +1679,6 @@ body {
     gap: 8px;
   }
 
-  /* Downward arrow alignment */
   .evo-arrow-char {
     transform: rotate(90deg);
     display: inline-block;

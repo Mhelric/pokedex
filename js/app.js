@@ -694,6 +694,32 @@ if (scannerModal) scannerModal.addEventListener("click", (e) => { if (e.target =
 // Modal Interactive Delegations
 if (modalContent) {
   modalContent.addEventListener("click", (e) => {
+    // 1. Toggle Game / Gen accordion drawer and smooth scroll to show the list completely
+    const gameToggleBtn = e.target.closest("#game-selector-toggle");
+    if (gameToggleBtn) {
+      const drawer = modalContent.querySelector("#game-drawer");
+      const targetSection = modalContent.querySelector("#game-selector-section");
+
+      if (drawer) {
+        const willOpen = drawer.classList.contains("collapsed");
+        drawer.classList.toggle("collapsed");
+        gameToggleBtn.classList.toggle("active", willOpen);
+        gameToggleBtn.setAttribute("aria-expanded", willOpen.toString());
+
+        if (willOpen && targetSection) {
+          // Allow the CSS grid-template-rows expansion to begin, then scroll into view smoothly
+          setTimeout(() => {
+            targetSection.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }, 80);
+        }
+      }
+      return;
+    }
+
+    // 2. Select Game Version Pill
     const gamePill = e.target.closest(".game-pill-btn");
     if (gamePill) {
       modalContent.querySelectorAll(".game-pill-btn").forEach((p) => p.classList.remove("active"));
@@ -714,6 +740,7 @@ if (modalContent) {
       return;
     }
 
+    // 3. Movepool Category Tabs
     const tabBtn = e.target.closest(".tab-btn");
     if (tabBtn) {
       modalContent.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -723,6 +750,7 @@ if (modalContent) {
       return;
     }
 
+    // 4. Variety / Gimmick Form Switcher
     const varietyCard = e.target.closest(".variety-card-item");
     if (varietyCard) {
       const targetName = varietyCard.dataset.name;
@@ -732,7 +760,7 @@ if (modalContent) {
       return;
     }
 
-    // Direct evolution node click handler (opens variants, megas, and species)
+    // 5. Direct Evolution Node Click Handler (opens variants, megas, and species)
     const evoNode = e.target.closest(".evo-node");
     if (evoNode) {
       const evoTarget = evoNode.dataset.species;
@@ -747,6 +775,7 @@ if (modalContent) {
       return;
     }
 
+    // 6. Voice Wave Play / Stop
     const voiceBar = e.target.closest("#modal-voice-indicator");
     if (voiceBar && activePokemonForVoice) {
       if (window.speechSynthesis.speaking || (currentActiveCry && !currentActiveCry.paused)) {
