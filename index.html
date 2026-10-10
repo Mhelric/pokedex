@@ -167,6 +167,94 @@
             </div>
         </div>
 
+        <!-- Favorites Modal -->
+        <div id="favorites-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button id="favorites-close-btn" class="modal-close" type="button" aria-label="Close Favorites Modal">&times;</button>
+                <div class="team-header">
+                    <h2>Favorite Pokémon (<span id="favorites-count">0</span>)</h2>
+                </div>
+                <div id="favorites-grid" class="pokemon-grid modal-item-grid"></div>
+            </div>
+        </div>
+
+        <!-- Pokémon Caught Storage Modal -->
+        <div id="caught-modal" class="modal-overlay hidden">
+            <div class="modal-card pc-box-modal-card">
+                <button id="caught-close-btn" class="modal-close" type="button" aria-label="Close Caught Modal">&times;</button>
+                
+                <div class="pc-box-header">
+                    <div class="pc-box-title-wrap">
+                        <span class="pc-status-dot"></span>
+                        <h2>Caught Pokémon</h2>
+                    </div>
+                    <div class="pc-box-actions">
+                        <button id="clear-caught-btn" class="btn-pc-clear" type="button">Release All</button>
+                    </div>
+                </div>
+
+                <div class="pc-box-stage">
+                    <!-- Full Grid: Pixel Sprites Only -->
+                    <section class="pc-storage-grid-container">
+                        <div class="pc-storage-wallpaper">
+                            <div class="pc-storage-grid" id="caught-box-grid">
+                                <!-- Pixel sprites loaded here -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Backdrop for the drawer on small viewports -->
+                    <div id="pc-drawer-backdrop" class="pc-drawer-backdrop hidden"></div>
+
+                    <!-- Slide-over Drawer from Right -->
+                    <aside class="pc-slide-drawer" id="pc-slide-drawer">
+                        <button type="button" id="pc-drawer-close-btn" class="pc-drawer-close" aria-label="Close details">&times;</button>
+                        
+                        <div class="pc-drawer-body" id="pc-drawer-body">
+                            <div class="pc-summary-badge" id="pc-mon-id">#000</div>
+                            
+                            <div class="pc-artwork-wrap">
+                                <img id="pc-mon-artwork" src="" alt="Selected Pokémon" class="pc-artwork-img" />
+                            </div>
+
+                            <h3 id="pc-mon-name" class="pc-mon-name">---</h3>
+                            <p id="pc-mon-genus" class="pc-mon-genus">---</p>
+                            
+                            <div class="pc-summary-types" id="pc-mon-types"></div>
+
+                            <div class="pc-summary-stats">
+                                <div class="pc-stat-item"><span>HP</span><strong id="pc-mon-hp">-</strong></div>
+                                <div class="pc-stat-item"><span>ATK</span><strong id="pc-mon-atk">-</strong></div>
+                                <div class="pc-stat-item"><span>DEF</span><strong id="pc-mon-def">-</strong></div>
+                            </div>
+
+                            <div class="pc-summary-footer-actions">
+                                <button type="button" id="pc-open-details-btn" class="btn-pc-view">Full Pokédex Entry</button>
+                                <button type="button" id="pc-unmark-btn" class="btn-pc-uncheck">
+                                    <i class="fa-solid fa-xmark"></i> Unmark as Caught
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Bottom Status Bar -->
+                <div class="pc-box-footer">
+                    <div class="pc-footer-count">
+                        <span class="pc-footer-label">Caught:</span>
+                        <strong><span id="caught-count">0</span> / 1025</strong>
+                    </div>
+
+                    <div class="pc-footer-progress">
+                        <div class="pc-progress-track">
+                            <div id="caught-progress-fill" class="pc-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="caught-progress-percent" class="caught-progress-percent">0.0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- "Who's That Pokémon?" Mini-Game Modal -->
         <div id="game-modal" class="modal-overlay hidden">
             <div class="modal-card">
@@ -221,14 +309,20 @@
         </div>
     </main>
 
-    <!-- Glassmorphic Fixed Bottom Action Bar with Gemini-Style Scanner -->
+    <!-- Glassmorphic Fixed Bottom Action Bar with 5 Navigation Items -->
     <nav class="bottom-action-bar">
         <div class="bottom-nav-inner">
             <button type="button" id="nav-team-btn" class="bottom-nav-item" title="Team Builder" aria-label="Team Builder">
                 <i class="fa-solid fa-users"></i>
             </button>
+            <button type="button" id="nav-favorites-btn" class="bottom-nav-item" title="Favorite Pokémon" aria-label="Favorites">
+                <i class="fa-solid fa-heart"></i>
+            </button>
             <button type="button" id="nav-scan-btn" class="bottom-nav-item highlight-btn" title="Scan with Pokédex Lens" aria-label="Scan">
-                <i class="fa-solid fa-expand"></i> <!-- Modern reticle / scan icon -->
+                <i class="fa-solid fa-expand"></i>
+            </button>
+            <button type="button" id="nav-caught-btn" class="bottom-nav-item" title="Caught Pokémon" aria-label="Caught List">
+                <i class="fa-solid fa-circle-check"></i>
             </button>
             <button type="button" id="nav-game-btn" class="bottom-nav-item" title="Who's That Pokémon?" aria-label="Mini Game">
                 <i class="fa-solid fa-gamepad"></i>

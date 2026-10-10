@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. GLOBAL STYLES, MOVING BACKGROUND & HEADER
+   1. GLOBAL STYLES, LAYOUT & MOVING BACKGROUND
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -20,7 +20,14 @@ body {
   position: relative;
 }
 
-/* Subtle Dynamic Moving Mesh Background */
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .moving-bg {
   position: fixed;
   top: 0;
@@ -43,6 +50,9 @@ body {
   100% { background-position: 50% 0%; }
 }
 
+/* ==========================================================================
+   2. APP HEADER & SWITCH CONTROLS
+   ========================================================================== */
 .app-header {
   background-color: #ef5350;
   color: #ffffff;
@@ -64,7 +74,6 @@ body {
   gap: 10px;
 }
 
-/* Iconic Pokédex Blue Camera/Sensor Lens */
 .pokedex-lens {
   width: 16px;
   height: 16px;
@@ -144,16 +153,8 @@ body {
 }
 
 /* ==========================================================================
-   2. APP CONTAINER, EMBEDDED SEARCH & EXPANDABLE FILTER DRAWER
+   3. SEARCH BAR & FILTER DRAWER
    ========================================================================== */
-#app {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
 .controls {
   position: relative;
   z-index: 50;
@@ -202,6 +203,22 @@ body {
 .search-box-wrapper input[type="text"]:focus {
   border-color: #ef5350;
   box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15);
+}
+
+.input-spinner {
+  position: absolute;
+  right: 48px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #ef4444;
+  border-radius: 50%;
+  animation: spinInput 0.7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinInput {
+  to { transform: rotate(360deg); }
 }
 
 .filter-toggle-btn {
@@ -360,7 +377,7 @@ body {
 }
 
 /* ==========================================================================
-   3. POKÉMON GRID & CARDS
+   4. POKÉMON GRID & CARDS
    ========================================================================== */
 .pokemon-grid {
   flex: 1;
@@ -491,37 +508,6 @@ body {
   justify-content: center;
 }
 
-.type-badge {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 8px;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  letter-spacing: 0.3px;
-}
-
-.type-fire { background-color: #ff4422; }
-.type-water { background-color: #3399ff; }
-.type-grass { background-color: #77cc55; }
-.type-electric { background-color: #ffcc33; color: #000; }
-.type-ice { background-color: #66ccff; color: #000; }
-.type-fighting { background-color: #bb5544; }
-.type-poison { background-color: #aa5599; }
-.type-ground { background-color: #ddbb55; color: #000; }
-.type-flying { background-color: #8899ff; }
-.type-psychic { background-color: #ff5599; }
-.type-bug { background-color: #aabb22; color: #000; }
-.type-rock { background-color: #bbaa66; }
-.type-ghost { background-color: #6666bb; }
-.type-dragon { background-color: #7766ee; }
-.type-steel { background-color: #aaaabb; color: #000; }
-.type-fairy { background-color: #ee99ee; color: #000; }
-.type-dark { background-color: #775544; }
-.type-normal { background-color: #aaaa99; color: #000; }
-
 .card-metrics-row {
   display: flex;
   justify-content: center;
@@ -625,7 +611,8 @@ body {
   background-color: #15803d;
 }
 
-.status-message, .loading-msg {
+.status-message, 
+.loading-msg {
   grid-column: 1 / -1;
   text-align: center;
   color: #64748b;
@@ -635,7 +622,90 @@ body {
 }
 
 /* ==========================================================================
-   4. MODALS (DETAIL VIEW & TEAM BUILDER)
+   5. TYPE BADGES & EFFECTIVENESS PILLS
+   ========================================================================== */
+.type-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 8px;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.3px;
+}
+
+.type-fire { background-color: #ff4422; }
+.type-water { background-color: #3399ff; }
+.type-grass { background-color: #77cc55; }
+.type-electric { background-color: #ffcc33; color: #000; }
+.type-ice { background-color: #66ccff; color: #000; }
+.type-fighting { background-color: #bb5544; }
+.type-poison { background-color: #aa5599; }
+.type-ground { background-color: #ddbb55; color: #000; }
+.type-flying { background-color: #8899ff; }
+.type-psychic { background-color: #ff5599; }
+.type-bug { background-color: #aabb22; color: #000; }
+.type-rock { background-color: #bbaa66; }
+.type-ghost { background-color: #6666bb; }
+.type-dragon { background-color: #7766ee; }
+.type-steel { background-color: #aaaabb; color: #000; }
+.type-fairy { background-color: #ee99ee; color: #000; }
+.type-dark { background-color: #775544; }
+.type-normal { background-color: #aaaa99; color: #000; }
+
+.matchup-group {
+  margin-bottom: 10px;
+}
+
+.matchup-group .sub-label {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.matchup-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.matchup-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #334155;
+  text-transform: capitalize;
+}
+
+.matchup-pill .pill-multiplier {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.matchup-pill.weak .pill-multiplier {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.matchup-pill.resist .pill-multiplier {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* ==========================================================================
+   6. CORE MODAL SYSTEM & GENERIC MODAL STYLES
    ========================================================================== */
 .modal-overlay {
   position: fixed;
@@ -742,6 +812,60 @@ body {
   pointer-events: none;
 }
 
+.modal-loading-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.modal-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.modal-item-grid {
+  padding: 0.5rem 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.caught-progress-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.caught-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.caught-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.caught-progress-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #15803d;
+  text-align: right;
+}
+
+/* ==========================================================================
+   7. POKÉMON DETAIL MODAL VIEW
+   ========================================================================== */
 .modal-top-layout {
   display: flex;
   flex-direction: column;
@@ -751,16 +875,6 @@ body {
   padding: 12px 0 20px 0;
   text-align: center;
   width: 100%;
-}
-
-@media (min-width: 680px) {
-  .modal-top-layout {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-    padding: 16px 0 24px 0;
-  }
 }
 
 .modal-image-container {
@@ -775,25 +889,11 @@ body {
   object-fit: contain;
 }
 
-@media (min-width: 680px) {
-  .modal-image {
-    width: 210px;
-    height: 210px;
-  }
-}
-
 .modal-header-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-@media (min-width: 680px) {
-  .modal-header-info {
-    align-items: flex-start;
-    text-align: left;
-  }
 }
 
 .modal-card-id {
@@ -809,12 +909,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-}
-
-@media (min-width: 680px) {
-  .modal-title-row {
-    justify-content: flex-start;
-  }
 }
 
 .modal-title {
@@ -853,6 +947,23 @@ body {
 }
 
 @media (min-width: 680px) {
+  .modal-top-layout {
+    flex-direction: row;
+    gap: 40px;
+    padding: 16px 0 24px 0;
+  }
+
+  .modal-image {
+    width: 210px;
+    height: 210px;
+  }
+
+  .modal-header-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .modal-title-row,
   .modal-header-info .card-types {
     justify-content: flex-start;
   }
@@ -994,7 +1105,6 @@ body {
   color: #b45309;
 }
 
-/* Base / Min / Max Stats */
 .stat-calc-header,
 .stat-calc-row {
   display: grid;
@@ -1064,7 +1174,7 @@ body {
 }
 
 /* ==========================================================================
-   5. EVOLUTION TREE: RESPONSIVE FLOW WITH PARALLEL BATTLE FORKS
+   8. EVOLUTION TREE & BRANCHES
    ========================================================================== */
 .evolution-tree-container {
   display: flex;
@@ -1091,7 +1201,6 @@ body {
   gap: 8px;
 }
 
-/* Parallel branches (Florges & Mega Floette, or Raichu & Alolan Raichu) */
 .evo-stage-branches {
   display: flex;
   flex-direction: row;
@@ -1109,7 +1218,6 @@ body {
   gap: 8px;
 }
 
-/* Battle forms attached directly under final forms (e.g. Mega Raichu X & Y) */
 .battle-forms-fork-container {
   display: flex;
   flex-direction: row;
@@ -1126,7 +1234,6 @@ body {
   gap: 6px;
 }
 
-/* Vertical connector arrow pointing downwards */
 .evo-arrow-char {
   color: #94a3b8;
   font-size: 0.95rem;
@@ -1168,7 +1275,6 @@ body {
   max-width: 140px;
 }
 
-/* Card Styling */
 .evo-node {
   display: flex;
   flex-direction: column;
@@ -1235,7 +1341,6 @@ body {
   word-break: break-word;
 }
 
-/* Eeveelutions Compact Grid */
 .eevee-grid-wrapper {
   display: flex;
   flex-direction: column;
@@ -1267,7 +1372,31 @@ body {
   height: 40px;
 }
 
-/* Two Columns (Training & Breeding) */
+@media (min-width: 768px) {
+  .evolution-tree-container {
+    padding: 20px 10px;
+  }
+
+  .evo-stage-node {
+    gap: 14px;
+  }
+
+  .evo-node-cluster {
+    gap: 10px;
+  }
+
+  .battle-forms-fork-container {
+    gap: 16px;
+  }
+
+  .evo-stage-branches {
+    gap: 24px;
+  }
+}
+
+/* ==========================================================================
+   9. TRAINING, BREEDING, MOVES & GAME ACCORDION
+   ========================================================================== */
 .modal-two-columns {
   display: grid;
   grid-template-columns: 1fr;
@@ -1342,7 +1471,6 @@ body {
   color: #db2777;
 }
 
-/* Move Pools & Tabs */
 .movepool-header {
   display: flex;
   flex-direction: column;
@@ -1428,9 +1556,6 @@ body {
   border-radius: 4px;
 }
 
-/* ==========================================================================
-   MODAL GAME / GEN ACCORDION
-   ========================================================================== */
 .game-selector-bottom-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -1463,7 +1588,6 @@ body {
   margin: 0;
 }
 
-/* Lowered hint text */
 .game-selector-hint {
   font-size: 0.74rem;
   color: #94a3b8;
@@ -1472,7 +1596,6 @@ body {
   display: block;
 }
 
-/* Arrow circle placed to the right */
 .game-selector-chevron {
   width: 28px;
   height: 28px;
@@ -1501,7 +1624,6 @@ body {
   color: #ffffff;
 }
 
-/* Smooth expansion matching filter-drawer */
 .game-drawer {
   display: grid;
   grid-template-rows: 1fr;
@@ -1562,131 +1684,8 @@ body {
   box-shadow: 0 2px 8px rgba(239, 83, 80, 0.35);
 }
 
-.modal-loading-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.matchup-group {
-  margin-bottom: 10px;
-}
-
-.matchup-group .sub-label {
-  display: block;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.matchup-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.matchup-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 3px 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #334155;
-  text-transform: capitalize;
-}
-
-.matchup-pill .pill-multiplier {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-
-.matchup-pill.weak .pill-multiplier {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.matchup-pill.resist .pill-multiplier {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
 /* ==========================================================================
-   DESKTOP VIEW: Left-to-Right Horizontal Flow (min-width: 768px)
-   ========================================================================== */
-@media (min-width: 768px) {
-  .evolution-tree-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 10px;
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .evo-stage-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    width: 100%;
-  }
-
-  .evo-node-cluster {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .battle-forms-fork-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 16px;
-    width: 100%;
-  }
-
-  .battle-fork-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .evo-stage-branches {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 24px;
-    width: 100%;
-  }
-
-  .evo-branch-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .evo-arrow-char {
-    transform: rotate(90deg);
-    display: inline-block;
-  }
-}
-
-/* ==========================================================================
-   6. TEAM MODAL STYLING
+   10. TEAM MODAL & SYNERGY
    ========================================================================== */
 .team-header {
   display: flex;
@@ -1927,7 +1926,318 @@ body {
 }
 
 /* ==========================================================================
-   7. SCANNER CARD & BOTTOM ACTION BAR
+   11. POKÉMON PC STORAGE & CAUGHT BOX (WITH SLIDE DRAWER)
+   ========================================================================== */
+.pc-box-modal-card {
+  max-width: 820px;
+  width: 95%;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1.5px solid #334155;
+  border-radius: 20px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pc-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1e293b;
+  margin-bottom: 12px;
+  padding-right: 40px;
+}
+
+.pc-box-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pc-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.pc-box-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  color: #38bdf8;
+}
+
+.pc-box-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-pc-clear {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-pc-clear:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.pc-box-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  height: 65vh;
+  min-height: 400px;
+  max-height: 580px;
+}
+
+.pc-storage-grid-container {
+  height: 100%;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+.pc-storage-wallpaper {
+  background: radial-gradient(circle, #1e293b 10%, #0b1120 90%);
+  min-height: 100%;
+  padding: 12px;
+}
+
+.pc-storage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 8px;
+}
+
+.pc-box-slot {
+  aspect-ratio: 1;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pc-box-slot:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.pc-box-slot.active {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.pc-pixel-sprite {
+  width: 44px;
+  height: 44px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.pc-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.pc-drawer-backdrop.hidden {
+  display: none;
+}
+
+.pc-slide-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 310px;
+  max-width: 85%;
+  background: #1e293b;
+  border-left: 1px solid #334155;
+  box-shadow: -8px 0 25px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.pc-slide-drawer.open {
+  transform: translateX(0);
+}
+
+.pc-drawer-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #334155;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pc-drawer-close:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.pc-drawer-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.pc-summary-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.pc-artwork-wrap {
+  width: 140px;
+  height: 140px;
+  margin: 8px auto 4px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-artwork-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+}
+
+.pc-mon-name {
+  margin: 4px 0 2px 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+}
+
+.pc-mon-genus {
+  margin: 0 0 8px 0;
+  font-size: 0.72rem;
+  font-style: italic;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.pc-summary-types {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.pc-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: #0f172a;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: auto;
+}
+
+.pc-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+.pc-stat-item strong {
+  font-size: 0.85rem;
+  color: #f8fafc;
+  margin-top: 2px;
+}
+
+.pc-summary-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.btn-pc-view {
+  background: #334155;
+  color: #f8fafc;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-pc-view:hover {
+  background: #475569;
+}
+
+.btn-pc-uncheck {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-pc-uncheck:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   12. SCANNER MODAL & FLOATING BOTTOM NAV
    ========================================================================== */
 .scanner-card {
   background: #1e293b;
@@ -2041,20 +2351,60 @@ body {
   box-shadow: 0 6px 20px rgba(239, 83, 80, 0.55);
 }
 
-.input-spinner {
-  position: absolute;
-  right: 48px;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #cbd5e1;
-  border-top-color: #ef4444;
-  border-radius: 50%;
-  animation: spinInput 0.7s linear infinite;
-  pointer-events: none;
+/* Bottom Status Bar for Caught Box */
+.pc-box-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #1e293b;
+  gap: 16px;
 }
 
-@keyframes spinInput {
-  to {
-    transform: rotate(360deg);
-  }
+.pc-footer-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.pc-footer-count strong {
+  color: #38bdf8;
+  font-size: 0.95rem;
+}
+
+.pc-footer-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+  max-width: 260px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.pc-progress-track {
+  flex: 1;
+  height: 8px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #22c55e);
+  border-radius: 999px;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.caught-progress-percent {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #22c55e;
+  font-family: monospace;
+  white-space: nowrap;
 }
