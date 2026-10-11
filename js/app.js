@@ -1468,6 +1468,7 @@ if (imageUploadInput) {
 if (modalCloseBtn) {
   modalCloseBtn.addEventListener("click", () => {
     stopPokedexAudio();
+    if (modalContent) modalContent.scrollTop = 0;
     modalOverlay.classList.add("hidden");
   });
 }
@@ -1475,6 +1476,7 @@ if (modalOverlay) {
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) {
       stopPokedexAudio();
+      if (modalContent) modalContent.scrollTop = 0;
       modalOverlay.classList.add("hidden");
     }
   });
