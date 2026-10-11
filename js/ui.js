@@ -4,6 +4,7 @@
 // ==========================================
 
 import { getTypeMatchups, formatPokemonName } from "./api.js";
+import { getTeam } from "./team.js";
 
 export const GAME_VERSIONS = [
   { value: "scarlet-violet", label: "Scarlet / Violet (Gen 9)", keyMatch: ["scarlet", "violet"] },
@@ -550,24 +551,26 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
 
   const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
   const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const isInTeam = getTeam().some((p) => p.id === pokemon.id);
+
   const normalImg = pokemon.officialArtwork || pokemon.image;
-  const shinyImg = pokemon.shinyArtwork || pokemon.officialArtwork || pokemon.image;
+  const shinyFallback = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+  const shinyImg = pokemon.shinyArtwork || shinyFallback;
 
   containerElement.innerHTML = `
-    <div class="modal-corner-decor top-right"></div>
-
     <div class="modal-top-layout">
       <div class="modal-image-container modal-image-wrapper">
-        <button type="button" id="modal-shiny-toggle" class="shiny-toggle-btn" title="Toggle Shiny form">
-          <i class="fa-solid fa-sparkles"></i>
-        </button>
         <img 
           id="modal-primary-img" 
           src="${normalImg}" 
           data-normal="${normalImg}" 
           data-shiny="${shinyImg}" 
           alt="${pokemon.name}" 
-          class="modal-image" 
+          class="modal-image clickable-artwork" 
+          title="Click to toggle Shiny form"
+          tabindex="0"
+          role="button"
+          aria-label="Toggle Shiny artwork"
         />
       </div>
 
@@ -721,16 +724,36 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
       </section>
     </div>
 
-    <!-- Floating Action Stack -->
-    <div class="modal-action-stack">
-      <button type="button" id="modal-team-action" class="stack-action-btn team" title="Add to Team" data-id="${pokemon.id}">
-        <i class="fa-solid fa-user-plus"></i>
-      </button>
-      <button type="button" id="modal-caught-action" class="stack-action-btn caught ${isCaught ? 'active' : ''}" title="Mark Caught" data-id="${pokemon.id}">
+    <!-- Pinned Bottom Action Bar -->
+    <div class="modal-bottom-action-bar">
+      <button 
+        type="button" 
+        id="modal-caught-action" 
+        class="modal-action-btn caught ${isCaught ? 'active' : ''}" 
+        title="${isCaught ? 'Identified / Caught' : 'Mark Caught'}" 
+        data-id="${pokemon.id}"
+        aria-label="Mark Caught">
         <i class="fa-solid fa-circle-check"></i>
       </button>
-      <button type="button" id="modal-fav-action" class="stack-action-btn fav ${isFav ? 'active' : ''}" title="Favorite" data-id="${pokemon.id}">
+
+      <button 
+        type="button" 
+        id="modal-fav-action" 
+        class="modal-action-btn fav ${isFav ? 'active' : ''}" 
+        title="${isFav ? 'Favorited' : 'Favorite'}" 
+        data-id="${pokemon.id}"
+        aria-label="Favorite Pokémon">
         <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+      </button>
+
+      <button 
+        type="button" 
+        id="modal-team-action" 
+        class="modal-action-btn team ${isInTeam ? 'active' : ''}" 
+        title="${isInTeam ? 'In Team (Click to remove)' : 'Add to Team'}" 
+        data-id="${pokemon.id}"
+        aria-label="Team Membership">
+        <i class="fa-solid ${isInTeam ? 'fa-user-check' : 'fa-user-plus'}"></i>
       </button>
     </div>
   `;

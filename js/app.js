@@ -235,6 +235,37 @@ function triggerPokeballOpening() {
   }, 500);
 }
 
+// Sparkle Burst Trigger (No Glow)
+function triggerShinySparkleBurst(targetContainer) {
+  if (!targetContainer) return;
+
+  const stars = ["✦", "★", "✦", "★", "✦", "★"];
+  const burstWrap = document.createElement("div");
+  burstWrap.className = "sparkle-burst-container";
+
+  stars.forEach((starChar, index) => {
+    const star = document.createElement("span");
+    star.className = "floating-sparkle";
+    star.textContent = starChar;
+
+    const angle = (index / stars.length) * 2 * Math.PI;
+    const distance = 42 + (index % 2) * 16;
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+
+    star.style.setProperty("--tx", `${x}px`);
+    star.style.setProperty("--ty", `${y}px`);
+    star.style.animationDelay = `${index * 45}ms`;
+
+    burstWrap.appendChild(star);
+  });
+
+  targetContainer.appendChild(burstWrap);
+  setTimeout(() => {
+    burstWrap.remove();
+  }, 850);
+}
+
 // ==========================================
 // AUDIO & SPEECH SYNTHESIS
 // ==========================================
@@ -1012,24 +1043,35 @@ if (gridContainer) {
 // --- Detail Modal Interactive Delegations ---
 if (modalContent) {
   modalContent.addEventListener("click", (e) => {
-    // 1. Shiny Artwork Toggle
-    const shinyBtn = e.target.closest("#modal-shiny-toggle");
-    if (shinyBtn) {
-      const img = document.getElementById("modal-primary-img");
-      if (img) {
-        const isShiny = shinyBtn.classList.toggle("active");
-        img.src = isShiny ? img.dataset.shiny : img.dataset.normal;
+    // 1. Direct Artwork Click Shiny Toggle & Sparkle Burst
+    const primaryImg = e.target.closest("#modal-primary-img");
+    if (primaryImg) {
+      const isCurrentlyShiny = primaryImg.src === primaryImg.dataset.shiny;
+      const targetSrc = isCurrentlyShiny ? primaryImg.dataset.normal : primaryImg.dataset.shiny;
+      primaryImg.src = targetSrc;
+
+      // Pop animation
+      primaryImg.classList.remove("anim-shiny-sparkle");
+      void primaryImg.offsetWidth;
+      primaryImg.classList.add("anim-shiny-sparkle");
+
+      const wrapper = primaryImg.closest(".modal-image-wrapper");
+      if (wrapper) {
+        triggerShinySparkleBurst(wrapper);
       }
+
+      showTeamToast(!isCurrentlyShiny ? "Shiny form revealed! ✨" : "Standard form restored");
       return;
     }
 
-    // 2. Stacked Action: Favorite Toggle
+    // 2. Fixed Bottom Action Bar: Favorite Toggle
     const favBtn = e.target.closest("#modal-fav-action");
     if (favBtn) {
       const id = favBtn.dataset.id;
       const isFav = localStorage.getItem(`fav_${id}`) === "true";
       localStorage.setItem(`fav_${id}`, (!isFav).toString());
       favBtn.classList.toggle("active", !isFav);
+      favBtn.title = !isFav ? "Favorited" : "Favorite";
       const icon = favBtn.querySelector("i");
       if (icon) {
         icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
@@ -1038,22 +1080,42 @@ if (modalContent) {
       return;
     }
 
-    // 3. Stacked Action: Caught Toggle
+    // 3. Fixed Bottom Action Bar: Caught Toggle
     const caughtBtn = e.target.closest("#modal-caught-action");
     if (caughtBtn) {
       const id = caughtBtn.dataset.id;
       const isCaught = localStorage.getItem(`caught_${id}`) === "true";
       localStorage.setItem(`caught_${id}`, (!isCaught).toString());
       caughtBtn.classList.toggle("active", !isCaught);
+      caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
       showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
       return;
     }
 
-    // 4. Stacked Action: Add to Team
+    // 4. Fixed Bottom Action Bar: Add to Team / Remove from Team Toggle
     const teamBtn = e.target.closest("#modal-team-action");
     if (teamBtn && currentActivePokemon) {
-      const res = addToTeam(currentActivePokemon);
-      showTeamToast(res.message);
+      const currentTeam = getTeam();
+      const inTeam = currentTeam.some((p) => p.id === currentActivePokemon.id);
+      const icon = teamBtn.querySelector("i");
+
+      if (inTeam) {
+        removeFromTeam(currentActivePokemon.id);
+        teamBtn.classList.remove("active");
+        teamBtn.title = "Add to Team";
+        if (icon) icon.className = "fa-solid fa-user-plus";
+        showTeamToast(`Removed ${currentActivePokemon.name.toUpperCase()} from your team`);
+      } else {
+        const res = addToTeam(currentActivePokemon);
+        if (res.success) {
+          teamBtn.classList.add("active");
+          teamBtn.title = "In Team (Click to remove)";
+          if (icon) icon.className = "fa-solid fa-user-check";
+          showTeamToast(`Added ${currentActivePokemon.name.toUpperCase()} to your team!`);
+        } else {
+          showTeamToast(res.message);
+        }
+      }
       updateTeamUI();
       return;
     }

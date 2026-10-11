@@ -971,20 +971,6 @@ body {
   color: #ffffff;
 }
 
-.modal-corner-decor.top-right {
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 140px;
-  height: 100px;
-  background: #ef5350;
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
-  opacity: 0.95;
-  z-index: 1;
-  pointer-events: none;
-}
-
 .modal-loading-state {
   text-align: center;
   padding: 3rem 1rem;
