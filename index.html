@@ -11,6 +11,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ef5350" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Standard Browser Tab Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/pokedex-icon-192.png" />
+
+    <!-- High-Resolution Favicon for Desktop Tab Bars -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/pokedex-icon-192.png" />
+
+    <!-- Apple Touch Icon (iOS Safari bookmarks and home screen) -->
+    <link rel="apple-touch-icon" href="icons/pokedex-icon-192.png" />
 </head>
 <body>
     <!-- Dynamic Moving Background Mesh -->
@@ -49,7 +63,19 @@
                 <div class="modal-settings-header">
                     <h2>Settings</h2>
                 </div>
-                
+
+                <!-- Application Install Section -->
+                <div class="settings-section" id="pwa-install-section" style="display: none;">
+                    <span class="settings-label">Application</span>
+                    <button type="button" id="install-pwa-btn" class="settings-action-btn">
+                        <i class="fa-solid fa-download"></i>
+                        <div class="settings-action-text">
+                            <strong>Install Web App</strong>
+                            <span>Use as a standalone app on your home screen</span>
+                        </div>
+                    </button>
+                </div>
+
                 <div class="settings-section">
                     <span class="settings-label">Sprite Display Mode</span>
                     <div class="settings-radio-group">
@@ -430,5 +456,16 @@
     </nav>
 
     <script type="module" src="js/app.js"></script>
+    <!-- Before </body> -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('./sw.js')
+            .then((reg) => console.log('PWA ServiceWorker registered:', reg.scope))
+            .catch((err) => console.error('PWA registration failed:', err));
+        });
+    }
+    </script>
 </body>
 </html>

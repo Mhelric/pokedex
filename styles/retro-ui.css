@@ -724,3 +724,45 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+
+/* Settings Action / Install Button */
+.settings-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+.settings-action-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.settings-action-btn i {
+  font-size: 1.15rem;
+  color: #ef5350;
+}
+
+.settings-action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-action-text strong {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.settings-action-text span {
+  font-size: 0.74rem;
+  color: #64748b;
+}

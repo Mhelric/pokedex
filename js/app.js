@@ -1521,3 +1521,34 @@ async function checkAndFillViewport() {
     await loadScrollBatch(false);
   }
 }
+
+let deferredInstallPrompt = null;
+const pwaInstallSection = document.getElementById("pwa-install-section");
+const installBtn = document.getElementById("install-pwa-btn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (pwaInstallSection) {
+    pwaInstallSection.style.display = "flex";
+  }
+});
+
+if (installBtn) {
+  installBtn.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === "accepted" && pwaInstallSection) {
+      pwaInstallSection.style.display = "none";
+    }
+    deferredInstallPrompt = null;
+  });
+}
+
+window.addEventListener("appinstalled", () => {
+  if (pwaInstallSection) {
+    pwaInstallSection.style.display = "none";
+  }
+  deferredInstallPrompt = null;
+});

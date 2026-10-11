@@ -1,6 +1,6 @@
 # 🔴 Pokédex Web Application
 
-A modern, responsive, client-first Pokédex application built with vanilla JavaScript (ES modules), CSS3, and PokéAPI. The application features paginated directory loading, live search, dual-type and generation filtering, an interactive team builder with defensive synergy calculation, a PC Storage Box management drawer, camera/image-based Pokémon recognition via Google Lens, and a "Who's That Pokémon?" mini-game.
+A modern, responsive, client-first Pokédex application built with vanilla JavaScript (ES modules), CSS3, and PokéAPI. The application features paginated directory loading, live search, dual-type and generation filtering, an interactive team builder with defensive synergy calculation, a PC Storage Box management drawer, camera/image-based Pokémon recognition via Google Lens, a "Who's That Pokémon?" mini-game, and Progressive Web App (PWA) installation support.
 
 ---
 
@@ -10,6 +10,7 @@ A modern, responsive, client-first Pokédex application built with vanilla JavaS
 - [Architecture & Tech Stack](#-architecture--tech-stack)
 - [Project Directory Structure](#-project-directory-structure)
 - [Installation & Getting Started](#-installation--getting-started)
+- [Progressive Web App (PWA) Support](#-progressive-web-app-pwa-support)
 - [Environment Variables](#-environment-variables)
 - [Core Modules Breakdown](#-core-modules-breakdown)
 - [Storage & Persistence Architecture](#-storage--persistence-architecture)
@@ -21,6 +22,7 @@ A modern, responsive, client-first Pokédex application built with vanilla JavaS
 
 ## 🚀 Key Features
 
+- **Progressive Web App (PWA) Installable:** Can be installed on desktop and mobile home screens as a standalone app while fetching live data online.
 - **Infinite Scrolling & Batch Loading:** Loads Pokémon records in modular batches with client-side caching to reduce network overhead.
 - **Dynamic Multi-Vector Filtering:** Filter seamlessly by primary type, secondary type, and Generation (Gen 1 through Gen 9).
 - **Debounced Live Search:** Fast client-side lookups by Pokémon name, National Dex ID, alternate form tags, and base species.
@@ -41,6 +43,7 @@ A modern, responsive, client-first Pokédex application built with vanilla JavaS
 ## 🛠 Architecture & Tech Stack
 
 - **Frontend Core:** HTML5, Modern CSS3 (CSS Grid, Flexbox, Custom Properties, Glassmorphism), Vanilla JavaScript (ES6+ Modules).
+- **PWA & Offline Shell:** Web App Manifest (`manifest.json`), Service Worker (`sw.js`).
 - **Icons & Typography:** Font Awesome 6.5.1, Google Fonts (*Plus Jakarta Sans*).
 - **Data Source:** [PokéAPI v2](https://pokeapi.co/) REST API.
 - **Backend / Serverless Integration:** Node.js Serverless Function (`api/scan.js`) interacting with SerpApi (Google Lens engine).
@@ -54,6 +57,11 @@ A modern, responsive, client-first Pokédex application built with vanilla JavaS
 mhelric-pokedex/
 ├── README.md                 # Project documentation
 ├── index.html                # Single-page application markup & modal templates
+├── manifest.json             # Web App Manifest for PWA installation
+├── sw.js                     # Service Worker for app shell caching & network requests
+├── icons/                    # App icons (192x192, 512x512, favicons)
+│   ├── icon-192.png
+│   └── icon-512.png
 ├── api/
 │   └── scan.js               # Serverless endpoint for reverse image search (Lens/SerpApi)
 ├── js/
@@ -67,14 +75,16 @@ mhelric-pokedex/
     ├── animations.css        # Keyframe animations (sparkles, Pokeball loader, scan laser)
     ├── main.css              # Core typography, reset, grid layouts & design tokens
     └── retro-ui.css          # Theme overrides, modal layouts & PC box styling
+
 ```
+
 ---
 
 ## 📦 Installation & Getting Started
 
 ### Prerequisites
 
-* Modern Web Browser (Chrome, Safari, Firefox, or Edge supporting WebRTC and ES Modules).
+* Modern Web Browser (Chrome, Safari, Firefox, or Edge supporting WebRTC, Service Workers, and ES Modules).
 * [Node.js](https://nodejs.org/) (v18.x or later recommended if testing the `api/scan.js` serverless function locally).
 
 ### Local Setup
@@ -88,7 +98,7 @@ cd mhelric-pokedex
 
 
 2. **Serve the client application:**
-Because the project relies on native ES Modules (`<script type="module">`), it must be served over an HTTP server rather than the `file://` protocol.
+Because the project relies on native ES Modules and Service Workers, it must be served over an HTTP server rather than the `file://` protocol.
 Using Node's built-in `npx serve`:
 ```bash
 npx serve .
@@ -104,6 +114,16 @@ python3 -m http.server 8000
 
 
 Open `http://localhost:8000` (or the URL printed in terminal) in your browser.
+
+---
+
+## 📲 Progressive Web App (PWA) Support
+
+This application meets all Chromium criteria for an installable Progressive Web App:
+
+* **Standalone Display:** Runs in a distraction-free window without URL chrome when installed.
+* **In-App Install Prompt:** Captures `beforeinstallprompt` to surface a clean install button inside the Settings modal.
+* **Network-First Service Worker:** Employs a network-first caching strategy in `sw.js` to ensure the live app shell loads reliably while always fetching up-to-date PokéAPI records from the web.
 
 ---
 
@@ -123,7 +143,11 @@ The visual scanner feature (`api/scan.js`) utilizes SerpApi to access the Google
 
 ### `js/app.js` (Orchestrator)
 
-Initializes UI controls, manages active filter states (`activeType`, `activeGen`, `spriteDisplayMode`), listens for modal closures, and controls the infinite scroll lifecycle via `loadScrollBatch()`. Uses native `AbortController` to cancel pending background requests during rapid filter changes.
+Initializes UI controls, manages active filter states (`activeType`, `activeGen`, `spriteDisplayMode`), listens for modal closures, registers the PWA install flow, and controls the infinite scroll lifecycle via `loadScrollBatch()`. Uses native `AbortController` to cancel pending background requests during rapid filter changes.
+
+### `sw.js` (Service Worker)
+
+Manages the application lifecycle, pre-caches core layout assets (HTML, stylesheets, scripts) on install, and routes runtime network requests dynamically.
 
 ### `js/ui.js` (Component Rendering)
 
