@@ -33,17 +33,55 @@
             <h1 class="header-title">Pokédex</h1>
         </div>
         
-        <!-- Toggle Artwork / Sprites -->
-        <div class="header-toggle-container">
-            <span class="toggle-mode-label" id="toggle-mode-text">Official Artwork</span>
-            <label class="switch" for="sprite-toggle-input" title="Toggle Artwork or Sprites">
-                <input type="checkbox" id="sprite-toggle-input" />
-                <span class="slider"></span>
-            </label>
+        <!-- Settings Button -->
+        <div class="header-right-actions">
+            <button type="button" id="settings-open-btn" class="settings-btn" aria-label="Settings" title="Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
         </div>
     </header>
 
     <main id="app">
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal-overlay hidden">
+            <div class="modal-card settings-modal-card">
+                <button id="settings-close-btn" class="modal-close" type="button" aria-label="Close Settings">&times;</button>
+                <div class="modal-settings-header">
+                    <h2>Settings</h2>
+                </div>
+                
+                <div class="settings-section">
+                    <span class="settings-label">Sprite Display Mode</span>
+                    <div class="settings-radio-group">
+                        <label class="settings-radio-pill">
+                            <input type="radio" name="display-sprite-mode" value="artwork" id="mode-artwork">
+                            <span>Official Artwork</span>
+                        </label>
+                        <label class="settings-radio-pill">
+                            <input type="radio" name="display-sprite-mode" value="animated" id="mode-animated">
+                            <span>3D / Animated</span>
+                        </label>
+                        <label class="settings-radio-pill">
+                            <input type="radio" name="display-sprite-mode" value="pixel" id="mode-pixel">
+                            <span>Pixel Sprites</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <span class="settings-label">Theme / UI Style (Preview)</span>
+                    <div class="ui-theme-placeholder">
+                        <select id="theme-selector-placeholder" class="settings-select" disabled>
+                            <option value="default">Classic Pokédex (Default)</option>
+                            <option value="retro-gb">Game Boy Retro (Coming Soon)</option>
+                            <option value="dark-slate">Cyber Slate (Coming Soon)</option>
+                        </select>
+                        <p class="settings-hint">Additional custom UI styling options will be available soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Controls: Search Bar with Embedded Filter Button & Expandable Downward Drawer -->
         <section class="controls">
             <div class="search-box-wrapper">
@@ -194,32 +232,20 @@
                 </div>
 
                 <div class="pc-box-stage">
-                    <!-- Full Grid: Pixel Sprites Only -->
-                    <section class="pc-storage-grid-container">
-                        <div class="pc-storage-wallpaper">
-                            <div class="pc-storage-grid" id="caught-box-grid">
-                                <!-- Pixel sprites loaded here -->
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Backdrop for the drawer on small viewports -->
+                    <!-- Backdrop for drawer -->
                     <div id="pc-drawer-backdrop" class="pc-drawer-backdrop hidden"></div>
 
-                    <!-- Slide-over Drawer from Right -->
-                    <aside class="pc-slide-drawer" id="pc-slide-drawer">
+                    <!-- Slide-over Drawer moved to LEFT -->
+                    <aside class="pc-slide-drawer pc-drawer-left" id="pc-slide-drawer">
                         <button type="button" id="pc-drawer-close-btn" class="pc-drawer-close" aria-label="Close details">&times;</button>
                         
                         <div class="pc-drawer-body" id="pc-drawer-body">
                             <div class="pc-summary-badge" id="pc-mon-id">#000</div>
-                            
                             <div class="pc-artwork-wrap">
                                 <img id="pc-mon-artwork" src="" alt="Selected Pokémon" class="pc-artwork-img" />
                             </div>
-
                             <h3 id="pc-mon-name" class="pc-mon-name">---</h3>
                             <p id="pc-mon-genus" class="pc-mon-genus">---</p>
-                            
                             <div class="pc-summary-types" id="pc-mon-types"></div>
 
                             <div class="pc-summary-stats">
@@ -236,6 +262,64 @@
                             </div>
                         </div>
                     </aside>
+
+                    <!-- Full Grid Area -->
+                    <section class="pc-storage-grid-container">
+                        <div class="pc-storage-wallpaper">
+                            <div class="pc-storage-grid" id="caught-box-grid"></div>
+                        </div>
+                    </section>
+
+                    <!-- Floating Controls directly above footer inside stage -->
+                    <div class="pc-floating-controls">
+                        <!-- Globe Gen Filter Button & Menu -->
+                        <div class="pc-gen-wrapper">
+                            <div id="pc-gen-menu" class="pc-gen-menu collapsed">
+                                <button class="pc-gen-option active" data-gen="all">All Gens</button>
+                                <button class="pc-gen-option" data-gen="1">Gen 1: Kanto</button>
+                                <button class="pc-gen-option" data-gen="2">Gen 2: Johto</button>
+                                <button class="pc-gen-option" data-gen="3">Gen 3: Hoenn</button>
+                                <button class="pc-gen-option" data-gen="4">Gen 4: Sinnoh</button>
+                                <button class="pc-gen-option" data-gen="5">Gen 5: Unova</button>
+                                <button class="pc-gen-option" data-gen="6">Gen 6: Kalos</button>
+                                <button class="pc-gen-option" data-gen="7">Gen 7: Alola</button>
+                                <button class="pc-gen-option" data-gen="8">Gen 8: Galar</button>
+                                <button class="pc-gen-option" data-gen="9">Gen 9: Paldea</button>
+                            </div>
+                            <button type="button" id="pc-gen-btn" class="pc-float-btn" title="Filter by Generation">
+                                <i class="fa-solid fa-globe"></i>
+                            </button>
+                        </div>
+
+                        <!-- Filter/Sort Menu Button & Menu -->
+                        <div class="pc-filter-wrapper">
+                            <div id="pc-filter-menu" class="pc-filter-menu collapsed">
+                                <span class="pc-menu-heading">Sort By</span>
+                                <div class="pc-criteria-grid">
+                                    <button class="pc-criteria-btn active" data-criteria="id">ID</button>
+                                    <button class="pc-criteria-btn" data-criteria="name">Name</button>
+                                    <button class="pc-criteria-btn" data-criteria="type">Type</button>
+                                </div>
+                                
+                                <div class="pc-menu-divider"></div>
+                                
+                                <span class="pc-menu-heading">Order</span>
+                                <div class="pc-order-group">
+                                    <label class="pc-radio-bullet">
+                                        <input type="radio" name="pc-sort-dir" value="asc" checked>
+                                        <span>Ascending</span>
+                                    </label>
+                                    <label class="pc-radio-bullet">
+                                        <input type="radio" name="pc-sort-dir" value="desc">
+                                        <span>Descending</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="button" id="pc-filter-btn" class="pc-float-btn" title="Sort by Criteria">
+                                <i class="fa-solid fa-arrow-down-wide-short"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Bottom Status Bar -->
@@ -250,6 +334,21 @@
                             <div id="caught-progress-fill" class="pc-progress-fill" style="width: 0%"></div>
                         </div>
                         <span id="caught-progress-percent" class="caught-progress-percent">0.0%</span>
+                    </div>
+                </div>
+
+                <!-- Styled Release All Confirmation Dialog -->
+                <div id="release-confirm-dialog" class="confirm-modal-overlay hidden">
+                    <div class="confirm-dialog-card">
+                        <div class="confirm-icon-wrap">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3>Release All Pokémon?</h3>
+                        <p>This action will unmark all caught Pokémon from your storage. This cannot be undone.</p>
+                        <div class="confirm-dialog-actions">
+                            <button type="button" id="confirm-cancel-release" class="btn-confirm-cancel">Cancel</button>
+                            <button type="button" id="confirm-accept-release" class="btn-confirm-accept">Release All</button>
+                        </div>
                     </div>
                 </div>
             </div>

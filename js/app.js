@@ -20,6 +20,7 @@ import {
   renderPokemonGrid,
   renderTeamGrid,
   renderPokemonModal,
+  renderFavoritesGrid,
   getFilteredMoves,
   getPokemonFlavorText,
   renderError,
@@ -37,8 +38,11 @@ const filterExpandBtn = document.getElementById("filter-expand-btn");
 const filterDrawer = document.getElementById("filter-drawer");
 const activeFilterIndicator = document.getElementById("active-filter-indicator");
 const gridContainer = document.getElementById("pokemon-grid");
-const spriteToggleInput = document.getElementById("sprite-toggle-input");
-const toggleModeText = document.getElementById("toggle-mode-text");
+
+// --- Settings Modal ---
+const settingsOpenBtn = document.getElementById("settings-open-btn");
+const settingsModal = document.getElementById("settings-modal");
+const settingsCloseBtn = document.getElementById("settings-close-btn");
 
 // --- Pokémon Detail Modal ---
 const modalOverlay = document.getElementById("pokemon-modal");
@@ -89,6 +93,17 @@ const caughtProgressFill = document.getElementById("caught-progress-fill");
 const caughtProgressPercent = document.getElementById("caught-progress-percent");
 const clearCaughtBtn = document.getElementById("clear-caught-btn");
 
+// Floating Generation Filter & Sort Controls
+const pcGenBtn = document.getElementById("pc-gen-btn");
+const pcGenMenu = document.getElementById("pc-gen-menu");
+const pcFilterBtn = document.getElementById("pc-filter-btn");
+const pcFilterMenu = document.getElementById("pc-filter-menu");
+
+// Styled Release Confirmation Dialog
+const releaseConfirmDialog = document.getElementById("release-confirm-dialog");
+const confirmCancelRelease = document.getElementById("confirm-cancel-release");
+const confirmAcceptRelease = document.getElementById("confirm-accept-release");
+
 // PC Summary / Slide Drawer Elements
 const pcSlideDrawer = document.getElementById("pc-slide-drawer");
 const pcDrawerBackdrop = document.getElementById("pc-drawer-backdrop");
@@ -122,7 +137,12 @@ let activeSelectedBoxPokemon = null;
 
 let currentModalGame = "scarlet-violet";
 let currentMoveCategory = "level-up";
-let useAnimatedSprites = localStorage.getItem("sprite_mode") === "animated";
+let spriteDisplayMode = localStorage.getItem("sprite_display_mode") || "artwork";
+
+// Caught Storage Filter & Sort State
+let pcSortCriteria = "id"; // 'id' | 'name' | 'type'
+let pcSortDirection = "asc"; // 'asc' | 'desc'
+let pcSelectedGen = "all";
 
 let currentDisplayedPokemon = [];
 let pokedexDirectory = [];
@@ -312,15 +332,6 @@ function updateTeamUI() {
   renderTeamGrid(getTeam(), teamGrid, teamCount);
 }
 
-function updateToggleSwitchUI() {
-  if (spriteToggleInput) {
-    spriteToggleInput.checked = useAnimatedSprites;
-  }
-  if (toggleModeText) {
-    toggleModeText.textContent = useAnimatedSprites ? "Animated GIFs" : "Official Artwork";
-  }
-}
-
 function refreshFilterIndicator() {
   if (activeFilterIndicator) {
     if (activeType !== "all" || activeType2 !== "all" || activeGen !== "all") {
@@ -332,8 +343,11 @@ function refreshFilterIndicator() {
 }
 
 function reRenderGrid() {
+  if (gridContainer) {
+    gridContainer.classList.toggle("pc-box-layout", spriteDisplayMode === "pixel");
+  }
   if (currentDisplayedPokemon.length > 0) {
-    renderPokemonGrid(currentDisplayedPokemon, gridContainer, useAnimatedSprites, false);
+    renderPokemonGrid(currentDisplayedPokemon, gridContainer, spriteDisplayMode, false);
   }
 }
 
@@ -406,7 +420,7 @@ async function loadScrollBatch(isFirstBatch = false) {
       currentDisplayedPokemon = [...currentDisplayedPokemon, ...pokemonList];
     }
 
-    renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, !isFirstBatch);
+    renderPokemonGrid(pokemonList, gridContainer, spriteDisplayMode, !isFirstBatch);
 
     scrollState.currentIndex = nextIndex;
     scrollState.hasMore = hasMore;
@@ -542,6 +556,42 @@ function updateMovepoolTable() {
     .join("");
 }
 
+// --- Favorites Loader & Unfavorite Handler ---
+async function renderFavoritesModal() {
+  if (!favoritesGrid) return;
+  abortBackgroundOperations();
+  const signal = createBackgroundSignal();
+
+  const favIds = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("fav_") && localStorage.getItem(key) === "true") {
+      const id = Number(key.replace("fav_", ""));
+      if (!isNaN(id)) favIds.push(id);
+    }
+  }
+
+  favIds.sort((a, b) => a - b);
+  if (favoritesCount) favoritesCount.textContent = favIds.length;
+
+  if (favIds.length === 0) {
+    favoritesGrid.innerHTML = `<div class="modal-empty-state">No favorite Pokémon recorded yet.</div>`;
+    return;
+  }
+
+  favoritesGrid.innerHTML = `<p class="loading-msg">Loading favorites...</p>`;
+
+  try {
+    const { pokemonList } = await fetchPokemonBatch(favIds, 0, favIds.length, signal);
+    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
+    renderFavoritesGrid(pokemonList, favoritesGrid);
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      favoritesGrid.innerHTML = `<p class="error-msg">Failed to load favorites.</p>`;
+    }
+  }
+}
+
 async function renderCollectionModal(prefix, container, countElem) {
   if (!container) return;
   abortBackgroundOperations();
@@ -569,7 +619,7 @@ async function renderCollectionModal(prefix, container, countElem) {
   try {
     const { pokemonList } = await fetchPokemonBatch(targetIds, 0, targetIds.length, signal);
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-    renderPokemonGrid(pokemonList, container, useAnimatedSprites, false);
+    renderPokemonGrid(pokemonList, container, spriteDisplayMode, false);
   } catch (err) {
     if (err.name !== "AbortError") {
       container.innerHTML = `<p class="error-msg">Failed to load entries.</p>`;
@@ -636,6 +686,32 @@ function openPCDrawer(pokemon) {
   if (pcSummaryContent) pcSummaryContent.classList.remove("hidden");
 }
 
+function filterAndSortCaughtList(list) {
+  let result = [...list];
+
+  // 1. Generation filter
+  if (pcSelectedGen !== "all") {
+    result = result.filter((p) => isItemInGenRange(p, pcSelectedGen));
+  }
+
+  // 2. Sort by Criteria and Direction
+  result.sort((a, b) => {
+    let cmp = 0;
+    if (pcSortCriteria === "name") {
+      cmp = a.name.localeCompare(b.name);
+    } else if (pcSortCriteria === "type") {
+      const typeA = a.types?.[0] || "";
+      const typeB = b.types?.[0] || "";
+      cmp = typeA.localeCompare(typeB) || a.id - b.id;
+    } else {
+      cmp = a.id - b.id;
+    }
+    return pcSortDirection === "desc" ? -cmp : cmp;
+  });
+
+  return result;
+}
+
 async function renderPCStorageBox() {
   if (!caughtBoxGrid) return;
   closePCDrawer();
@@ -651,7 +727,6 @@ async function renderPCStorageBox() {
     }
   }
 
-  caughtIds.sort((a, b) => a - b);
   if (caughtCount) caughtCount.textContent = caughtIds.length;
   updateCaughtProgress(caughtIds.length);
 
@@ -668,7 +743,14 @@ async function renderPCStorageBox() {
     const { pokemonList } = await fetchPokemonBatch(caughtIds, 0, caughtIds.length, signal);
     pokemonList.forEach((p) => fetchedCache.set(p.id, p));
 
-    caughtBoxGrid.innerHTML = pokemonList
+    const sortedList = filterAndSortCaughtList(pokemonList);
+
+    if (sortedList.length === 0) {
+      caughtBoxGrid.innerHTML = `<p class="status-message" style="grid-column: 1 / -1;">No caught Pokémon in this generation.</p>`;
+      return;
+    }
+
+    caughtBoxGrid.innerHTML = sortedList
       .map((p) => {
         const sprite =
           p.sprite ||
@@ -707,8 +789,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
+  // Set active radio based on stored sprite display mode
+  document.querySelectorAll('input[name="display-sprite-mode"]').forEach((radio) => {
+    if (radio.value === spriteDisplayMode) radio.checked = true;
+    radio.addEventListener("change", (e) => {
+      spriteDisplayMode = e.target.value;
+      localStorage.setItem("sprite_display_mode", spriteDisplayMode);
+      reRenderGrid();
+    });
+  });
+
+  if (gridContainer) {
+    gridContainer.classList.toggle("pc-box-layout", spriteDisplayMode === "pixel");
+  }
+
   updateTeamUI();
-  updateToggleSwitchUI();
   refreshFilterIndicator();
 
   if (filterExpandBtn && filterDrawer) {
@@ -743,7 +838,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 document.addEventListener("click", () => {
   document.querySelectorAll(".custom-dropdown").forEach((d) => d.classList.remove("open"));
+  if (pcGenMenu) pcGenMenu.classList.add("collapsed");
+  if (pcFilterMenu) pcFilterMenu.classList.add("collapsed");
 });
+
+// --- Settings Modal Listeners ---
+if (settingsOpenBtn && settingsModal) {
+  settingsOpenBtn.addEventListener("click", () => settingsModal.classList.remove("hidden"));
+}
+if (settingsCloseBtn && settingsModal) {
+  settingsCloseBtn.addEventListener("click", () => settingsModal.classList.add("hidden"));
+}
+if (settingsModal) {
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) settingsModal.classList.add("hidden");
+  });
+}
 
 // --- Main Grid Infinite Scroll ---
 if (gridContainer) {
@@ -821,7 +931,7 @@ if (searchInput) {
           fetchedCache.set(p.rawName.toLowerCase(), p);
         });
         currentDisplayedPokemon = [...pokemonList];
-        renderPokemonGrid(pokemonList, gridContainer, useAnimatedSprites, false);
+        renderPokemonGrid(pokemonList, gridContainer, spriteDisplayMode, false);
         scrollState.currentIndex = nextIndex;
         scrollState.hasMore = hasMore;
       } catch (err) {
@@ -832,16 +942,6 @@ if (searchInput) {
       }
     }, 350)
   );
-}
-
-// --- Sprite Mode Switch ---
-if (spriteToggleInput) {
-  spriteToggleInput.addEventListener("change", (e) => {
-    useAnimatedSprites = e.target.checked;
-    localStorage.setItem("sprite_mode", useAnimatedSprites ? "animated" : "artwork");
-    updateToggleSwitchUI();
-    reRenderGrid();
-  });
 }
 
 // --- Main Grid Card Event Delegations ---
@@ -912,7 +1012,53 @@ if (gridContainer) {
 // --- Detail Modal Interactive Delegations ---
 if (modalContent) {
   modalContent.addEventListener("click", (e) => {
-    // 1. Game / Gen Selector Accordion
+    // 1. Shiny Artwork Toggle
+    const shinyBtn = e.target.closest("#modal-shiny-toggle");
+    if (shinyBtn) {
+      const img = document.getElementById("modal-primary-img");
+      if (img) {
+        const isShiny = shinyBtn.classList.toggle("active");
+        img.src = isShiny ? img.dataset.shiny : img.dataset.normal;
+      }
+      return;
+    }
+
+    // 2. Stacked Action: Favorite Toggle
+    const favBtn = e.target.closest("#modal-fav-action");
+    if (favBtn) {
+      const id = favBtn.dataset.id;
+      const isFav = localStorage.getItem(`fav_${id}`) === "true";
+      localStorage.setItem(`fav_${id}`, (!isFav).toString());
+      favBtn.classList.toggle("active", !isFav);
+      const icon = favBtn.querySelector("i");
+      if (icon) {
+        icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      }
+      showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+      return;
+    }
+
+    // 3. Stacked Action: Caught Toggle
+    const caughtBtn = e.target.closest("#modal-caught-action");
+    if (caughtBtn) {
+      const id = caughtBtn.dataset.id;
+      const isCaught = localStorage.getItem(`caught_${id}`) === "true";
+      localStorage.setItem(`caught_${id}`, (!isCaught).toString());
+      caughtBtn.classList.toggle("active", !isCaught);
+      showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+      return;
+    }
+
+    // 4. Stacked Action: Add to Team
+    const teamBtn = e.target.closest("#modal-team-action");
+    if (teamBtn && currentActivePokemon) {
+      const res = addToTeam(currentActivePokemon);
+      showTeamToast(res.message);
+      updateTeamUI();
+      return;
+    }
+
+    // 5. Game / Gen Selector Accordion
     const gameToggleBtn = e.target.closest("#game-selector-toggle");
     if (gameToggleBtn) {
       const drawer = modalContent.querySelector("#game-drawer");
@@ -936,7 +1082,7 @@ if (modalContent) {
       return;
     }
 
-    // 2. Game Version Pill Selection
+    // 6. Game Version Pill Selection
     const gamePill = e.target.closest(".game-pill-btn");
     if (gamePill) {
       modalContent.querySelectorAll(".game-pill-btn").forEach((p) => p.classList.remove("active"));
@@ -957,7 +1103,7 @@ if (modalContent) {
       return;
     }
 
-    // 3. Movepool Category Tabs
+    // 7. Movepool Category Tabs
     const tabBtn = e.target.closest(".tab-btn");
     if (tabBtn) {
       modalContent.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -967,7 +1113,7 @@ if (modalContent) {
       return;
     }
 
-    // 4. Variety / Form Switcher
+    // 8. Variety / Form Switcher
     const varietyCard = e.target.closest(".variety-card-item");
     if (varietyCard) {
       const targetName = varietyCard.dataset.name;
@@ -977,7 +1123,7 @@ if (modalContent) {
       return;
     }
 
-    // 5. Evolution Tree Nodes
+    // 9. Evolution Tree Nodes
     const evoNode = e.target.closest(".evo-node");
     if (evoNode) {
       const evoTarget = evoNode.dataset.species;
@@ -992,7 +1138,7 @@ if (modalContent) {
       return;
     }
 
-    // 6. Voice Wave Play / Stop
+    // 10. Voice Wave Play / Stop
     const voiceBar = e.target.closest("#modal-voice-indicator");
     if (voiceBar && activePokemonForVoice) {
       if (window.speechSynthesis.speaking || (currentActiveCry && !currentActiveCry.paused)) {
@@ -1016,7 +1162,19 @@ if (navTeamBtn) {
 if (navFavoritesBtn) {
   navFavoritesBtn.addEventListener("click", () => {
     favoritesModal.classList.remove("hidden");
-    renderCollectionModal("fav", favoritesGrid, favoritesCount);
+    renderFavoritesModal();
+  });
+}
+
+// Favorites List Unfavorite Delegation
+if (favoritesGrid) {
+  favoritesGrid.addEventListener("click", (e) => {
+    const unfavBtn = e.target.closest(".fav-unfavorite-btn");
+    if (!unfavBtn) return;
+    const pokeId = unfavBtn.dataset.id;
+    localStorage.setItem(`fav_${pokeId}`, "false");
+    renderFavoritesModal();
+    showTeamToast("Removed from Favorites");
   });
 }
 
@@ -1114,15 +1272,74 @@ if (pcOpenDetailsBtn) {
   });
 }
 
-if (clearCaughtBtn) {
+// --- Floating Filter & Gen Button Listeners ---
+if (pcGenBtn && pcGenMenu) {
+  pcGenBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    pcGenMenu.classList.toggle("collapsed");
+    if (pcFilterMenu) pcFilterMenu.classList.add("collapsed");
+  });
+
+  pcGenMenu.addEventListener("click", (e) => {
+    const opt = e.target.closest(".pc-gen-option");
+    if (!opt) return;
+    pcGenMenu.querySelectorAll(".pc-gen-option").forEach((b) => b.classList.remove("active"));
+    opt.classList.add("active");
+    pcSelectedGen = opt.dataset.gen;
+    pcGenMenu.classList.add("collapsed");
+    renderPCStorageBox();
+  });
+}
+
+if (pcFilterBtn && pcFilterMenu) {
+  pcFilterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    pcFilterMenu.classList.toggle("collapsed");
+    if (pcGenMenu) pcGenMenu.classList.add("collapsed");
+  });
+
+  // Criteria buttons [ID, Name, Type]
+  pcFilterMenu.querySelectorAll(".pc-criteria-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcFilterMenu.querySelectorAll(".pc-criteria-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      pcSortCriteria = btn.dataset.criteria;
+      renderPCStorageBox();
+    });
+  });
+
+  // Direction radio buttons (Ascending / Descending)
+  pcFilterMenu.querySelectorAll('input[name="pc-sort-dir"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      pcSortDirection = e.target.value;
+      renderPCStorageBox();
+    });
+  });
+}
+
+// --- Release All Confirmation Dialog Listeners ---
+if (clearCaughtBtn && releaseConfirmDialog) {
   clearCaughtBtn.addEventListener("click", () => {
-    if (!confirm("Are you sure you want to clear your caught list?")) return;
+    releaseConfirmDialog.classList.remove("hidden");
+  });
+}
+
+if (confirmCancelRelease && releaseConfirmDialog) {
+  confirmCancelRelease.addEventListener("click", () => {
+    releaseConfirmDialog.classList.add("hidden");
+  });
+}
+
+if (confirmAcceptRelease && releaseConfirmDialog) {
+  confirmAcceptRelease.addEventListener("click", () => {
     Object.keys(localStorage)
       .filter((k) => k.startsWith("caught_"))
       .forEach((k) => localStorage.removeItem(k));
+    releaseConfirmDialog.classList.add("hidden");
     closePCDrawer();
     renderPCStorageBox();
     reRenderGrid();
+    showTeamToast("All Pokémon have been released!");
   });
 }
 
@@ -1231,3 +1448,14 @@ if (caughtModal) {
 
 if (scannerCloseBtn) scannerCloseBtn.addEventListener("click", closeScanner);
 if (scannerModal) scannerModal.addEventListener("click", (e) => { if (e.target === scannerModal) closeScanner(); });
+
+async function checkAndFillViewport() {
+  if (
+    scrollState.active &&
+    scrollState.hasMore &&
+    !scrollState.loading &&
+    gridContainer.scrollHeight <= gridContainer.clientHeight + 80
+  ) {
+    await loadScrollBatch(false);
+  }
+}

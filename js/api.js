@@ -758,26 +758,35 @@ export async function fetchPokemonBatch(items, startIndex, batchSize = 30, signa
   };
 }
 
-export function isItemInGenRange(pokemonItem, activeGen) {
-  if (activeGen === "all") return true;
-  const range = GEN_RANGES[activeGen];
-  if (!range) return true;
+export function getFormOrSpeciesGen(pokemon) {
+  const name = (pokemon.rawName || pokemon.name || "").toLowerCase();
 
-  const id = typeof pokemonItem === "object" ? pokemonItem.id : Number(pokemonItem);
-  if (id && id <= 1025) {
-    return id >= range.start && id <= range.end;
+  // 1. Regional forms introduced in specific generations
+  if (name.includes("-alola")) return 7;
+  if (name.includes("-galar")) return 8;
+  if (name.includes("-hisui")) return 8;
+  if (name.includes("-paldea")) return 9;
+
+  // 2. Megas & Primal reversions introduced in Gen 6
+  if (name.includes("-mega") || name.includes("-primal")) return 6;
+
+  // 3. Gigantamax introduced in Gen 8
+  if (name.includes("-gmax")) return 8;
+
+  // 4. Default to base National Pokédex ID
+  const id = typeof pokemon === "object" ? Number(pokemon.id) : Number(pokemon);
+  for (const [gen, range] of Object.entries(GEN_RANGES)) {
+    if (id >= range.start && id <= range.end) {
+      return Number(gen);
+    }
   }
+  return 1;
+}
 
-  const name = typeof pokemonItem === "object" ? pokemonItem.name : String(pokemonItem);
-  const specialMatch = SPECIAL_FORM_REGISTRY.find((entry) => entry.name === name);
-  if (specialMatch) {
-    if (activeGen === "7" && specialMatch.tags.includes("alola")) return true;
-    if (activeGen === "8" && (specialMatch.tags.includes("galar") || specialMatch.tags.includes("gmax"))) return true;
-    if (activeGen === "9" && specialMatch.tags.includes("paldea")) return true;
-    if (activeGen === "6" && specialMatch.tags.includes("mega")) return true;
-  }
-
-  return false;
+export function isItemInGenRange(item, targetGen) {
+  if (targetGen === "all") return true;
+  const numGen = Number(targetGen);
+  return getFormOrSpeciesGen(item) === numGen;
 }
 
 /**

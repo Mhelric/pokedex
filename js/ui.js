@@ -34,7 +34,7 @@ function getTeamSynergy(teamList) {
   return { weaknessCounts, resistanceCounts };
 }
 
-export function createPokemonCard(pokemon, useAnimated = true) {
+export function createPokemonCard(pokemon, spriteMode = "artwork") {
   const formattedId = `#${String(pokemon.id).padStart(3, "0")}`;
   const primaryType = pokemon.types[0] || "normal";
 
@@ -42,9 +42,13 @@ export function createPokemonCard(pokemon, useAnimated = true) {
     .map((type) => `<span class="type-badge type-${type}">${type}</span>`)
     .join("");
 
-  const displayImage = useAnimated
-    ? pokemon.animatedImage || pokemon.officialArtwork
-    : pokemon.officialArtwork;
+  // Determine correct image URL across the 3 modes ("artwork", "animated", "pixel")
+  let displayImage = pokemon.officialArtwork || pokemon.image;
+  if (spriteMode === "animated") {
+    displayImage = pokemon.animatedImage || pokemon.officialArtwork || pokemon.image;
+  } else if (spriteMode === "pixel") {
+    displayImage = pokemon.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+  }
 
   const abilitiesText = (pokemon.abilities || [])
     .slice(0, 2)
@@ -115,7 +119,7 @@ export function createPokemonCard(pokemon, useAnimated = true) {
   `;
 }
 
-export function renderPokemonGrid(pokemonList, containerElement, useAnimated = true, append = false) {
+export function renderPokemonGrid(pokemonList, containerElement, spriteMode = "artwork", append = false) {
   if (!append) {
     containerElement.innerHTML = "";
   }
@@ -128,7 +132,7 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
   }
 
   const cardsHtml = pokemonList
-    .map((pokemon) => createPokemonCard(pokemon, useAnimated))
+    .map((pokemon) => createPokemonCard(pokemon, spriteMode))
     .join("");
 
   if (append) {
@@ -138,6 +142,34 @@ export function renderPokemonGrid(pokemonList, containerElement, useAnimated = t
   } else {
     containerElement.innerHTML = cardsHtml;
   }
+}
+
+export function renderFavoritesGrid(pokemonList, containerElement) {
+  if (!pokemonList || pokemonList.length === 0) {
+    containerElement.innerHTML = `<div class="modal-empty-state">No favorite Pokémon recorded yet.</div>`;
+    return;
+  }
+
+  containerElement.innerHTML = pokemonList
+    .map((p) => {
+      const typeBadges = (p.types || [])
+        .map((t) => `<span class="type-badge type-${t}">${t}</span>`)
+        .join("");
+      const officialArt = p.officialArtwork || p.image;
+
+      return `
+        <div class="fav-compact-card">
+          <button type="button" class="fav-unfavorite-btn" data-id="${p.id}" title="Unfavorite">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <img src="${officialArt}" alt="${p.name}" class="fav-compact-img" loading="lazy" />
+          <span class="fav-compact-id">#${String(p.id).padStart(3, "0")}</span>
+          <h4 class="fav-compact-name">${p.name}</h4>
+          <div class="fav-compact-types">${typeBadges}</div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 function getArtworkForEvoNode(evoNode) {
@@ -193,17 +225,14 @@ function renderBattleFormsRow(battleForms, currentRawName) {
 }
 
 function getBattleFormImageSrc(form) {
-  // 1. If form already has an image property (like in varieties)
   if (form.image || form.customImage) {
     return form.image || form.customImage;
   }
 
-  // 2. If it has a numeric variety ID
   if (form.id && !isNaN(Number(form.id))) {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`;
   }
 
-  // 3. Fallback to official artwork by form slug (e.g., dragonite-mega.png)
   const cleanName = (form.name || "").toLowerCase().trim();
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${cleanName}.png`;
 }
@@ -216,7 +245,6 @@ function getBaseArtworkFallback(form) {
 export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) {
   if (!evoNode) return `<p class="empty-note">This Pokémon does not evolve.</p>`;
 
-  // Enrich battle forms with variety images if available
   if (evoNode.battleForms && Array.isArray(evoNode.battleForms)) {
     evoNode.battleForms.forEach((form) => {
       const match = (varieties || []).find(
@@ -251,7 +279,6 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) 
   const battleForms = evoNode.battleForms || [];
   let evolvesTo = [...(evoNode.evolvesTo || [])];
 
-  // Fix Sandshrew / combined regional triggers (e.g. Level 22 / Use Ice Stone)
   if (evoNode.speciesName.toLowerCase() === "sandshrew" && evolvesTo.length === 1) {
     const origReq = evolvesTo[0].evolutionRequirement || "";
     if (origReq.includes("Ice Stone") || origReq.includes("/")) {
@@ -273,7 +300,6 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) 
     }
   }
 
-  // Case 1: The Pokemon evolves further AND has a Mega (e.g. Floette -> [Mega Floette] & [Florges])
   if (evolvesTo.length > 0 && battleForms.length > 0) {
     const megaBranchesHtml = battleForms.map((form) => {
       const isFormCurrent = form.name.toLowerCase() === currentRawName.toLowerCase();
@@ -320,10 +346,8 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) 
     `;
   }
 
-  // Case 2: Final stage with Megas (e.g. Raichu -> Mega Raichu X / Y)
   const battleFormsUnderNode = battleForms.length > 0 ? renderBattleFormsRow(battleForms, currentRawName) : "";
 
-  // Regular evolution branches (e.g. Pikachu -> Raichu / Alolan Raichu)
   const standardBranchesHtml = evolvesTo.map((child) => `
     <div class="evo-branch-col">
       <div class="evo-connector-badge">
@@ -341,53 +365,6 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) 
         ${battleFormsUnderNode}
       </div>
       ${standardBranchesHtml ? `<div class="evo-stage-branches">${standardBranchesHtml}</div>` : ""}
-    </div>
-  `;
-}
-
-function buildEeveeCircularEvolutionHtml(eeveeNode, currentRawName) {
-  const isEeveeActive = currentRawName.toLowerCase() === "eevee";
-  const eeveeId = eeveeNode.speciesUrl ? eeveeNode.speciesUrl.split("/").filter(Boolean).pop() : "133";
-
-  const childrenHtml = eeveeNode.evolvesTo.map((child) => {
-    const isCurrent = child.speciesName.toLowerCase() === currentRawName.toLowerCase();
-    const artwork = getArtworkForEvoNode(child);
-    const triggerDesc = child.evolutionRequirement || "Special";
-
-    return `
-      <div class="evo-branch-card evo-node ${isCurrent ? "active" : ""}" data-species="${child.speciesName}">
-        <div class="evo-avatar-wrap">
-          <img 
-            src="${artwork}" 
-            alt="${child.speciesName}" 
-            class="evo-img" 
-            loading="lazy" 
-            onerror="this.onerror=null; this.src='https://play.pokemonshowdown.com/sprites/gen5/${child.speciesName.toLowerCase()}.png';"
-          />
-        </div>
-        <span class="evo-name">${formatPokemonName(child.speciesName)}</span>
-        <span class="evo-trigger-pill">${triggerDesc}</span>
-      </div>
-    `;
-  }).join("");
-
-  return `
-    <div class="eevee-grid-wrapper">
-      <div class="eevee-root-container">
-        <div class="evo-node ${isEeveeActive ? "active" : ""}" data-species="eevee">
-          <div class="evo-avatar-wrap">
-            <img 
-              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${eeveeId}.png" 
-              alt="Eevee" 
-              class="evo-img" 
-            />
-          </div>
-          <span class="evo-name">Eevee</span>
-        </div>
-      </div>
-      <div class="eevee-branches-grid">
-        ${childrenHtml}
-      </div>
     </div>
   `;
 }
@@ -571,12 +548,27 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     `
   ).join("");
 
+  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
+  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const normalImg = pokemon.officialArtwork || pokemon.image;
+  const shinyImg = pokemon.shinyArtwork || pokemon.officialArtwork || pokemon.image;
+
   containerElement.innerHTML = `
     <div class="modal-corner-decor top-right"></div>
 
     <div class="modal-top-layout">
-      <div class="modal-image-container">
-        <img src="${pokemon.officialArtwork || pokemon.image}" alt="${pokemon.name}" class="modal-image" />
+      <div class="modal-image-container modal-image-wrapper">
+        <button type="button" id="modal-shiny-toggle" class="shiny-toggle-btn" title="Toggle Shiny form">
+          <i class="fa-solid fa-sparkles"></i>
+        </button>
+        <img 
+          id="modal-primary-img" 
+          src="${normalImg}" 
+          data-normal="${normalImg}" 
+          data-shiny="${shinyImg}" 
+          alt="${pokemon.name}" 
+          class="modal-image" 
+        />
       </div>
 
       <div class="modal-header-info">
@@ -727,6 +719,19 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
           </div>
         </div>
       </section>
+    </div>
+
+    <!-- Floating Action Stack -->
+    <div class="modal-action-stack">
+      <button type="button" id="modal-team-action" class="stack-action-btn team" title="Add to Team" data-id="${pokemon.id}">
+        <i class="fa-solid fa-user-plus"></i>
+      </button>
+      <button type="button" id="modal-caught-action" class="stack-action-btn caught ${isCaught ? 'active' : ''}" title="Mark Caught" data-id="${pokemon.id}">
+        <i class="fa-solid fa-circle-check"></i>
+      </button>
+      <button type="button" id="modal-fav-action" class="stack-action-btn fav ${isFav ? 'active' : ''}" title="Favorite" data-id="${pokemon.id}">
+        <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+      </button>
     </div>
   `;
 
