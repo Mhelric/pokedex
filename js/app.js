@@ -439,7 +439,7 @@ async function loadScrollBatch(isFirstBatch = false) {
     const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
-      24,
+      45,
       signal
     );
 
