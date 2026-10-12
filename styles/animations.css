@@ -416,12 +416,12 @@
 
 #game-modal .shutter-top {
   background: #ef5350;
-  border-bottom: 2px solid #111827;
+  border-bottom: 3px solid #111827;
 }
 
 #game-modal .shutter-bottom {
   background: #f8fafc;
-  border-top: 2px solid #111827;
+  border-top: 3px solid #111827;
 }
 
 /* Retract shutters inside card boundary */
@@ -444,28 +444,39 @@
   transition: visibility 0s 0.45s, opacity 0.2s 0.25s;
 }
 
+/* Disable transitions so the shutter snaps closed instantly */
+#game-modal .mini-pokeball-shutter.instant-close,
+#game-modal .mini-pokeball-shutter.instant-close .shutter-half,
+#game-modal .mini-pokeball-shutter.instant-close .shutter-band {
+  transition: none !important;
+}
+
 /* Center Ring Band */
 #game-modal .shutter-band {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 25;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 100% !important;
+  height: 0 !important; /* Prevents band from expanding into a thick rectangle */
+  background: transparent !important; /* Band wrapper must stay clear */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 25 !important;
   transition: transform 0.3s ease, opacity 0.2s ease;
 }
 
 #game-modal .shutter-core {
-  width: 28px;
-  height: 28px;
-  background: #111827;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
 }
 
 #game-modal .shutter-button {
@@ -512,20 +523,49 @@
 
 /* Theme overrides for Retro GB Mode */
 [data-theme="retro-gb"] #game-modal .shutter-top {
-  background: var(--gb-dark) !important;
-  border-bottom: 2px solid var(--gb-darkest) !important;
+  background: var(--gb-dark, #306230) !important;
+  border-bottom: 3px solid var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] #game-modal .shutter-bottom {
-  background: var(--gb-lightest) !important;
-  border-top: 2px solid var(--gb-darkest) !important;
+  background: var(--gb-lightest, #9bbc0f) !important;
+  border-top: 3px solid var(--gb-darkest, #0f380f) !important;
+}
+
+[data-theme="retro-gb"] #game-modal .shutter-band {
+  background: transparent !important;
 }
 
 [data-theme="retro-gb"] #game-modal .shutter-core {
-  background: var(--gb-darkest) !important;
+  background: var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] #game-modal .shutter-button {
-  background: var(--gb-light) !important;
-  border-color: var(--gb-darkest) !important;
+  background: var(--gb-light, #8bac0f) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+}
+
+/* ==========================================
+   RETRO GB MINI-GAME STAGE (DOT-MATRIX SCREEN)
+   ========================================== */
+[data-theme="retro-gb"] #game-modal .silhouette-container {
+  /* Authentic DMG Game Boy light green LCD tint */
+  background-color: var(--gb-lightest, #9bbc0f) !important;
+  background-image: 
+    radial-gradient(circle, rgba(139, 172, 15, 0.4) 0%, rgba(48, 98, 48, 0.25) 100%),
+    linear-gradient(rgba(15, 56, 15, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 56, 15, 0.08) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 4px 4px, 4px 4px !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+  box-shadow: inset 0 0 10px rgba(15, 56, 15, 0.35) !important;
+}
+
+/* Ensure the silhouette renders in classic Game Boy darkest green */
+[data-theme="retro-gb"] #game-modal #game-pokemon-img {
+  filter: brightness(0) drop-shadow(0 0 0 var(--gb-darkest, #0f380f)) !important;
+}
+
+/* When revealed, remove standard drop-glow and keep it clean retro pixel style */
+[data-theme="retro-gb"] #game-modal #game-pokemon-img.revealed {
+  filter: drop-shadow(2px 2px 0px rgba(15, 56, 15, 0.4)) !important;
 }

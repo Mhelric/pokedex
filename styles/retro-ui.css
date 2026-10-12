@@ -146,6 +146,18 @@
   transition: background 0.15s ease;
 }
 
+#next-pokemon-btn {
+  width: 100%;
+  min-height: 44px; /* Matches normal button height */
+  margin-top: 6px;
+  visibility: hidden; /* Keeps layout space reserved */
+  display: block !important;
+}
+
+#next-pokemon-btn.visible {
+  visibility: visible;
+}
+
 .btn-primary:hover {
   background-color: #dc2626;
 }

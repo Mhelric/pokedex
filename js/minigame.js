@@ -28,14 +28,17 @@ export async function startNewRound(
 ) {
   const shutter = document.getElementById("game-shutter");
 
-  // 1. Reset stage image and snap shutter closed
+  // 1. Reset stage image and snap shutter shut immediately without animation
   imgElement.className = "silhouette";
   imgElement.src = "";
 
   if (shutter) {
+    shutter.classList.add("instant-close");
     shutter.classList.remove("open");
     shutter.style.visibility = "visible";
     shutter.style.opacity = "1";
+    // Force reflow so the browser renders the closed state without transitioning
+    void shutter.offsetHeight;
   }
 
   feedbackElement.textContent = "Who's That Pokémon?";
@@ -76,8 +79,9 @@ export async function startNewRound(
     // 5. Mount loaded image to stage
     imgElement.src = targetSrc;
 
-    // 6. Open the Pokeball shutter
+    // 6. Restore animation and slide open the Pokeball shutter
     if (shutter) {
+      shutter.classList.remove("instant-close");
       setTimeout(() => {
         shutter.classList.add("open");
       }, 120);
@@ -92,7 +96,10 @@ export async function startNewRound(
       .join("");
   } catch (error) {
     feedbackElement.textContent = "Failed to load mini-game round. Try again!";
-    if (shutter) shutter.classList.add("open");
+    if (shutter) {
+      shutter.classList.remove("instant-close");
+      shutter.classList.add("open");
+    }
   }
 }
 
@@ -149,5 +156,5 @@ export function handleGuess(
   if (streakElem) streakElem.textContent = currentStreak;
   if (highScoreElem) highScoreElem.textContent = highScore;
 
-  if (nextBtn) nextBtn.style.display = "inline-block";
+  if (nextBtn) nextBtn.classList.add("visible");
 }

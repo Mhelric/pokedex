@@ -442,7 +442,7 @@ async function loadScrollBatch(isFirstBatch = false) {
     const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
-      50,
+      45,
       signal
     );
 
@@ -1437,7 +1437,7 @@ if (gameOptions) {
 
 if (nextPokemonBtn) {
   nextPokemonBtn.addEventListener("click", () => {
-    nextPokemonBtn.style.display = "none";
+    nextPokemonBtn.classList.remove("visible");
     startNewRound(gameImg, gameOptions, gameFeedback, streakCount, highscoreCount);
   });
 }
