@@ -2,9 +2,29 @@
    THEMES CONFIGURATION & THEME STYLES
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   THEME: CLASSIC DARK
-   -------------------------------------------------------------------------- */
+/* Smooth Theme Switching Transition Across All Elements */
+html,
+body,
+.app-header,
+.pokemon-card,
+.modal-card,
+.scanner-card,
+.pc-box-modal-card,
+.search-box-wrapper,
+.filter-drawer,
+.detail-section,
+.bottom-nav-inner,
+.bottom-nav-item,
+.settings-btn {
+  transition: background-color 0.28s ease,
+              border-color 0.28s ease,
+              color 0.28s ease,
+              box-shadow 0.28s ease;
+}
+
+/* ==========================================================================
+   1. THEME: CLASSIC DARK
+   ========================================================================== */
 [data-theme="classic-dark"] {
   --dark-bg: #0b0f19;
   --dark-surface: #131b2e;
@@ -15,7 +35,6 @@
   --dark-text: #f8fafc;
   --dark-text-muted: #94a3b8;
 
-  /* Native Scrollbar Colors (Firefox) */
   scrollbar-color: #334155 #0b0f19;
   scrollbar-width: thin;
 }
@@ -25,7 +44,6 @@
   color: var(--dark-text);
 }
 
-/* --- Dark Theme Scrollbars (Chrome, Safari, Edge) --- */
 [data-theme="classic-dark"] ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -49,15 +67,16 @@
   filter: invert(1);
 }
 
-/* Header */
 [data-theme="classic-dark"] .app-header {
   background: rgba(19, 27, 46, 0.9);
   border-bottom: 1px solid var(--dark-border);
 }
 
-/* ==========================================================================
-   SEARCH BAR & CONTROLS (PILL ROUNDED, NO RECTANGULAR BOX OUTLINES)
-   ========================================================================== */
+/* Header Settings Button (Circular) */
+[data-theme="classic-dark"] .settings-btn {
+  border-radius: 50% !important;
+}
+
 [data-theme="classic-dark"] .controls {
   background: transparent !important;
   border: none !important;
@@ -100,24 +119,23 @@
   outline: none !important;
 }
 
-/* Filter Drawer & Dropdowns */
 [data-theme="classic-dark"] .filter-drawer {
-  background: var(--dark-surface);
-  border: 1px solid var(--dark-border);
+  background: var(--dark-surface) !important;
+  border: 1px solid var(--dark-border) !important;
 }
 
 [data-theme="classic-dark"] .filter-label {
-  color: var(--dark-text-muted);
+  color: var(--dark-text-muted) !important;
 }
 
 [data-theme="classic-dark"] .dropdown-trigger {
-  background: var(--dark-surface-elevated);
-  border-color: var(--dark-border);
+  background: var(--dark-surface-elevated) !important;
+  border-color: var(--dark-border) !important;
   color: var(--dark-text);
 }
 
 [data-theme="classic-dark"] .dropdown-menu {
-  background: var(--dark-surface-elevated);
+  background: var(--dark-surface-elevated) !important;
   border-color: var(--dark-border);
 }
 
@@ -126,12 +144,9 @@
 }
 
 [data-theme="classic-dark"] .dropdown-option:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* ==========================================================================
-   MAIN GRID CARDS & ACTION BUTTONS
-   ========================================================================== */
 [data-theme="classic-dark"] .pokemon-card {
   background: var(--dark-surface);
   border: 1px solid var(--dark-border);
@@ -144,20 +159,16 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
 }
 
-[data-theme="classic-dark"] .pokemon-card .card-id {
+[data-theme="classic-dark"] .pokemon-card .card-id,
+[data-theme="classic-dark"] .pokemon-card .pokemon-genus,
+[data-theme="classic-dark"] .card-metrics-row,
+[data-theme="classic-dark"] .stat-mini {
   color: var(--dark-text-muted);
 }
 
-[data-theme="classic-dark"] .pokemon-card .pokemon-name {
+[data-theme="classic-dark"] .pokemon-card .pokemon-name,
+[data-theme="classic-dark"] .stat-mini strong {
   color: #ffffff;
-}
-
-[data-theme="classic-dark"] .pokemon-card .pokemon-genus {
-  color: var(--dark-text-muted);
-}
-
-[data-theme="classic-dark"] .card-metrics-row {
-  color: var(--dark-text-muted);
 }
 
 [data-theme="classic-dark"] .card-ability-pill {
@@ -172,19 +183,10 @@
   border-left: 3px solid #ef5350;
 }
 
-[data-theme="classic-dark"] .stat-mini {
-  color: var(--dark-text-muted);
-}
-
-[data-theme="classic-dark"] .stat-mini strong {
-  color: #ffffff;
-}
-
 [data-theme="classic-dark"] .mini-bar-track {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Stripped square box outlines from card Caught & Favorite buttons */
 [data-theme="classic-dark"] .icon-toggle-btn,
 [data-theme="classic-dark"] .card-top-actions .caught-btn,
 [data-theme="classic-dark"] .card-top-actions .fav-btn {
@@ -215,23 +217,24 @@
   color: #ef4444 !important;
 }
 
-/* ==========================================================================
-   DETAIL MODAL & INTERIOR SECTIONS
-   ========================================================================== */
 [data-theme="classic-dark"] #pokemon-modal .modal-card,
 [data-theme="classic-dark"] #settings-modal .modal-card,
 [data-theme="classic-dark"] #team-modal .modal-card,
-[data-theme="classic-dark"] #favorites-modal .modal-card {
-  background: var(--dark-surface);
-  border: 1px solid var(--dark-border);
-  color: var(--dark-text);
+[data-theme="classic-dark"] #favorites-modal .modal-card,
+[data-theme="classic-dark"] #scanner-modal .scanner-card,
+[data-theme="classic-dark"] #game-modal .modal-card,
+[data-theme="classic-dark"] #caught-modal .pc-box-modal-card {
+  background: var(--dark-surface) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--dark-text) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
 }
 
 [data-theme="classic-dark"] .modal-title,
 [data-theme="classic-dark"] .modal-settings-header h2,
-[data-theme="classic-dark"] .team-header h2 {
-  color: #ffffff;
+[data-theme="classic-dark"] .team-header h2,
+[data-theme="classic-dark"] .pc-box-title-wrap h2 {
+  color: #ffffff !important;
 }
 
 [data-theme="classic-dark"] .modal-card-id,
@@ -239,7 +242,6 @@
   color: var(--dark-text-muted);
 }
 
-/* Pokemon Cry Button */
 [data-theme="classic-dark"] .modal-cry-btn {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -253,7 +255,6 @@
   color: #ffffff !important;
 }
 
-/* Modal Inner Sections */
 [data-theme="classic-dark"] .detail-section {
   background: var(--dark-surface-soft) !important;
   border: 1px solid var(--dark-border-subtle) !important;
@@ -278,7 +279,6 @@
   color: var(--dark-text-muted);
 }
 
-/* Defensive Matchup Badges */
 [data-theme="classic-dark"] .matchup-pill {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -299,11 +299,6 @@
   color: #4ade80 !important;
 }
 
-[data-theme="classic-dark"] .matchup-group .sub-label {
-  color: var(--dark-text-muted) !important;
-}
-
-/* Forms & Gimmicks */
 [data-theme="classic-dark"] .variety-card-item {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -317,7 +312,6 @@
   border-color: #ef5350 !important;
 }
 
-/* Abilities & Stats */
 [data-theme="classic-dark"] .ability-card {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -344,15 +338,6 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="classic-dark"] .stat-legend-note {
-  color: var(--dark-text-muted);
-}
-
-/* Evolution Tree */
-[data-theme="classic-dark"] .evolution-tree-container {
-  background: transparent !important;
-}
-
 [data-theme="classic-dark"] .evo-node {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -364,7 +349,6 @@
 
 [data-theme="classic-dark"] .evo-node.active {
   border-color: #ef5350 !important;
-  box-shadow: 0 0 12px rgba(239, 83, 80, 0.35);
 }
 
 [data-theme="classic-dark"] .evo-trigger-pill,
@@ -372,16 +356,6 @@
   background: var(--dark-surface-elevated);
   color: var(--dark-text-muted);
   border: 1px solid var(--dark-border);
-}
-
-/* Information Lists & Movepools */
-[data-theme="classic-dark"] .data-list li {
-  border-bottom: 1px solid var(--dark-border-subtle);
-  color: var(--dark-text-muted);
-}
-
-[data-theme="classic-dark"] .data-list li strong {
-  color: #ffffff;
 }
 
 [data-theme="classic-dark"] .tab-btn {
@@ -412,20 +386,11 @@
   border: 1px solid var(--dark-border) !important;
 }
 
-/* Game / Gen Selector */
 [data-theme="classic-dark"] #game-selector-toggle,
 [data-theme="classic-dark"] .game-selector-header {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
   color: var(--dark-text) !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-[data-theme="classic-dark"] #game-selector-toggle:focus,
-[data-theme="classic-dark"] #game-selector-toggle:focus-visible,
-[data-theme="classic-dark"] .game-selector-header:focus,
-[data-theme="classic-dark"] .game-selector-header:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
@@ -448,7 +413,6 @@
   border-color: #38bdf8;
 }
 
-/* Modal Bottom Action Bar */
 [data-theme="classic-dark"] .modal-bottom-action-bar {
   background: var(--dark-surface);
   border-top: 1px solid var(--dark-border);
@@ -468,9 +432,6 @@
   outline: none !important;
 }
 
-/* ==========================================================================
-   TEAM MODAL, FAVORITES & FLOATING BOTTOM NAV
-   ========================================================================== */
 [data-theme="classic-dark"] .team-card {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -517,7 +478,6 @@
   color: #ffffff !important;
 }
 
-/* Favorites Modal Compact Cards */
 [data-theme="classic-dark"] .fav-compact-card {
   background: var(--dark-surface-elevated) !important;
   border: 1px solid var(--dark-border) !important;
@@ -538,12 +498,6 @@
   outline: none !important;
 }
 
-[data-theme="classic-dark"] .fav-unfavorite-btn:hover {
-  background: #ef4444 !important;
-  color: #ffffff !important;
-}
-
-/* Bottom Floating Navigation */
 [data-theme="classic-dark"] .bottom-nav-inner {
   background: rgba(19, 27, 46, 0.85) !important;
   border: 1px solid var(--dark-border) !important;
@@ -560,73 +514,978 @@
   outline: none !important;
 }
 
-[data-theme="classic-dark"] .bottom-nav-item:not(.highlight-btn):hover {
-  background: #334155 !important;
-  color: #38bdf8 !important;
-  border-color: #38bdf8 !important;
-}
-
-/* Settings Modal Controls */
-[data-theme="classic-dark"] .settings-radio-pill {
-  background: var(--dark-surface-elevated);
-  border-color: var(--dark-border);
-  color: var(--dark-text);
-}
-
-[data-theme="classic-dark"] .settings-select {
-  background: var(--dark-surface-elevated);
-  border-color: var(--dark-border);
-  color: var(--dark-text);
-  outline: none !important;
-}
-
-[data-theme="classic-dark"] .settings-action-btn {
-  background: var(--dark-surface-elevated);
-  border-color: var(--dark-border);
-  color: var(--dark-text);
-  outline: none !important;
-}
-
-/* ==========================================================================
-   PIXEL SPRITE MODE / PC BOX GRID (DARK THEME OVERRIDES)
-   ========================================================================== */
 [data-theme="classic-dark"] .pokemon-grid.pc-box-layout {
   background: var(--dark-surface-soft) !important;
   border: 1px solid var(--dark-border) !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Individual Slot Cards */
 [data-theme="classic-dark"] .pc-box-layout .pokemon-card {
   background: var(--dark-surface) !important;
   border: 1px solid var(--dark-border-subtle) !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 [data-theme="classic-dark"] .pc-box-layout .pokemon-card:hover {
   background: var(--dark-surface-elevated) !important;
   border-color: #38bdf8 !important;
   transform: translateY(-3px) scale(1.06);
-  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2) !important;
-}
-
-/* Sprite & Typography */
-[data-theme="classic-dark"] .pc-box-layout .card-media {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 [data-theme="classic-dark"] .pc-box-layout .card-image {
   max-width: 60px;
   max-height: 60px;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
 [data-theme="classic-dark"] .pc-box-layout .pokemon-name {
   color: #e2e8f0 !important;
-  font-size: 0.75rem;
-  letter-spacing: 0.2px;
+}
+
+[data-theme="classic-dark"] .settings-radio-pill,
+[data-theme="classic-dark"] .settings-select,
+[data-theme="classic-dark"] .settings-action-btn {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+}
+
+
+/* ==========================================================================
+   2. THEME: GAME BOY RETRO (DMG MONOCHROME PALETTE)
+   Colors:
+   - Screen Lightest: #9bbc0f
+   - Screen Mid-Light: #8bac0f
+   - Screen Dark/Ink:  #306230
+   - Screen Deepest:   #0f380f
+   ========================================================================== */
+[data-theme="retro-gb"] {
+  --gb-lightest: #9bbc0f;
+  --gb-light: #8bac0f;
+  --gb-dark: #306230;
+  --gb-darkest: #0f380f;
+
+  scrollbar-color: var(--gb-dark) var(--gb-lightest);
+  scrollbar-width: thin;
+}
+
+[data-theme="retro-gb"] body {
+  background-color: var(--gb-light);
+  color: var(--gb-darkest);
+  font-family: 'Courier New', Courier, monospace, sans-serif !important;
+}
+
+[data-theme="retro-gb"] .moving-bg {
+  display: none !important;
+}
+
+/* Scrollbars */
+[data-theme="retro-gb"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+[data-theme="retro-gb"] ::-webkit-scrollbar-track {
+  background: var(--gb-lightest);
+  border: 1px solid var(--gb-dark);
+}
+[data-theme="retro-gb"] ::-webkit-scrollbar-thumb {
+  background: var(--gb-dark);
+  border-radius: 0;
+}
+
+/* Header */
+[data-theme="retro-gb"] .app-header {
+  background: var(--gb-lightest);
+  border-bottom: 3px solid var(--gb-darkest);
+  box-shadow: 0 4px 0 rgba(15, 56, 15, 0.3);
+}
+
+[data-theme="retro-gb"] .header-title {
+  color: var(--gb-darkest) !important;
+  letter-spacing: 1px;
+}
+
+/* Header Settings Button (Circular Retro Button) */
+[data-theme="retro-gb"] .settings-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 50% !important;
+  box-shadow: 2px 2px 0 var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .settings-btn:hover {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  transform: rotate(45deg) scale(1.05);
+}
+
+/* Search Box & Controls */
+[data-theme="retro-gb"] .controls {
+  background: transparent !important;
+}
+
+[data-theme="retro-gb"] .search-box-wrapper {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] #search-input {
+  background: transparent !important;
+  border: none !important;
+  color: var(--gb-darkest) !important;
+  font-family: inherit !important;
+  font-weight: 700;
+}
+
+[data-theme="retro-gb"] #search-input::placeholder {
+  color: var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .search-icon {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .filter-toggle-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+/* Filter Drawer */
+[data-theme="retro-gb"] .filter-drawer {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .drawer-inner {
+  background: transparent !important;
+}
+
+[data-theme="retro-gb"] .filter-label {
+  color: var(--gb-darkest) !important;
+  font-weight: 800;
+}
+
+[data-theme="retro-gb"] .dropdown-trigger {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .dropdown-menu {
+  background: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .dropdown-option {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .dropdown-option:hover,
+[data-theme="retro-gb"] .dropdown-option.active {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+/* Cards */
+[data-theme="retro-gb"] .pokemon-card {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pokemon-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 6px 6px 0 var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .card-id,
+[data-theme="retro-gb"] .pokemon-name,
+[data-theme="retro-gb"] .pokemon-genus,
+[data-theme="retro-gb"] .card-metrics-row,
+[data-theme="retro-gb"] .stat-mini strong {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .card-image {
+  filter: contrast(140%) brightness(95%) grayscale(80%) sepia(80%) hue-rotate(45deg);
+  image-rendering: pixelated;
+}
+
+[data-theme="retro-gb"] .type-badge {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  border-radius: 3px !important;
+}
+
+[data-theme="retro-gb"] .card-ability-pill {
+  background: var(--gb-light) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .pokemon-description {
+  background: var(--gb-light) !important;
+  border-left: 3px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  font-style: normal !important;
+}
+
+[data-theme="retro-gb"] .mini-bar-track {
+  background: var(--gb-light) !important;
+  border: 1px solid var(--gb-dark) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="retro-gb"] .mini-bar-fill {
+  background: var(--gb-darkest) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="retro-gb"] .add-team-btn {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 4px !important;
+  font-weight: 800;
+}
+
+[data-theme="retro-gb"] .add-team-btn:hover {
+  background: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .icon-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .caught-btn.active,
+[data-theme="retro-gb"] .fav-btn.active {
+  color: var(--gb-darkest) !important;
+}
+
+/* Modals Shell */
+[data-theme="retro-gb"] .modal-overlay {
+  background: rgba(15, 56, 15, 0.75) !important;
+}
+
+[data-theme="retro-gb"] #pokemon-modal .modal-card,
+[data-theme="retro-gb"] #settings-modal .modal-card,
+[data-theme="retro-gb"] #team-modal .modal-card,
+[data-theme="retro-gb"] #favorites-modal .modal-card,
+[data-theme="retro-gb"] #scanner-modal .scanner-card,
+[data-theme="retro-gb"] #game-modal .modal-card,
+[data-theme="retro-gb"] #caught-modal .pc-box-modal-card {
+  background: var(--gb-lightest) !important;
+  border: 4px solid var(--gb-darkest) !important;
+  border-radius: 8px !important;
+  box-shadow: 8px 8px 0 var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .modal-title,
+[data-theme="retro-gb"] .modal-settings-header h2,
+[data-theme="retro-gb"] .team-header h2,
+[data-theme="retro-gb"] .section-title,
+[data-theme="retro-gb"] .pc-box-title-wrap h2 {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .detail-section {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .modal-close {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .modal-cry-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .matchup-pill {
+  background: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .matchup-pill.weak .pill-multiplier,
+[data-theme="retro-gb"] .matchup-pill.resist .pill-multiplier {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .variety-card-item,
+[data-theme="retro-gb"] .ability-card,
+[data-theme="retro-gb"] .evo-node {
+  background: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .ability-badge {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  border-radius: 3px !important;
+}
+
+[data-theme="retro-gb"] .ability-card.hidden-ability .ability-badge {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .bst-tag {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-dark) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .stat-calc-header {
+  color: var(--gb-darkest) !important;
+  border-bottom: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .stat-calc-header span,
+[data-theme="retro-gb"] .stat-calc-header .bound-title {
+  color: var(--gb-darkest) !important;
+  font-weight: 800;
+}
+
+[data-theme="retro-gb"] .stat-calc-row {
+  border-bottom: 1px solid var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .stat-calc-row .stat-name,
+[data-theme="retro-gb"] .stat-calc-row .stat-val,
+[data-theme="retro-gb"] .stat-calc-row .stat-bound {
+  color: var(--gb-darkest) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="retro-gb"] .stat-meter-track {
+  background: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="retro-gb"] .stat-meter-bar {
+  background: var(--gb-darkest) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="retro-gb"] .stat-legend-note {
+  color: var(--gb-darkest) !important;
+  font-weight: 600;
+}
+
+[data-theme="retro-gb"] .tab-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .tab-btn.active {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .moves-table th {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .moves-table td {
+  color: var(--gb-darkest) !important;
+  border-bottom: 1px solid var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .badge-subtle {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .game-selector-bottom-card {
+  border: 2px solid var(--gb-darkest) !important;
+  background: var(--gb-light) !important;
+}
+
+[data-theme="retro-gb"] .game-selector-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--gb-darkest) !important;
+  padding: 10px 12px !important;
+}
+
+[data-theme="retro-gb"] .game-selector-header:focus,
+[data-theme="retro-gb"] .game-selector-header:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="retro-gb"] .game-selector-hint {
+  color: var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .game-selector-chevron {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .game-pill-btn {
+  background: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .game-pill-btn.active {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .modal-bottom-action-bar {
+  background: var(--gb-lightest) !important;
+  border-top: 3px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .modal-action-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .modal-action-btn.active {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .bottom-nav-inner {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="retro-gb"] .bottom-nav-item:not(.highlight-btn) {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .bottom-nav-item.highlight-btn {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .team-card {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  box-shadow: 3px 3px 0 var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .team-card-name {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .btn-secondary,
+[data-theme="retro-gb"] #clear-team-btn {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .team-synergy-container,
+[data-theme="retro-gb"] .synergy-card {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .fav-compact-card {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  box-shadow: 3px 3px 0 var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .fav-compact-name,
+[data-theme="retro-gb"] .fav-compact-id {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pokemon-grid.pc-box-layout {
+  background: var(--gb-light) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .pc-box-layout .pokemon-card {
+  background: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  box-shadow: 2px 2px 0 var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] .pc-box-layout .pokemon-name {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .settings-label {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .settings-radio-pill {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .settings-select {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .settings-action-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .settings-action-btn i {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .settings-action-text strong,
+[data-theme="retro-gb"] .settings-action-text span {
+  color: var(--gb-darkest) !important;
+}
+
+/* Camera Scanner Modal */
+[data-theme="retro-gb"] #capture-scan-btn {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] #capture-scan-btn:hover {
+  background: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .file-upload-label {
+  background: var(--gb-light) !important;
+  color: var(--gb-darkest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .scanner-status {
+  color: var(--gb-darkest) !important;
+}
+
+/* ==========================================================================
+   CAUGHT STORAGE / PC BOX MODAL (RETRO THEME OVERRIDES)
+   ========================================================================== */
+[data-theme="retro-gb"] .pc-box-header {
+  border-bottom: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-status-dot {
+  background-color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .btn-pc-clear {
+  background: var(--gb-dark) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .btn-pc-clear:hover {
+  background: var(--gb-darkest) !important;
+}
+
+/* Storage Wallpaper & Slots */
+[data-theme="retro-gb"] .pc-storage-wallpaper {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-box-slot {
+  background: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .pc-box-slot:hover,
+[data-theme="retro-gb"] .pc-box-slot.active {
+  background: var(--gb-dark) !important;
+  border-color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-box-slot .pc-pixel-sprite {
+  filter: contrast(130%) grayscale(60%) sepia(80%) hue-rotate(45deg);
+}
+
+/* Floating Filter & Gen Buttons */
+[data-theme="retro-gb"] .pc-float-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  box-shadow: 2px 2px 0 var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-float-btn:hover {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .pc-gen-menu,
+[data-theme="retro-gb"] .pc-filter-menu {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-menu-heading {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-gen-option {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-gen-option:hover,
+[data-theme="retro-gb"] .pc-gen-option.active {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .pc-criteria-btn {
+  background: var(--gb-light) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-criteria-btn.active {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .pc-radio-bullet {
+  color: var(--gb-darkest) !important;
+}
+
+/* Slide-out Drawer */
+[data-theme="retro-gb"] .pc-slide-drawer {
+  background: var(--gb-lightest) !important;
+  border-right: 3px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-drawer-close {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-summary-badge {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+[data-theme="retro-gb"] .pc-artwork-wrap {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] .pc-artwork-img {
+  filter: contrast(130%) grayscale(60%) sepia(80%) hue-rotate(45deg);
+}
+
+[data-theme="retro-gb"] .pc-mon-name,
+[data-theme="retro-gb"] .pc-mon-genus {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-stat-item {
+  background: var(--gb-light) !important;
+  border: 1px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-stat-item span,
+[data-theme="retro-gb"] .pc-stat-item strong {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .btn-pc-view {
+  background: var(--gb-dark) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .btn-pc-uncheck {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+/* Footer Status Bar & Progress */
+[data-theme="retro-gb"] .pc-box-footer {
+  background: var(--gb-light) !important;
+  border-top: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-footer-label,
+[data-theme="retro-gb"] .pc-footer-count strong,
+[data-theme="retro-gb"] .caught-progress-percent {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-progress-track {
+  background: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .pc-progress-fill {
+  background: var(--gb-darkest) !important;
+}
+
+/* Release Confirmation Dialog */
+[data-theme="retro-gb"] .confirm-dialog-card {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 6px 6px 0 var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .confirm-dialog-card h3,
+[data-theme="retro-gb"] .confirm-dialog-card p {
+  color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .btn-confirm-cancel {
+  background: var(--gb-light) !important;
+  color: var(--gb-darkest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .btn-confirm-accept {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+}
+
+/* ==========================================================================
+   MINI-GAME ("Who's That Pokémon?") RETRO GB THEME OVERRIDES
+   ========================================================================== */
+[data-theme="retro-gb"] #game-modal .modal-card {
+  background: var(--gb-lightest) !important;
+  border: 4px solid var(--gb-darkest) !important;
+  box-shadow: 8px 8px 0 var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+}
+
+/* Header & Streaks */
+[data-theme="retro-gb"] .game-header {
+  border-bottom: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .game-header h2 {
+  color: var(--gb-darkest) !important;
+  font-family: inherit !important;
+  letter-spacing: 1px;
+}
+
+[data-theme="retro-gb"] .game-score {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="retro-gb"] .game-score strong {
+  color: var(--gb-darkest) !important;
+  font-weight: 800;
+}
+
+/* Silhouette Stage */
+[data-theme="retro-gb"] .silhouette-container {
+  background: var(--gb-light) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="retro-gb"] #game-pokemon-img {
+  image-rendering: pixelated;
+}
+
+[data-theme="retro-gb"] #game-pokemon-img.revealed {
+  filter: contrast(140%) brightness(95%) grayscale(80%) sepia(80%) hue-rotate(45deg) drop-shadow(0 0 10px var(--gb-darkest)) !important;
+}
+
+/* Feedback Status Text */
+[data-theme="retro-gb"] .game-feedback {
+  color: var(--gb-darkest) !important;
+  font-family: inherit !important;
+  font-weight: 800;
+}
+
+/* Choice Buttons */
+[data-theme="retro-gb"] .option-btn {
+  background: var(--gb-light) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  color: var(--gb-darkest) !important;
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  border-radius: 4px !important;
+  box-shadow: 2px 2px 0 var(--gb-darkest);
+}
+
+[data-theme="retro-gb"] .option-btn:hover:not(:disabled) {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+}
+
+/* Correct / Wrong Result Highlights */
+[data-theme="retro-gb"] .option-btn.correct {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border-color: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] .option-btn.wrong {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border-color: var(--gb-darkest) !important;
+  opacity: 0.6;
+}
+
+/* Next Pokémon Button */
+[data-theme="retro-gb"] #next-pokemon-btn {
+  background: var(--gb-dark) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  border-radius: 4px !important;
+  font-family: inherit !important;
+  font-weight: 800;
+}
+
+[data-theme="retro-gb"] #next-pokemon-btn:hover {
+  background: var(--gb-darkest) !important;
+}
+
+/* ==========================================================================
+   FILTER DRAWER: REMOVE WHITE LINES & SMOOTH EXPANSION ANIMATION
+   ========================================================================== */
+
+/* 1. Eliminate all stray white borders, highlights, and outlines */
+[data-theme="retro-gb"] .filter-drawer {
+  background: var(--gb-lightest) !important;
+  border: 3px solid var(--gb-darkest) !important;
+  box-shadow: 4px 4px 0 var(--gb-dark) !important;
+  border-radius: 6px !important;
+  outline: none !important;
+  /* Smooth drawer expansion transition */
+  overflow: hidden !important;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.28s ease,
+              padding 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-theme="retro-gb"] .drawer-inner {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important; /* Removes the inner faint white boundary lines */
+  padding: 10px 4px !important;
+}
+
+/* 2. State-specific expansion physics */
+[data-theme="retro-gb"] .filter-drawer.collapsed {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  border: 0 solid transparent !important; /* Cleans up border artifacts when shut */
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+[data-theme="retro-gb"] .filter-drawer:not(.collapsed) {
+  max-height: 380px !important;
+  opacity: 1 !important;
+  margin-top: 10px !important;
+}
+
+/* 3. Filter Toggle Button rotate and press feedback */
+[data-theme="retro-gb"] .filter-toggle-btn {
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              background-color 0.2s ease !important;
+}
+
+[data-theme="retro-gb"] .filter-toggle-btn.active {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  transform: rotate(90deg);
+}
+
+/* ==========================================================================
+   REMOVE DIVIDER LINE UNDER CONTROLS & HEADER
+   ========================================================================== */
+[data-theme="retro-gb"] .controls,
+[data-theme="retro-gb"] section.controls {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+[data-theme="retro-gb"] .controls::after,
+[data-theme="retro-gb"] .controls::before,
+[data-theme="retro-gb"] .app-header::after {
+  display: none !important;
+  content: none !important;
+}
+
+[data-theme="retro-gb"] #app {
+  border: none !important;
+  box-shadow: none !important;
 }
