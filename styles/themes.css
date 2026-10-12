@@ -1489,3 +1489,766 @@ body,
   border: none !important;
   box-shadow: none !important;
 }
+
+/* ==========================================================================
+   3. THEME: BLOOM (SOFT FLORAL PASTEL & SAKURA AESTHETIC)
+   Palette:
+   - Base Canvas:       #fff5f7 (Warm Petal Blush)
+   - Panel Surface:     #ffffff (Pure Ivory)
+   - Soft Elevation:    #ffeef3 (Rose Tint Cream)
+   - Accent Primary:    #f472b6 (Sakura Pink)
+   - Accent Deep:       #db2777 (Berry Rose)
+   - Delicate Border:   #fbcfe8 (Petal Outline)
+   - Text Ink:          #4a2040 (Deep Mauve Plum)
+   - Text Muted:        #9d708f (Soft Dusty Rose)
+   ========================================================================== */
+
+[data-theme="bloom"],
+html[data-theme="bloom"] {
+  --bloom-bg: #fff5f7;
+  --bloom-surface: #ffffff;
+  --bloom-surface-soft: #fff0f4;
+  --bloom-elevated: #ffe4ec;
+  --bloom-border: #fbcfe8;
+  --bloom-border-subtle: #fce7f3;
+  --bloom-accent: #f472b6;
+  --bloom-accent-deep: #db2777;
+  --bloom-glow: rgba(244, 114, 182, 0.28);
+  --bloom-text: #4a2040;
+  --bloom-text-muted: #9d708f;
+
+  scrollbar-color: var(--bloom-border) var(--bloom-bg);
+  scrollbar-width: thin;
+}
+
+[data-theme="bloom"] body,
+body[data-theme="bloom"] {
+  background-color: var(--bloom-bg) !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] #app {
+  background: transparent !important;
+}
+
+[data-theme="bloom"] .moving-bg {
+  opacity: 0.16;
+  filter: hue-rotate(300deg) saturate(140%);
+}
+
+/* Custom Petal Scrollbar */
+[data-theme="bloom"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-theme="bloom"] ::-webkit-scrollbar-track {
+  background: var(--bloom-bg);
+}
+[data-theme="bloom"] ::-webkit-scrollbar-thumb {
+  background: #fbcfe8;
+  border-radius: 999px;
+}
+[data-theme="bloom"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--bloom-accent);
+}
+
+/* Header & Lens */
+[data-theme="bloom"] .app-header {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 2px solid var(--bloom-border) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 4px 20px rgba(244, 114, 182, 0.15) !important;
+}
+
+[data-theme="bloom"] .header-title {
+  color: var(--bloom-text) !important;
+  letter-spacing: 0.5px;
+  font-weight: 800;
+}
+
+[data-theme="bloom"] .pokedex-lens {
+  background: radial-gradient(circle at 35% 35%, #fbcfe8 0%, #f472b6 60%, #db2777 100%) !important;
+  box-shadow: 0 0 16px rgba(244, 114, 182, 0.65), inset 0 0 6px #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="bloom"] .settings-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px var(--bloom-glow) !important;
+}
+
+[data-theme="bloom"] .settings-btn:hover {
+  background: var(--bloom-accent) !important;
+  color: #ffffff !important;
+  border-color: var(--bloom-accent) !important;
+  box-shadow: 0 0 14px rgba(244, 114, 182, 0.5) !important;
+}
+
+/* Search Box & Controls */
+[data-theme="bloom"] .controls {
+  background: transparent !important;
+  border: none !important;
+}
+
+[data-theme="bloom"] .search-box-wrapper {
+  background: var(--bloom-surface) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.12) !important;
+}
+
+[data-theme="bloom"] .search-box-wrapper:focus-within {
+  border-color: var(--bloom-accent) !important;
+  box-shadow: 0 0 16px var(--bloom-glow) !important;
+}
+
+[data-theme="bloom"] #search-input {
+  background: transparent !important;
+  border: none !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] #search-input::placeholder {
+  color: var(--bloom-text-muted) !important;
+}
+
+[data-theme="bloom"] .search-icon {
+  color: var(--bloom-accent) !important;
+}
+
+[data-theme="bloom"] .filter-toggle-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+  border-radius: 50% !important;
+}
+
+[data-theme="bloom"] .filter-toggle-btn.active {
+  background: var(--bloom-accent) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px var(--bloom-glow);
+}
+
+/* Filter Drawer */
+[data-theme="bloom"] .filter-drawer {
+  background: var(--bloom-surface) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(244, 114, 182, 0.14) !important;
+}
+
+[data-theme="bloom"] .filter-label {
+  color: var(--bloom-accent-deep) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="bloom"] .dropdown-trigger {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="bloom"] .dropdown-trigger:hover {
+  border-color: var(--bloom-accent) !important;
+}
+
+[data-theme="bloom"] .dropdown-menu {
+  background: var(--bloom-surface) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(244, 114, 182, 0.2) !important;
+}
+
+[data-theme="bloom"] .dropdown-option {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .dropdown-option:hover,
+[data-theme="bloom"] .dropdown-option.active {
+  background: var(--bloom-surface-soft) !important;
+  color: var(--bloom-accent-deep) !important;
+  font-weight: 700;
+}
+
+/* Main Grid Cards */
+[data-theme="bloom"] .pokemon-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f9 100%) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 20px !important;
+  color: var(--bloom-text) !important;
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.1) !important;
+}
+
+[data-theme="bloom"] .pokemon-card:hover {
+  border-color: var(--bloom-accent) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(244, 114, 182, 0.25) !important;
+}
+
+[data-theme="bloom"] .card-id {
+  color: var(--bloom-accent-deep) !important;
+  font-weight: 800;
+}
+
+[data-theme="bloom"] .pokemon-name {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .pokemon-genus,
+[data-theme="bloom"] .card-metrics-row,
+[data-theme="bloom"] .stat-mini {
+  color: var(--bloom-text-muted) !important;
+}
+
+[data-theme="bloom"] .stat-mini strong {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .mini-bar-track {
+  background: #fce7f3 !important;
+  border-radius: 999px !important;
+}
+
+[data-theme="bloom"] .card-ability-pill {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text-muted) !important;
+  border-radius: 999px !important;
+}
+
+[data-theme="bloom"] .pokemon-card .pokemon-description {
+  background: #fff0f5 !important;
+  border-left: 3px solid var(--bloom-accent) !important;
+  color: var(--bloom-text) !important;
+  border-radius: 0 10px 10px 0;
+}
+
+[data-theme="bloom"] .add-team-btn {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 12px !important;
+  border: none;
+  box-shadow: 0 4px 14px rgba(219, 39, 119, 0.25);
+}
+
+[data-theme="bloom"] .add-team-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 18px rgba(219, 39, 119, 0.4);
+}
+
+[data-theme="bloom"] .icon-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #fbcfe8 !important;
+}
+
+[data-theme="bloom"] .caught-btn.active {
+  color: #10b981 !important;
+  filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.35));
+}
+
+[data-theme="bloom"] .fav-btn.active {
+  color: #f43f5e !important;
+  filter: drop-shadow(0 2px 6px rgba(244, 63, 94, 0.35));
+}
+
+/* Modals Shell */
+[data-theme="bloom"] .modal-overlay {
+  background: rgba(74, 32, 64, 0.45) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="bloom"] #pokemon-modal .modal-card,
+[data-theme="bloom"] #settings-modal .modal-card,
+[data-theme="bloom"] #team-modal .modal-card,
+[data-theme="bloom"] #favorites-modal .modal-card,
+[data-theme="bloom"] #scanner-modal .scanner-card,
+[data-theme="bloom"] #game-modal .modal-card,
+[data-theme="bloom"] #caught-modal .pc-box-modal-card {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 50px rgba(74, 32, 64, 0.18), 0 0 24px var(--bloom-glow) !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .modal-title,
+[data-theme="bloom"] .modal-settings-header h2,
+[data-theme="bloom"] .team-header h2,
+[data-theme="bloom"] .pc-box-title-wrap h2,
+[data-theme="bloom"] .section-title {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .modal-close {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+  border-radius: 50% !important;
+}
+
+[data-theme="bloom"] .modal-close:hover {
+  background: var(--bloom-accent) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="bloom"] .detail-section {
+  background: #fff8fa !important;
+  border: 1px solid var(--bloom-border-subtle) !important;
+  border-radius: 16px !important;
+  color: var(--bloom-text);
+}
+
+[data-theme="bloom"] #modal-flavor-text {
+  background: transparent !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .pokedex-voice-bar {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pokedex-voice-bar .voice-label {
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .pokedex-voice-bar.speaking {
+  background: #fdf2f8 !important;
+  border-color: var(--bloom-accent) !important;
+}
+
+[data-theme="bloom"] .matchup-pill {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .matchup-pill .pill-name {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .variety-card-item,
+[data-theme="bloom"] .ability-card,
+[data-theme="bloom"] .evo-node {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 14px !important;
+}
+
+[data-theme="bloom"] .evo-node.active,
+[data-theme="bloom"] .variety-card-item.active {
+  border-color: var(--bloom-accent-deep) !important;
+  box-shadow: 0 0 12px var(--bloom-glow) !important;
+}
+
+[data-theme="bloom"] .tab-btn {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text-muted) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .tab-btn.active {
+  background: var(--bloom-accent) !important;
+  color: #ffffff !important;
+  border-color: var(--bloom-accent) !important;
+  font-weight: 700;
+}
+
+[data-theme="bloom"] .moves-table th {
+  background: #ffeef4 !important;
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .moves-table td {
+  color: var(--bloom-text) !important;
+  border-bottom: 1px solid var(--bloom-border-subtle) !important;
+}
+
+[data-theme="bloom"] .game-selector-header {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .game-pill-btn {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text-muted) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .game-pill-btn.active {
+  background: var(--bloom-accent-deep) !important;
+  color: #ffffff !important;
+  border-color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .modal-bottom-action-bar {
+  background: #ffffff !important;
+  border-top: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .modal-action-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-text-muted) !important;
+}
+
+[data-theme="bloom"] .modal-action-btn.caught.active {
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+  background: #ecfdf5 !important;
+}
+
+[data-theme="bloom"] .modal-action-btn.fav.active {
+  border-color: #f43f5e !important;
+  color: #f43f5e !important;
+  background: #fff1f2 !important;
+}
+
+[data-theme="bloom"] .modal-action-btn.team.active {
+  background: var(--bloom-accent-deep) !important;
+  border-color: var(--bloom-accent-deep) !important;
+  color: #ffffff !important;
+}
+
+/* Bottom Floating Navigation Bar */
+[data-theme="bloom"] .bottom-nav-inner {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 0 10px 30px rgba(244, 114, 182, 0.22) !important;
+}
+
+[data-theme="bloom"] .bottom-nav-item:not(.highlight-btn) {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text-muted) !important;
+}
+
+[data-theme="bloom"] .bottom-nav-item:not(.highlight-btn):hover {
+  color: var(--bloom-accent-deep) !important;
+  border-color: var(--bloom-accent) !important;
+}
+
+[data-theme="bloom"] .bottom-nav-item.highlight-btn {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 18px var(--bloom-glow) !important;
+}
+
+/* PC Box Mode on Grid */
+[data-theme="bloom"] .pokemon-grid.pc-box-layout {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 0 10px 30px rgba(244, 114, 182, 0.12) !important;
+}
+
+[data-theme="bloom"] .pc-box-layout .pokemon-card {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-box-layout .pokemon-card:hover {
+  border-color: var(--bloom-accent) !important;
+  box-shadow: 0 0 12px var(--bloom-glow) !important;
+}
+
+/* Caught PC Storage Modal & Slide Drawer */
+[data-theme="bloom"] .pc-storage-wallpaper {
+  background: #fff7fa !important;
+  border: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-box-slot {
+  background: #ffffff !important;
+  border: 1px solid var(--bloom-border) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .pc-box-slot:hover,
+[data-theme="bloom"] .pc-box-slot.active {
+  border-color: var(--bloom-accent-deep) !important;
+  box-shadow: 0 0 12px var(--bloom-glow) !important;
+  background: var(--bloom-surface-soft) !important;
+}
+
+[data-theme="bloom"] .pc-slide-drawer {
+  background: #ffffff !important;
+  border-right: 1.5px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-artwork-wrap {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  border-radius: 16px !important;
+}
+
+[data-theme="bloom"] .pc-stat-item {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .btn-pc-view {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .btn-pc-uncheck {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] .pc-float-btn {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .pc-float-btn:hover {
+  background: var(--bloom-accent) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="bloom"] .pc-gen-menu,
+[data-theme="bloom"] .pc-filter-menu {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 0 10px 30px rgba(244, 114, 182, 0.2) !important;
+}
+
+[data-theme="bloom"] .pc-criteria-btn.active {
+  background: var(--bloom-accent-deep) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="bloom"] .pc-box-footer {
+  background: #fff8fa !important;
+  border-top: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-progress-fill {
+  background: linear-gradient(90deg, #f472b6 0%, #db2777 100%) !important;
+  box-shadow: 0 0 10px var(--bloom-glow) !important;
+}
+
+/* Settings Form Controls */
+[data-theme="bloom"] .settings-radio-pill,
+[data-theme="bloom"] .settings-select,
+[data-theme="bloom"] .settings-action-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="bloom"] .settings-radio-pill:hover,
+[data-theme="bloom"] .settings-action-btn:hover {
+  border-color: var(--bloom-accent) !important;
+  background: #ffffff !important;
+}
+
+/* Mini-Game Modal */
+[data-theme="bloom"] #game-modal .modal-card {
+  background: #ffffff !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] #game-modal .game-header h2 {
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] #game-modal .silhouette-container {
+  background: radial-gradient(circle, #fff0f5 0%, #ffe4ec 100%) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 16px !important;
+}
+
+[data-theme="bloom"] #game-modal .game-feedback {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] #game-modal .option-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+  border-radius: 10px !important;
+}
+
+[data-theme="bloom"] #game-modal .option-btn:hover:not(:disabled) {
+  border-color: var(--bloom-accent-deep) !important;
+  color: var(--bloom-accent-deep) !important;
+  background: #ffffff !important;
+}
+
+/* ==========================================================================
+   BLOOM THEME HOTFIXES (OUTLINES, SHADOWS, DRAWER, FILTER & PROGRESS BAR)
+   ========================================================================== */
+
+/* 1. Remove box outline on Game / Gen Settings */
+[data-theme="bloom"] #game-selector-section,
+[data-theme="bloom"] .game-selector-bottom-card,
+[data-theme="bloom"] #game-selector-toggle,
+[data-theme="bloom"] .game-selector-header {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="bloom"] .game-selector-header:focus,
+[data-theme="bloom"] .game-selector-header:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 2. Remove the dark left & bottom inset shadows on the Caught List stage */
+[data-theme="bloom"] .pc-box-stage,
+[data-theme="bloom"] .pc-storage-grid-container,
+[data-theme="bloom"] .pc-storage-wallpaper {
+  box-shadow: none !important;
+  border-color: var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-storage-grid-container::before,
+[data-theme="bloom"] .pc-storage-grid-container::after,
+[data-theme="bloom"] .pc-storage-wallpaper::before,
+[data-theme="bloom"] .pc-storage-wallpaper::after {
+  display: none !important;
+  box-shadow: none !important;
+}
+
+/* 3. Bloom-ify the Left Pokémon Drawer (Bulbasaur card) */
+[data-theme="bloom"] .pc-slide-drawer {
+  background: #ffffff !important;
+  border-right: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 10px 0 30px rgba(244, 114, 182, 0.15) !important;
+}
+
+[data-theme="bloom"] .pc-drawer-close {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .pc-summary-badge {
+  background: var(--bloom-surface-soft) !important;
+  color: var(--bloom-accent-deep) !important;
+  border: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-artwork-wrap {
+  background: radial-gradient(circle, #fff0f5 0%, #ffe4ec 100%) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 0 4px 16px rgba(244, 114, 182, 0.12) !important;
+}
+
+[data-theme="bloom"] .pc-mon-name {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .pc-mon-genus {
+  color: var(--bloom-text-muted) !important;
+}
+
+/* Fix dark navy stats box in the drawer */
+[data-theme="bloom"] .pc-summary-stats {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  border-radius: 14px !important;
+}
+
+[data-theme="bloom"] .pc-stat-item {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border-subtle) !important;
+}
+
+[data-theme="bloom"] .pc-stat-item span {
+  color: var(--bloom-text-muted) !important;
+}
+
+[data-theme="bloom"] .pc-stat-item strong {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .btn-pc-view {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(219, 39, 119, 0.25) !important;
+}
+
+[data-theme="bloom"] .btn-pc-uncheck {
+  background: var(--bloom-surface-soft) !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  color: var(--bloom-accent-deep) !important;
+}
+
+/* 4. Bloom-ify the Sort & Filter Menu Popup */
+[data-theme="bloom"] .pc-filter-menu,
+[data-theme="bloom"] .pc-gen-menu {
+  background: #ffffff !important;
+  border: 1.5px solid var(--bloom-border) !important;
+  box-shadow: 0 12px 30px rgba(244, 114, 182, 0.22) !important;
+}
+
+[data-theme="bloom"] .pc-menu-heading {
+  color: var(--bloom-accent-deep) !important;
+}
+
+[data-theme="bloom"] .pc-criteria-btn {
+  background: var(--bloom-surface-soft) !important;
+  border: 1px solid var(--bloom-border) !important;
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .pc-criteria-btn.active {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  border-color: #db2777 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="bloom"] .pc-menu-divider {
+  background: var(--bloom-border-subtle) !important;
+}
+
+[data-theme="bloom"] .pc-radio-bullet {
+  color: var(--bloom-text) !important;
+}
+
+[data-theme="bloom"] .pc-radio-bullet input[type="radio"] {
+  accent-color: var(--bloom-accent-deep) !important;
+}
+
+/* 5. Bloom-ify the Caught Footer Progress Bar */
+[data-theme="bloom"] .pc-progress-track {
+  background: #fce7f3 !important;
+  border: 1px solid var(--bloom-border) !important;
+}
+
+[data-theme="bloom"] .pc-progress-fill {
+  background: linear-gradient(90deg, #f472b6 0%, #db2777 100%) !important;
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.5) !important;
+}
+
+[data-theme="bloom"] .caught-progress-percent {
+  color: var(--bloom-accent-deep) !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="bloom"] .pc-status-dot {
+  background-color: var(--bloom-accent) !important;
+  box-shadow: 0 0 8px var(--bloom-accent);
+}
