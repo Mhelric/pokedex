@@ -1,0 +1,632 @@
+/* ==========================================================================
+   THEMES CONFIGURATION & THEME STYLES
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   THEME: CLASSIC DARK
+   -------------------------------------------------------------------------- */
+[data-theme="classic-dark"] {
+  --dark-bg: #0b0f19;
+  --dark-surface: #131b2e;
+  --dark-surface-elevated: #1e293b;
+  --dark-surface-soft: #17223b;
+  --dark-border: #2e3d5b;
+  --dark-border-subtle: #243048;
+  --dark-text: #f8fafc;
+  --dark-text-muted: #94a3b8;
+
+  /* Native Scrollbar Colors (Firefox) */
+  scrollbar-color: #334155 #0b0f19;
+  scrollbar-width: thin;
+}
+
+[data-theme="classic-dark"] body {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+/* --- Dark Theme Scrollbars (Chrome, Safari, Edge) --- */
+[data-theme="classic-dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="classic-dark"] ::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+}
+
+[data-theme="classic-dark"] ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+[data-theme="classic-dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+[data-theme="classic-dark"] .moving-bg {
+  opacity: 0.12;
+  filter: invert(1);
+}
+
+/* Header */
+[data-theme="classic-dark"] .app-header {
+  background: rgba(19, 27, 46, 0.9);
+  border-bottom: 1px solid var(--dark-border);
+}
+
+/* ==========================================================================
+   SEARCH BAR & CONTROLS (PILL ROUNDED, NO RECTANGULAR BOX OUTLINES)
+   ========================================================================== */
+[data-theme="classic-dark"] .controls {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-dark"] .search-box-wrapper {
+  background: var(--dark-surface) !important;
+  border: 1px solid var(--dark-border) !important;
+  border-radius: 999px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-dark"] .search-box-wrapper:focus-within {
+  border-color: #38bdf8 !important;
+  outline: none !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="classic-dark"] #search-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+  color: var(--dark-text) !important;
+}
+
+[data-theme="classic-dark"] #search-input::placeholder {
+  color: var(--dark-text-muted) !important;
+}
+
+[data-theme="classic-dark"] .filter-toggle-btn {
+  background: var(--dark-surface-elevated) !important;
+  color: var(--dark-text) !important;
+  border: 1px solid var(--dark-border) !important;
+  border-radius: 50% !important;
+  outline: none !important;
+}
+
+/* Filter Drawer & Dropdowns */
+[data-theme="classic-dark"] .filter-drawer {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+}
+
+[data-theme="classic-dark"] .filter-label {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .dropdown-trigger {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+}
+
+[data-theme="classic-dark"] .dropdown-menu {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+}
+
+[data-theme="classic-dark"] .dropdown-option {
+  color: var(--dark-text);
+}
+
+[data-theme="classic-dark"] .dropdown-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   MAIN GRID CARDS & ACTION BUTTONS
+   ========================================================================== */
+[data-theme="classic-dark"] .pokemon-card {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  color: var(--dark-text);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="classic-dark"] .pokemon-card:hover {
+  border-color: #ef5350;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="classic-dark"] .pokemon-card .card-id {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .pokemon-card .pokemon-name {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .pokemon-card .pokemon-genus {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .card-metrics-row {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .card-ability-pill {
+  background: var(--dark-surface-elevated);
+  color: var(--dark-text-muted);
+  border: 1px solid var(--dark-border-subtle);
+}
+
+[data-theme="classic-dark"] .pokemon-card .pokemon-description {
+  background: var(--dark-surface-soft) !important;
+  color: #cbd5e1 !important;
+  border-left: 3px solid #ef5350;
+}
+
+[data-theme="classic-dark"] .stat-mini {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .stat-mini strong {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .mini-bar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Stripped square box outlines from card Caught & Favorite buttons */
+[data-theme="classic-dark"] .icon-toggle-btn,
+[data-theme="classic-dark"] .card-top-actions .caught-btn,
+[data-theme="classic-dark"] .card-top-actions .fav-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+[data-theme="classic-dark"] .icon-toggle-btn:focus,
+[data-theme="classic-dark"] .icon-toggle-btn:focus-visible,
+[data-theme="classic-dark"] .icon-toggle-btn:hover {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-dark"] .icon-toggle-btn:not(.active) {
+  color: var(--dark-text-muted) !important;
+}
+
+[data-theme="classic-dark"] .caught-btn.active {
+  color: #22c55e !important;
+}
+
+[data-theme="classic-dark"] .fav-btn.active {
+  color: #ef4444 !important;
+}
+
+/* ==========================================================================
+   DETAIL MODAL & INTERIOR SECTIONS
+   ========================================================================== */
+[data-theme="classic-dark"] #pokemon-modal .modal-card,
+[data-theme="classic-dark"] #settings-modal .modal-card,
+[data-theme="classic-dark"] #team-modal .modal-card,
+[data-theme="classic-dark"] #favorites-modal .modal-card {
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  color: var(--dark-text);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="classic-dark"] .modal-title,
+[data-theme="classic-dark"] .modal-settings-header h2,
+[data-theme="classic-dark"] .team-header h2 {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .modal-card-id,
+[data-theme="classic-dark"] .modal-header-info .pokemon-genus {
+  color: var(--dark-text-muted);
+}
+
+/* Pokemon Cry Button */
+[data-theme="classic-dark"] .modal-cry-btn {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: #38bdf8 !important;
+  outline: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="classic-dark"] .modal-cry-btn:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* Modal Inner Sections */
+[data-theme="classic-dark"] .detail-section {
+  background: var(--dark-surface-soft) !important;
+  border: 1px solid var(--dark-border-subtle) !important;
+  color: var(--dark-text);
+}
+
+[data-theme="classic-dark"] .section-title {
+  color: #e2e8f0;
+}
+
+[data-theme="classic-dark"] #modal-flavor-text {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="classic-dark"] .pokedex-voice-bar {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+}
+
+[data-theme="classic-dark"] .pokedex-voice-bar .voice-label {
+  color: var(--dark-text-muted);
+}
+
+/* Defensive Matchup Badges */
+[data-theme="classic-dark"] .matchup-pill {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .matchup-pill .pill-name {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="classic-dark"] .matchup-pill.weak .pill-multiplier {
+  background: rgba(239, 68, 68, 0.25) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="classic-dark"] .matchup-pill.resist .pill-multiplier {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+[data-theme="classic-dark"] .matchup-group .sub-label {
+  color: var(--dark-text-muted) !important;
+}
+
+/* Forms & Gimmicks */
+[data-theme="classic-dark"] .variety-card-item {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .variety-card-item .variety-card-label {
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .variety-card-item.active {
+  border-color: #ef5350 !important;
+}
+
+/* Abilities & Stats */
+[data-theme="classic-dark"] .ability-card {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .ability-name {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .stat-calc-row {
+  border-bottom: 1px solid var(--dark-border-subtle);
+}
+
+[data-theme="classic-dark"] .stat-calc-row .stat-name,
+[data-theme="classic-dark"] .stat-calc-row .stat-bound {
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .stat-calc-row .stat-val {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .stat-meter-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="classic-dark"] .stat-legend-note {
+  color: var(--dark-text-muted);
+}
+
+/* Evolution Tree */
+[data-theme="classic-dark"] .evolution-tree-container {
+  background: transparent !important;
+}
+
+[data-theme="classic-dark"] .evo-node {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .evo-node .evo-name {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .evo-node.active {
+  border-color: #ef5350 !important;
+  box-shadow: 0 0 12px rgba(239, 83, 80, 0.35);
+}
+
+[data-theme="classic-dark"] .evo-trigger-pill,
+[data-theme="classic-dark"] .battle-trigger-pill {
+  background: var(--dark-surface-elevated);
+  color: var(--dark-text-muted);
+  border: 1px solid var(--dark-border);
+}
+
+/* Information Lists & Movepools */
+[data-theme="classic-dark"] .data-list li {
+  border-bottom: 1px solid var(--dark-border-subtle);
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .data-list li strong {
+  color: #ffffff;
+}
+
+[data-theme="classic-dark"] .tab-btn {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .tab-btn.active {
+  background: #ef5350;
+  color: #ffffff;
+  border-color: #ef5350;
+}
+
+[data-theme="classic-dark"] .moves-table th {
+  background: var(--dark-surface-elevated);
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .moves-table td {
+  color: var(--dark-text);
+  border-bottom: 1px solid var(--dark-border-subtle);
+}
+
+[data-theme="classic-dark"] .badge-subtle {
+  background: var(--dark-surface-elevated) !important;
+  color: #94a3b8 !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+/* Game / Gen Selector */
+[data-theme="classic-dark"] #game-selector-toggle,
+[data-theme="classic-dark"] .game-selector-header {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--dark-text) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-dark"] #game-selector-toggle:focus,
+[data-theme="classic-dark"] #game-selector-toggle:focus-visible,
+[data-theme="classic-dark"] .game-selector-header:focus,
+[data-theme="classic-dark"] .game-selector-header:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="classic-dark"] .game-selector-chevron {
+  background: var(--dark-surface-soft) !important;
+  color: var(--dark-text) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .game-pill-btn {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text-muted);
+}
+
+[data-theme="classic-dark"] .game-pill-btn.active {
+  background: #38bdf8;
+  color: #0b0f19;
+  border-color: #38bdf8;
+}
+
+/* Modal Bottom Action Bar */
+[data-theme="classic-dark"] .modal-bottom-action-bar {
+  background: var(--dark-surface);
+  border-top: 1px solid var(--dark-border);
+}
+
+[data-theme="classic-dark"] .modal-action-btn {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+  outline: none !important;
+}
+
+[data-theme="classic-dark"] .modal-close {
+  background: var(--dark-surface-elevated);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+  outline: none !important;
+}
+
+/* ==========================================================================
+   TEAM MODAL, FAVORITES & FLOATING BOTTOM NAV
+   ========================================================================== */
+[data-theme="classic-dark"] .team-card {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="classic-dark"] .team-card-name {
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .btn-secondary,
+[data-theme="classic-dark"] #clear-team-btn {
+  background: var(--dark-surface-elevated) !important;
+  color: #f8fafc !important;
+  border: 1px solid var(--dark-border) !important;
+  outline: none !important;
+}
+
+[data-theme="classic-dark"] .btn-secondary:hover,
+[data-theme="classic-dark"] #clear-team-btn:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .team-synergy-container {
+  background: var(--dark-surface-soft) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .synergy-title {
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .synergy-subtitle {
+  color: var(--dark-text-muted) !important;
+}
+
+[data-theme="classic-dark"] .synergy-card {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+[data-theme="classic-dark"] .synergy-card-header h4 {
+  color: #ffffff !important;
+}
+
+/* Favorites Modal Compact Cards */
+[data-theme="classic-dark"] .fav-compact-card {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="classic-dark"] .fav-compact-name {
+  color: #ffffff !important;
+}
+
+[data-theme="classic-dark"] .fav-compact-id {
+  color: var(--dark-text-muted) !important;
+}
+
+[data-theme="classic-dark"] .fav-unfavorite-btn {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #ef4444 !important;
+  outline: none !important;
+}
+
+[data-theme="classic-dark"] .fav-unfavorite-btn:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+/* Bottom Floating Navigation */
+[data-theme="classic-dark"] .bottom-nav-inner {
+  background: rgba(19, 27, 46, 0.85) !important;
+  border: 1px solid var(--dark-border) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+[data-theme="classic-dark"] .bottom-nav-item:not(.highlight-btn) {
+  background: var(--dark-surface-elevated) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--dark-text-muted) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  outline: none !important;
+}
+
+[data-theme="classic-dark"] .bottom-nav-item:not(.highlight-btn):hover {
+  background: #334155 !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Settings Modal Controls */
+[data-theme="classic-dark"] .settings-radio-pill {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+}
+
+[data-theme="classic-dark"] .settings-select {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+  outline: none !important;
+}
+
+[data-theme="classic-dark"] .settings-action-btn {
+  background: var(--dark-surface-elevated);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+  outline: none !important;
+}
+
+/* ==========================================================================
+   PIXEL SPRITE MODE / PC BOX GRID (DARK THEME OVERRIDES)
+   ========================================================================== */
+[data-theme="classic-dark"] .pokemon-grid.pc-box-layout {
+  background: var(--dark-surface-soft) !important;
+  border: 1px solid var(--dark-border) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Individual Slot Cards */
+[data-theme="classic-dark"] .pc-box-layout .pokemon-card {
+  background: var(--dark-surface) !important;
+  border: 1px solid var(--dark-border-subtle) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+[data-theme="classic-dark"] .pc-box-layout .pokemon-card:hover {
+  background: var(--dark-surface-elevated) !important;
+  border-color: #38bdf8 !important;
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Sprite & Typography */
+[data-theme="classic-dark"] .pc-box-layout .card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="classic-dark"] .pc-box-layout .card-image {
+  max-width: 60px;
+  max-height: 60px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+[data-theme="classic-dark"] .pc-box-layout .pokemon-name {
+  color: #e2e8f0 !important;
+  font-size: 0.75rem;
+  letter-spacing: 0.2px;
+}

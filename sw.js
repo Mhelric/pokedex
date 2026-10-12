@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   './index.html',
   './styles/main.css',
   './styles/retro-ui.css',
+  './styles/themes.css',
   './styles/animations.css',
   './js/app.js'
 ];

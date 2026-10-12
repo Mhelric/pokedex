@@ -127,6 +127,9 @@ const navTeamBtn = document.getElementById("nav-team-btn");
 const navScanBtn = document.getElementById("nav-scan-btn");
 const navGameBtn = document.getElementById("nav-game-btn");
 
+// --- UI Theme ---
+const themeSelector = document.getElementById("theme-selector");
+
 // ==========================================
 // GLOBAL STATE
 // ==========================================
@@ -439,7 +442,7 @@ async function loadScrollBatch(isFirstBatch = false) {
     const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
-      45,
+      50,
       signal
     );
 
@@ -862,6 +865,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   fetchFullPokedexDirectory().then((dir) => {
     pokedexDirectory = dir;
   });
+
+  // Initialize Theme
+  const savedTheme = localStorage.getItem("app_theme") || "default";
+  applyTheme(savedTheme);
+
+  if (themeSelector) {
+    themeSelector.addEventListener("change", (e) => {
+      applyTheme(e.target.value);
+    });
+  }
 
   await applyCombinedFilters();
   triggerPokeballOpening();
@@ -1554,3 +1567,17 @@ window.addEventListener("appinstalled", () => {
   }
   deferredInstallPrompt = null;
 });
+
+function applyTheme(themeName) {
+  if (!themeName || themeName === "default") {
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("app_theme", "default");
+  } else {
+    document.documentElement.setAttribute("data-theme", themeName);
+    localStorage.setItem("app_theme", themeName);
+  }
+
+  if (themeSelector) {
+    themeSelector.value = themeName || "default";
+  }
+}
