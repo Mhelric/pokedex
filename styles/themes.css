@@ -1113,6 +1113,44 @@ body,
 }
 
 /* ==========================================================================
+   RETRO GB TEAM MODAL TEXT CONTRAST HOTFIX
+   ========================================================================== */
+[data-theme="retro-gb"] #team-modal .team-header h2,
+[data-theme="retro-gb"] #team-modal .team-card-name,
+[data-theme="retro-gb"] #team-modal .synergy-title,
+[data-theme="retro-gb"] #team-modal .synergy-card-header h4 {
+  color: var(--gb-darkest) !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="retro-gb"] #team-modal .synergy-subtitle,
+[data-theme="retro-gb"] #team-modal .synergy-empty-note,
+[data-theme="retro-gb"] #team-modal .team-empty-state p {
+  color: var(--gb-dark) !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="retro-gb"] #team-modal .btn-secondary,
+[data-theme="retro-gb"] #team-modal #clear-team-btn {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border: 2px solid var(--gb-darkest) !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="retro-gb"] #team-modal .btn-secondary:hover,
+[data-theme="retro-gb"] #team-modal #clear-team-btn:hover {
+  background: var(--gb-dark) !important;
+}
+
+[data-theme="retro-gb"] #team-modal .remove-btn {
+  background: var(--gb-darkest) !important;
+  color: var(--gb-lightest) !important;
+  border: 1px solid var(--gb-dark) !important;
+}
+
+/* ==========================================================================
    CAUGHT STORAGE / PC BOX MODAL (RETRO THEME OVERRIDES)
    ========================================================================== */
 [data-theme="retro-gb"] .pc-box-header {

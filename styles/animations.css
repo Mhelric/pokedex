@@ -387,3 +387,145 @@
   from { opacity: 0.6; }
   to { opacity: 1; }
 }
+
+/* ==========================================================================
+   MINI-GAME POKEBALL SHUTTER & SPINNER LOADERS
+   ========================================================================== */
+#game-modal .mini-pokeball-shutter {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  border-radius: 12px !important;
+}
+
+#game-modal .shutter-half {
+  flex: 1;
+  width: 100%;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+#game-modal .shutter-top {
+  background: #ef5350;
+  border-bottom: 2px solid #111827;
+}
+
+#game-modal .shutter-bottom {
+  background: #f8fafc;
+  border-top: 2px solid #111827;
+}
+
+/* Retract shutters inside card boundary */
+#game-modal .mini-pokeball-shutter.open .shutter-top {
+  transform: translateY(-100%);
+}
+
+#game-modal .mini-pokeball-shutter.open .shutter-bottom {
+  transform: translateY(100%);
+}
+
+#game-modal .mini-pokeball-shutter.open .shutter-band {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+#game-modal .mini-pokeball-shutter.open {
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0s 0.45s, opacity 0.2s 0.25s;
+}
+
+/* Center Ring Band */
+#game-modal .shutter-band {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+#game-modal .shutter-core {
+  width: 28px;
+  height: 28px;
+  background: #111827;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-modal .shutter-button {
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border: 2px solid #111827;
+  border-radius: 50%;
+  animation: pokeballPulse 1.2s ease-in-out infinite alternate;
+}
+
+/* Options Loader */
+.game-options-loader {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 0;
+}
+
+.game-options-loader .pokeball-spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.game-options-loader .pokeball-spinner::before {
+  height: 3px;
+}
+
+.game-options-loader .pokeball-spinner::after {
+  width: 10px;
+  height: 10px;
+  border-width: 3px;
+}
+
+.game-options-loader span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* Theme overrides for Retro GB Mode */
+[data-theme="retro-gb"] #game-modal .shutter-top {
+  background: var(--gb-dark) !important;
+  border-bottom: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] #game-modal .shutter-bottom {
+  background: var(--gb-lightest) !important;
+  border-top: 2px solid var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] #game-modal .shutter-core {
+  background: var(--gb-darkest) !important;
+}
+
+[data-theme="retro-gb"] #game-modal .shutter-button {
+  background: var(--gb-light) !important;
+  border-color: var(--gb-darkest) !important;
+}

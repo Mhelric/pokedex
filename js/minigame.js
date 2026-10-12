@@ -16,7 +16,8 @@ function getRandomId(min = 1, max = 1025) {
 }
 
 /**
- * Sets up a new round: picks 4 random Pokémon, sets the target, and creates choice buttons.
+ * Sets up a new round: shuts the stage, displays a spinning Pokeball loader,
+ * preloads the artwork, opens the shutter, and renders choice buttons.
  */
 export async function startNewRound(
   imgElement,
@@ -25,33 +26,64 @@ export async function startNewRound(
   streakElem,
   highScoreElem
 ) {
-  // Reset UI elements to unrevealed state
+  const shutter = document.getElementById("game-shutter");
+
+  // 1. Reset stage image and snap shutter closed
   imgElement.className = "silhouette";
+  imgElement.src = "";
+
+  if (shutter) {
+    shutter.classList.remove("open");
+    shutter.style.visibility = "visible";
+    shutter.style.opacity = "1";
+  }
+
   feedbackElement.textContent = "Who's That Pokémon?";
-  feedbackElement.style.color = "#ffffff";
-  optionsContainer.innerHTML = '<p class="game-loading">Loading mystery Pokémon...</p>';
+  feedbackElement.style.color = "";
+
+  // 2. Display spinning Pokeball loader in options grid
+  optionsContainer.innerHTML = `
+    <div class="game-options-loader">
+      <div class="pokeball-spinner"></div>
+      <span>Calling Pokémon...</span>
+    </div>
+  `;
 
   if (streakElem) streakElem.textContent = currentStreak;
   if (highScoreElem) highScoreElem.textContent = highScore;
 
   try {
-    // Select 4 unique IDs
+    // 3. Select 4 unique IDs
     const ids = new Set();
     while (ids.size < 4) {
       ids.add(getRandomId(1, 1025));
     }
 
-    // Fetch all 4 options simultaneously
     const pokemonList = await Promise.all(Array.from(ids).map((id) => fetchPokemon(id)));
-
-    // Designate first fetch as target, then shuffle for button layout
     currentTarget = pokemonList[0];
     const choices = [...pokemonList].sort(() => Math.random() - 0.5);
 
-    // Apply mystery artwork
-    imgElement.src = currentTarget.officialArtwork || currentTarget.image;
+    const targetSrc = currentTarget.officialArtwork || currentTarget.image;
 
-    // Render choice buttons
+    // 4. Preload artwork buffer before lifting shutter
+    await new Promise((resolve) => {
+      const preloader = new Image();
+      preloader.src = targetSrc;
+      preloader.onload = resolve;
+      preloader.onerror = resolve;
+    });
+
+    // 5. Mount loaded image to stage
+    imgElement.src = targetSrc;
+
+    // 6. Open the Pokeball shutter
+    if (shutter) {
+      setTimeout(() => {
+        shutter.classList.add("open");
+      }, 120);
+    }
+
+    // 7. Render interactive choice buttons
     optionsContainer.innerHTML = choices
       .map(
         (p) =>
@@ -60,6 +92,7 @@ export async function startNewRound(
       .join("");
   } catch (error) {
     feedbackElement.textContent = "Failed to load mini-game round. Try again!";
+    if (shutter) shutter.classList.add("open");
   }
 }
 
@@ -98,7 +131,7 @@ export function handleGuess(
     }
   });
 
-  // Score management
+  // Score & streak management
   if (isCorrect) {
     currentStreak++;
     if (currentStreak > highScore) {
