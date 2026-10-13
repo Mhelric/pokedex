@@ -4,6 +4,7 @@
 #game-modal .modal-card {
   max-width: 400px;
   width: 90%;
+  height: 450px; /* Lock height to prevent vertical shifting */
   max-height: 90dvh;
   overflow: hidden;
   background: #0f172a;

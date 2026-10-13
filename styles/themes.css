@@ -550,6 +550,48 @@ body,
   color: var(--dark-text);
 }
 
+[data-theme="classic-dark"] .filter-drawer,
+[data-theme="classic-dark"] .filter-drawer .drawer-inner {
+  background: #111827 !important;
+  color: #f8fafc !important;
+  border-radius: 18px !important;
+  border: 1px solid #1f2937 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="classic-dark"] .filter-drawer {
+  border-radius: 18px !important;
+  overflow: visible; /* Allows dropdown menus to extend cleanly */
+}
+
+/* Ensure the filter labels match the dark theme */
+[data-theme="classic-dark"] .filter-label {
+  color: #94a3b8 !important;
+}
+
+/* Dropdown triggers & option menus inside dark mode filter */
+[data-theme="classic-dark"] .custom-dropdown .dropdown-trigger {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="classic-dark"] .custom-dropdown .dropdown-menu {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="classic-dark"] .custom-dropdown .dropdown-option {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="classic-dark"] .custom-dropdown .dropdown-option:hover,
+[data-theme="classic-dark"] .custom-dropdown .dropdown-option.active {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
 
 /* ==========================================================================
    2. THEME: GAME BOY RETRO (DMG MONOCHROME PALETTE)
@@ -1158,7 +1200,7 @@ body,
 }
 
 [data-theme="retro-gb"] .pc-status-dot {
-  background-color: var(--gb-darkest) !important;
+  background: var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] .btn-pc-clear {
@@ -1196,15 +1238,15 @@ body,
 
 /* Floating Filter & Gen Buttons */
 [data-theme="retro-gb"] .pc-float-btn {
-  background: var(--gb-light) !important;
-  border: 2px solid var(--gb-darkest) !important;
-  color: var(--gb-darkest) !important;
-  box-shadow: 2px 2px 0 var(--gb-darkest) !important;
+  background: var(--gb-light, #8bac0f) !important;
+  color: var(--gb-darkest, #0f380f) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+  box-shadow: 2px 2px 0px var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] .pc-float-btn:hover {
-  background: var(--gb-darkest) !important;
-  color: var(--gb-lightest) !important;
+  background: var(--gb-darkest, #0f380f) !important;
+  color: var(--gb-lightest, #9bbc0f) !important;
 }
 
 [data-theme="retro-gb"] .pc-gen-menu,
@@ -1252,14 +1294,26 @@ body,
 }
 
 [data-theme="retro-gb"] .pc-drawer-close {
-  background: var(--gb-dark) !important;
-  color: var(--gb-lightest) !important;
-  border: 1px solid var(--gb-darkest) !important;
+  background: var(--gb-dark, #306230) !important;
+  color: var(--gb-lightest, #9bbc0f) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+}
+
+[data-theme="retro-gb"] .pc-drawer-close:hover {
+  background: var(--gb-darkest, #0f380f) !important;
+  color: var(--gb-light, #8bac0f) !important;
+}
+[data-theme="retro-gb"] .pc-summary-stats {
+  background: var(--gb-dark, #306230) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+  color: var(--gb-lightest, #9bbc0f) !important;
+  box-shadow: 2px 2px 0px var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] .pc-summary-badge {
-  background: var(--gb-dark) !important;
-  color: var(--gb-lightest) !important;
+  background: var(--gb-dark, #306230) !important;
+  color: var(--gb-lightest, #9bbc0f) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
 }
 
 [data-theme="retro-gb"] .pc-artwork-wrap {
@@ -1526,6 +1580,52 @@ body,
 [data-theme="retro-gb"] #app {
   border: none !important;
   box-shadow: none !important;
+}
+
+/* Allow dropdowns to overflow the drawer container completely */
+.filter-drawer,
+.filter-drawer .drawer-inner,
+[data-theme="retro-gb"] .filter-drawer,
+[data-theme="retro-gb"] .filter-drawer .drawer-inner {
+  overflow: visible !important;
+}
+
+/* Ensure dropdown menus layer above other inputs and cards */
+.custom-dropdown {
+  position: relative !important;
+}
+
+.custom-dropdown.open {
+  z-index: 100 !important;
+}
+
+.custom-dropdown .dropdown-menu {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-height: 220px !important;
+  overflow-y: auto !important;
+  z-index: 150 !important;
+}
+
+/* Retro Game Boy specific dropdown styling */
+[data-theme="retro-gb"] .custom-dropdown .dropdown-menu {
+  background: var(--gb-dark, #306230) !important;
+  border: 2px solid var(--gb-darkest, #0f380f) !important;
+  color: var(--gb-lightest, #9bbc0f) !important;
+  box-shadow: 4px 4px 0px var(--gb-darkest, #0f380f) !important;
+}
+
+[data-theme="retro-gb"] .custom-dropdown .dropdown-option {
+  color: var(--gb-lightest, #9bbc0f) !important;
+}
+
+[data-theme="retro-gb"] .custom-dropdown .dropdown-option:hover,
+[data-theme="retro-gb"] .custom-dropdown .dropdown-option.active {
+  background: var(--gb-darkest, #0f380f) !important;
+  color: var(--gb-light, #8bac0f) !important;
 }
 
 /* ==========================================================================
