@@ -6,8 +6,10 @@
 const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 const SPECIES_URL = "https://pokeapi.co/api/v2/pokemon-species";
 
+export const MAX_POKEMON_ID = 1025;
+
 export const GEN_RANGES = {
-  all: { start: 1, end: 100000 },
+  all: { start: 1, end: MAX_POKEMON_ID },
   1: { start: 1, end: 151 },
   2: { start: 152, end: 251 },
   3: { start: 252, end: 386 },
@@ -16,7 +18,7 @@ export const GEN_RANGES = {
   6: { start: 650, end: 721 },
   7: { start: 722, end: 809 },
   8: { start: 810, end: 905 },
-  9: { start: 906, end: 1025 },
+  9: { start: 906, end: MAX_POKEMON_ID },
 };
 
 const TYPE_CHART = {
@@ -348,7 +350,7 @@ export const SIBLING_EVO_INJECTIONS = {
     { speciesName: "mr-mime-galar", displayName: "Galarian Mr. Mime", id: 10168, requirement: "Level up with Mimic in Galar" }
   ],
   quilava: [
-    { speciesName: "typhlosion-hisui", displayName: "Hisuian Typhlosion", id: 10237, requirement: "Level 36 in Hisui" }
+    { speciesName: "typhlosion-hisui", displayName: "Hisuian Typhlosion", id: 10233, requirement: "Level 36 in Hisui" }
   ],
   dewott: [
     { speciesName: "samurott-hisui", displayName: "Hisuian Samurott", id: 10236, requirement: "Level 36 in Hisui" }
@@ -357,7 +359,7 @@ export const SIBLING_EVO_INJECTIONS = {
     { speciesName: "decidueye-hisui", displayName: "Hisuian Decidueye", id: 10244, requirement: "Level 36 in Hisui" }
   ],
   petilil: [
-    { speciesName: "lilligant-hisui", displayName: "Hisuian Lilligant", id: 10238, requirement: "Sun Stone in Hisui" }
+    { speciesName: "lilligant-hisui", displayName: "Hisuian Lilligant", id: 10237, requirement: "Sun Stone in Hisui" }
   ],
   rufflet: [
     { speciesName: "braviary-hisui", displayName: "Hisuian Braviary", id: 10240, requirement: "Level 54 in Hisui" }
@@ -431,8 +433,8 @@ export const ISOLATED_REGIONAL_TREES = {
   "overqwil": [{ name: "qwilfish-hisui", id: 10234 }, { name: "overqwil", id: 904, req: "Barb Barrage Strong 20×" }],
   "sneasel-hisui": [{ name: "sneasel-hisui", id: 10235 }, { name: "sneasler", id: 903, req: "Razor Claw (Day)" }],
   "sneasler": [{ name: "sneasel-hisui", id: 10235 }, { name: "sneasler", id: 903, req: "Razor Claw (Day)" }],
-  "zorua-hisui": [{ name: "zorua-hisui", id: 10239 }, { name: "zoroark-hisui", id: 10240, req: "Level 30" }],
-  "zoroark-hisui": [{ name: "zorua-hisui", id: 10239 }, { name: "zoroark-hisui", id: 10240, req: "Level 30" }],
+  "zorua-hisui": [{ name: "zorua-hisui", id: 10238 }, { name: "zoroark-hisui", id: 10239, req: "Level 30" }],
+  "zoroark-hisui": [{ name: "zorua-hisui", id: 10238 }, { name: "zoroark-hisui", id: 10239, req: "Level 30" }],
   "sliggoo-hisui": [{ name: "goomy", id: 704 }, { name: "sliggoo-hisui", id: 10241, req: "Level 40 in Hisui" }, { name: "goodra-hisui", id: 10242, req: "Level 50 in Rain" }],
   "goodra-hisui": [{ name: "goomy", id: 704 }, { name: "sliggoo-hisui", id: 10241, req: "Level 40 in Hisui" }, { name: "goodra-hisui", id: 10242, req: "Level 50 in Rain" }],
   "basculin-white-striped": [
@@ -517,6 +519,13 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
   let description = "No Pokédex description available.";
   let genus = "";
   const flavorTextEntries = [];
+
+  let generation = null;
+  if (speciesData?.generation?.url) {
+    const genParts = speciesData.generation.url.split("/").filter(Boolean);
+    const parsedGen = parseInt(genParts[genParts.length - 1], 10);
+    if (!isNaN(parsedGen)) generation = parsedGen;
+  }
 
   if (speciesData) {
     if (speciesData.flavor_text_entries) {
@@ -626,6 +635,7 @@ export function normalizePokemonData(rawData, speciesData = null, evolutionData 
     name: formatPokemonName(rawData.name, speciesName),
     rawName: rawData.name,
     speciesName: speciesName || rawData.name,
+    generation,
     genus: genus || "Pokémon",
     height: rawData.height ? (rawData.height / 10).toFixed(1) + " m" : "N/A",
     weight: rawData.weight ? (rawData.weight / 10).toFixed(1) + " kg" : "N/A",
@@ -722,18 +732,49 @@ export async function fetchPokemonForms(nameOrId) {
   }
 }
 
-export async function getPokemonListByType(typeName) {
+let secondaryTypeIdsCache = null;
+
+export async function getPokemonListByType(typeName, slot = null, excludeForms = true) {
   const response = await fetch(`https://pokeapi.co/api/v2/type/${typeName.toLowerCase()}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${typeName} type Pokémon.`);
   }
 
   const data = await response.json();
-  return data.pokemon.map((entry) => {
+  let entries = data.pokemon;
+
+  if (slot !== null) {
+    entries = entries.filter((entry) => entry.slot === slot);
+  }
+
+  const results = entries.map((entry) => {
     const urlParts = entry.pokemon.url.split("/").filter(Boolean);
     const id = parseInt(urlParts[urlParts.length - 1], 10);
-    return { name: entry.pokemon.name, id };
+    return { name: entry.pokemon.name, id, slot: entry.slot };
   });
+
+  if (excludeForms) {
+    return results.filter((p) => p.id < 10000);
+  }
+  return results;
+}
+
+export async function getAllSecondaryTypeIds() {
+  if (secondaryTypeIdsCache) return secondaryTypeIdsCache;
+
+  const ALL_TYPES = Object.keys(TYPE_CHART);
+  const requests = ALL_TYPES.map(async (type) => {
+    try {
+      const list = await getPokemonListByType(type, 2, true);
+      return list.map((p) => p.id);
+    } catch {
+      return [];
+    }
+  });
+
+  const idArrays = await Promise.all(requests);
+  secondaryTypeIdsCache = new Set(idArrays.flat());
+  return secondaryTypeIdsCache;
 }
 
 export async function fetchPokemonBatch(items, startIndex, batchSize = 30, signal = null) {
@@ -759,27 +800,31 @@ export async function fetchPokemonBatch(items, startIndex, batchSize = 30, signa
 }
 
 export function getFormOrSpeciesGen(pokemon) {
-  const name = (pokemon.rawName || pokemon.name || "").toLowerCase();
+  // 1. Prefer explicit species generation if available on normalized data
+  if (typeof pokemon === "object" && pokemon !== null && pokemon.generation) {
+    return Number(pokemon.generation);
+  }
 
-  // 1. Regional forms introduced in specific generations
+  const name = (typeof pokemon === "object" ? pokemon.rawName || pokemon.name : String(pokemon)).toLowerCase();
+
+  // 2. Name-based form heuristics
   if (name.includes("-alola")) return 7;
-  if (name.includes("-galar")) return 8;
-  if (name.includes("-hisui")) return 8;
+  if (name.includes("-galar") || name.includes("-hisui")) return 8;
   if (name.includes("-paldea")) return 9;
-
-  // 2. Megas & Primal reversions introduced in Gen 6
   if (name.includes("-mega") || name.includes("-primal")) return 6;
-
-  // 3. Gigantamax introduced in Gen 8
   if (name.includes("-gmax")) return 8;
 
-  // 4. Default to base National Pokédex ID
+  // 3. Fallback by National Dex ID range (numeric gens 1..9 only)
   const id = typeof pokemon === "object" ? Number(pokemon.id) : Number(pokemon);
-  for (const [gen, range] of Object.entries(GEN_RANGES)) {
-    if (id >= range.start && id <= range.end) {
-      return Number(gen);
+  if (!isNaN(id)) {
+    for (let gen = 1; gen <= 9; gen++) {
+      const range = GEN_RANGES[gen];
+      if (range && id >= range.start && id <= range.end) {
+        return gen;
+      }
     }
   }
+
   return 1;
 }
 
@@ -954,27 +999,53 @@ export async function fetchFullPokedexDirectory() {
     const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000");
     const data = await res.json();
 
-    const baseList = data.results.map((p) => {
+    const specialFormsMap = new Map(
+      SPECIAL_FORM_REGISTRY.map((item) => [item.name.toLowerCase(), item])
+    );
+
+    const directory = [];
+    const seenNames = new Set();
+
+    // 1. Ingest official PokéAPI entries (already includes base Pokémon and standard special forms)
+    for (const p of data.results) {
+      const lowerName = p.name.toLowerCase();
+      if (seenNames.has(lowerName)) continue;
+      seenNames.add(lowerName);
+
       const urlParts = p.url.split("/").filter(Boolean);
       const pokeId = parseInt(urlParts[urlParts.length - 1], 10);
-      return {
+      const specialMeta = specialFormsMap.get(lowerName);
+
+      const baseSpecies = specialMeta
+        ? specialMeta.base.toLowerCase()
+        : p.name.split("-")[0].toLowerCase();
+
+      directory.push({
         id: pokeId,
         name: p.name,
-        baseSpecies: p.name.split("-")[0].toLowerCase(),
-        displayName: formatPokemonName(p.name),
-        forms: [],
-      };
-    });
+        baseSpecies,
+        displayName: formatPokemonName(p.name, baseSpecies),
+        forms: specialMeta ? specialMeta.tags : [],
+      });
+    }
 
-    const formEntries = SPECIAL_FORM_REGISTRY.map((item, idx) => ({
-      id: 10000 + idx,
-      name: item.name,
-      baseSpecies: item.base.toLowerCase(),
-      displayName: formatPokemonName(item.name, item.base),
-      forms: item.tags,
-    }));
+    // 2. Only append from SPECIAL_FORM_REGISTRY if PokéAPI does NOT already have it
+    for (let idx = 0; idx < SPECIAL_FORM_REGISTRY.length; idx++) {
+      const item = SPECIAL_FORM_REGISTRY[idx];
+      const lowerName = item.name.toLowerCase();
+      if (!seenNames.has(lowerName)) {
+        seenNames.add(lowerName);
+        directory.push({
+          id: 20000 + idx,
+          name: item.name,
+          baseSpecies: item.base.toLowerCase(),
+          displayName: formatPokemonName(item.name, item.base),
+          forms: item.tags,
+        });
+      }
+    }
 
-    return [...baseList, ...formEntries];
+    return directory;
   } catch (err) {
     console.error("Failed to load directory:", err);
     return [];

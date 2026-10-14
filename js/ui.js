@@ -7,15 +7,60 @@ import { getTypeMatchups, formatPokemonName } from "./api.js";
 import { getTeam } from "./team.js";
 
 export const GAME_VERSIONS = [
-  { value: "scarlet-violet", label: "Scarlet / Violet (Gen 9)", keyMatch: ["scarlet", "violet"] },
-  { value: "sword-shield", label: "Sword / Shield (Gen 8)", keyMatch: ["sword", "shield"] },
-  { value: "sun-moon", label: "Sun / Moon (Gen 7)", keyMatch: ["sun", "moon", "ultra-sun", "ultra-moon"] },
-  { value: "x-y", label: "X / Y (Gen 6)", keyMatch: ["x", "y", "omega-ruby", "alpha-sapphire"] },
-  { value: "black-white", label: "Black / White (Gen 5)", keyMatch: ["black", "white", "black-2", "white-2"] },
-  { value: "diamond-pearl", label: "Diamond / Pearl (Gen 4)", keyMatch: ["diamond", "pearl", "platinum", "heartgold", "soulsilver"] },
-  { value: "ruby-sapphire", label: "Ruby / Sapphire (Gen 3)", keyMatch: ["ruby", "sapphire", "emerald", "firered", "leafgreen"] },
-  { value: "gold-silver", label: "Gold / Silver / Crystal (Gen 2)", keyMatch: ["gold", "silver", "crystal"] },
-  { value: "red-blue", label: "Red / Blue / Yellow (Gen 1)", keyMatch: ["red", "blue", "yellow"] },
+  {
+    value: "scarlet-violet",
+    label: "Scarlet / Violet (Gen 9)",
+    moveGroups: ["scarlet-violet"],
+    flavorVersions: ["scarlet", "violet"],
+  },
+  {
+    value: "sword-shield",
+    label: "Sword / Shield (Gen 8)",
+    moveGroups: ["sword-shield", "brilliant-diamond-and-shining-pearl", "legends-arceus"],
+    flavorVersions: ["sword", "shield", "legends-arceus"],
+  },
+  {
+    value: "sun-moon",
+    label: "Sun / Moon (Gen 7)",
+    moveGroups: ["sun-moon", "ultra-sun-ultra-moon", "lets-go-pikachu-lets-go-eevee"],
+    flavorVersions: ["sun", "moon", "ultra-sun", "ultra-moon", "lets-go-pikachu", "lets-go-eevee"],
+  },
+  {
+    value: "x-y",
+    label: "X / Y (Gen 6)",
+    moveGroups: ["x-y", "omega-ruby-alpha-sapphire"],
+    flavorVersions: ["x", "y", "omega-ruby", "alpha-sapphire"],
+  },
+  {
+    value: "black-white",
+    label: "Black / White (Gen 5)",
+    moveGroups: ["black-white", "black-2-white-2"],
+    flavorVersions: ["black", "white", "black-2", "white-2"],
+  },
+  {
+    value: "diamond-pearl",
+    label: "Diamond / Pearl (Gen 4)",
+    moveGroups: ["diamond-pearl", "platinum", "heartgold-soulsilver"],
+    flavorVersions: ["diamond", "pearl", "platinum", "heartgold", "soulsilver"],
+  },
+  {
+    value: "ruby-sapphire",
+    label: "Ruby / Sapphire (Gen 3)",
+    moveGroups: ["ruby-sapphire", "emerald", "firered-leafgreen", "colosseum", "xd"],
+    flavorVersions: ["ruby", "sapphire", "emerald", "firered", "leafgreen"],
+  },
+  {
+    value: "gold-silver",
+    label: "Gold / Silver / Crystal (Gen 2)",
+    moveGroups: ["gold-silver", "crystal"],
+    flavorVersions: ["gold", "silver", "crystal"],
+  },
+  {
+    value: "red-blue",
+    label: "Red / Blue / Yellow (Gen 1)",
+    moveGroups: ["red-blue", "yellow"],
+    flavorVersions: ["red", "blue", "yellow"],
+  },
 ];
 
 function getTeamSynergy(teamList) {
@@ -139,7 +184,14 @@ export function renderPokemonGrid(pokemonList, containerElement, spriteMode = "a
   if (append) {
     const scrollLoader = document.getElementById("scroll-loader");
     if (scrollLoader) scrollLoader.remove();
-    containerElement.insertAdjacentHTML("beforeend", cardsHtml);
+
+    // Insert before sentinel so the sentinel stays at the very end of the grid
+    const sentinel = containerElement.querySelector("#grid-sentinel");
+    if (sentinel) {
+      sentinel.insertAdjacentHTML("beforebegin", cardsHtml);
+    } else {
+      containerElement.insertAdjacentHTML("beforeend", cardsHtml);
+    }
   } else {
     containerElement.innerHTML = cardsHtml;
   }
@@ -374,13 +426,11 @@ export function getFilteredMoves(pokemon, selectedVersion, methodCategory) {
   if (!pokemon.moves || pokemon.moves.length === 0) return [];
 
   const matchedGameObj = GAME_VERSIONS.find((g) => g.value === selectedVersion);
-  const matchedKeys = matchedGameObj ? matchedGameObj.keyMatch : [selectedVersion];
+  const targetGroups = matchedGameObj ? matchedGameObj.moveGroups : [selectedVersion];
 
   return pokemon.moves
     .map((m) => {
-      let detail = m.versions.find((v) =>
-        matchedKeys.some((k) => v.versionGroup.includes(k))
-      );
+      let detail = m.versions.find((v) => targetGroups.includes(v.versionGroup));
 
       if (!detail && m.versions.length > 0) {
         detail = m.versions[m.versions.length - 1];
@@ -397,16 +447,15 @@ export function getFilteredMoves(pokemon, selectedVersion, methodCategory) {
 
       return {
         name: m.name,
-        level: detail.levelLearned || "-",
-        method: detail.learnMethod,
+        level: detail.levelLearned ?? null,
+        method: detail.learnMethod || category,
       };
     })
     .filter(Boolean)
     .sort((a, b) => {
-      if (typeof a.level === "number" && typeof b.level === "number") {
-        return a.level - b.level;
-      }
-      return 0;
+      const lvlA = typeof a.level === "number" ? a.level : 999;
+      const lvlB = typeof b.level === "number" ? b.level : 999;
+      return lvlA - lvlB;
     });
 }
 
@@ -418,12 +467,43 @@ export function getPokemonFlavorText(pokemon, selectedVersion) {
   const matchedGame = GAME_VERSIONS.find((g) => g.value === selectedVersion);
   if (matchedGame) {
     const found = pokemon.flavorTextEntries.find((entry) =>
-      matchedGame.keyMatch.some((k) => entry.version === k || entry.version.includes(k))
+      matchedGame.flavorVersions.includes(entry.version)
     );
     if (found) return found.flavorText;
   }
 
   return pokemon.flavorTextEntries[pokemon.flavorTextEntries.length - 1].flavorText;
+}
+
+export function renderMoveTableRows(moves, category) {
+  if (!moves || moves.length === 0) {
+    return `<tr><td colspan="3" class="empty-note">No moves found for this category in the selected generation.</td></tr>`;
+  }
+
+  const formatMethodLabel = (method) => {
+    if (method === "level-up") return "Level Up";
+    if (method === "machine") return "TM / HM";
+    if (method === "egg") return "Egg Move";
+    if (method === "tutor") return "Move Tutor";
+    return formatPokemonName(method);
+  };
+
+  return moves
+    .map((m) => {
+      let levelText = "-";
+      if (category === "level-up") {
+        levelText = m.level === 0 ? "Evo" : (m.level ?? "-");
+      }
+
+      return `
+        <tr class="move-row">
+          <td class="move-level">${levelText}</td>
+          <td class="move-name">${m.name}</td>
+          <td class="move-type"><span class="badge-subtle">${formatMethodLabel(m.method)}</span></td>
+        </tr>
+      `;
+    })
+    .join("");
 }
 
 export function renderPokemonModal(pokemon, containerElement, selectedGame = "scarlet-violet") {
@@ -512,15 +592,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
   const evolutionChainHtml = buildEvolutionTreeHtml(pokemon.evolutionTree, pokemon.rawName, pokemon.varieties);   
 
   const levelUpMoves = getFilteredMoves(pokemon, selectedGame, "level-up");
-  const moveRowsHtml = levelUpMoves.length > 0
-    ? levelUpMoves.map((m) => `
-        <tr class="move-row">
-          <td class="move-level">${m.level === 0 ? "Evo" : m.level}</td>
-          <td class="move-name">${m.name}</td>
-          <td class="move-type"><span class="badge-subtle">Learned</span></td>
-        </tr>
-      `).join("")
-    : `<tr><td colspan="3" class="empty-note">No level up moves recorded for this generation.</td></tr>`;
+  const moveRowsHtml = renderMoveTableRows(levelUpMoves, "level-up");
 
   let genderRatioHtml = `<span class="gender-genderless">Genderless</span>`;
   if (pokemon.genderRate !== -1) {
@@ -859,6 +931,8 @@ export function renderTeamGrid(teamList, containerElement, countElement) {
   `;
 }
 
+import { escapeHtml } from "./utils.js";
+
 export function renderError(message, containerElement) {
-  containerElement.innerHTML = `<p class="error-message">❌ ${message}</p>`;
+  containerElement.innerHTML = `<p class="error-message">❌ ${escapeHtml(message)}</p>`;
 }

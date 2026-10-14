@@ -7,6 +7,7 @@ import { fetchPokemon } from "./api.js";
 let currentTarget = null;
 let currentStreak = 0;
 let highScore = Number(localStorage.getItem("minigame_highscore")) || 0;
+let minigameRoundToken = 0;
 
 /**
  * Generates a random National Pokédex ID.
@@ -16,8 +17,7 @@ function getRandomId(min = 1, max = 1025) {
 }
 
 /**
- * Sets up a new round: shuts the stage, displays a spinning Pokeball loader,
- * preloads the artwork, opens the shutter, and renders choice buttons.
+ * Sets up a new round with token guard against modal reopen race conditions.
  */
 export async function startNewRound(
   imgElement,
@@ -26,9 +26,11 @@ export async function startNewRound(
   streakElem,
   highScoreElem
 ) {
+  const roundToken = ++minigameRoundToken;
+  const gameModal = document.getElementById("game-modal");
   const shutter = document.getElementById("game-shutter");
 
-  // 1. Reset stage image and snap shutter shut immediately without animation
+  // 1. Reset stage image and snap shutter shut immediately
   imgElement.className = "silhouette";
   imgElement.src = "";
 
@@ -37,14 +39,13 @@ export async function startNewRound(
     shutter.classList.remove("open");
     shutter.style.visibility = "visible";
     shutter.style.opacity = "1";
-    // Force reflow so the browser renders the closed state without transitioning
     void shutter.offsetHeight;
   }
 
   feedbackElement.textContent = "Who's That Pokémon?";
   feedbackElement.style.color = "";
 
-  // 2. Display spinning Pokeball loader in options grid
+  // 2. Display loader in options grid
   optionsContainer.innerHTML = `
     <div class="game-options-loader">
       <div class="pokeball-spinner"></div>
@@ -63,9 +64,14 @@ export async function startNewRound(
     }
 
     const pokemonList = await Promise.all(Array.from(ids).map((id) => fetchPokemon(id)));
+
+    // Abort if stale or modal was closed
+    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+      return;
+    }
+
     currentTarget = pokemonList[0];
     const choices = [...pokemonList].sort(() => Math.random() - 0.5);
-
     const targetSrc = currentTarget.officialArtwork || currentTarget.image;
 
     // 4. Preload artwork buffer before lifting shutter
@@ -76,18 +82,23 @@ export async function startNewRound(
       preloader.onerror = resolve;
     });
 
-    // 5. Mount loaded image to stage
+    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+      return;
+    }
+
     imgElement.src = targetSrc;
 
-    // 6. Restore animation and slide open the Pokeball shutter
+    // 5. Open shutter
     if (shutter) {
       shutter.classList.remove("instant-close");
       setTimeout(() => {
-        shutter.classList.add("open");
+        if (roundToken === minigameRoundToken) {
+          shutter.classList.add("open");
+        }
       }, 120);
     }
 
-    // 7. Render interactive choice buttons
+    // 6. Render choice buttons
     optionsContainer.innerHTML = choices
       .map(
         (p) =>
@@ -95,10 +106,12 @@ export async function startNewRound(
       )
       .join("");
   } catch (error) {
-    feedbackElement.textContent = "Failed to load mini-game round. Try again!";
-    if (shutter) {
-      shutter.classList.remove("instant-close");
-      shutter.classList.add("open");
+    if (roundToken === minigameRoundToken && !gameModal?.classList.contains("hidden")) {
+      feedbackElement.textContent = "Failed to load mini-game round. Try again!";
+      if (shutter) {
+        shutter.classList.remove("instant-close");
+        shutter.classList.add("open");
+      }
     }
   }
 }
@@ -115,19 +128,17 @@ export function handleGuess(
   streakElem,
   highScoreElem
 ) {
+  if (!currentTarget) return;
   const isCorrect = selectedName.toLowerCase() === currentTarget.name.toLowerCase();
 
-  // Reveal sprite
   imgElement.classList.add("revealed");
 
-  // Play audio cry if available
   if (currentTarget?.cry) {
     const audio = new Audio(currentTarget.cry);
     audio.volume = 0.6;
     audio.play().catch((err) => console.error("Audio playback error:", err));
   }
 
-  // Highlight buttons and disable repeated clicks
   const buttons = optionsContainer.querySelectorAll(".option-btn");
   buttons.forEach((btn) => {
     btn.disabled = true;
@@ -138,7 +149,6 @@ export function handleGuess(
     }
   });
 
-  // Score & streak management
   if (isCorrect) {
     currentStreak++;
     if (currentStreak > highScore) {
