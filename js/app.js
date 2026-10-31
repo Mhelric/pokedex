@@ -32,6 +32,20 @@ import {
 import { getTeam, addToTeam, removeFromTeam, clearTeam, hydrateTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
 import { escapeHtml } from "./utils.js";
+import {
+  isPokemonCaught,
+  setPokemonCaught,
+  togglePokemonCaught,
+  getCaughtIds,
+  getCaughtCount,
+  clearAllCaught,
+  isPokemonFavorite,
+  setPokemonFavorite,
+  togglePokemonFavorite,
+  getFavoriteIds,
+  getFavoriteCount,
+  clearAllFavorites,
+} from "./storage.js";
 
 
 // ==========================================
@@ -778,16 +792,7 @@ async function renderFavoritesModal() {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const favIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("fav_") && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace("fav_", ""));
-      if (!isNaN(id)) favIds.push(id);
-    }
-  }
-
-  favIds.sort((a, b) => a - b);
+  const favIds = getFavoriteIds();
   if (favoritesCount) favoritesCount.textContent = favIds.length;
 
   if (favIds.length === 0) {
@@ -813,16 +818,7 @@ async function renderCollectionModal(prefix, container, countElem) {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const targetIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith(`${prefix}_`) && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace(`${prefix}_`, ""));
-      if (!isNaN(id)) targetIds.push(id);
-    }
-  }
-
-  targetIds.sort((a, b) => a - b);
+  const targetIds = prefix === "caught" ? getCaughtIds() : (prefix === "fav" ? getFavoriteIds() : []);
   if (countElem) countElem.textContent = targetIds.length;
 
   if (targetIds.length === 0) {
@@ -934,14 +930,7 @@ async function renderPCStorageBox() {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const caughtIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("caught_") && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace("caught_", ""));
-      if (!isNaN(id)) caughtIds.push(id);
-    }
-  }
+  const caughtIds = getCaughtIds();
 
   if (caughtCount) caughtCount.textContent = caughtIds.length;
   updateCaughtProgress(caughtIds.length);
@@ -1112,12 +1101,11 @@ if (gridContainer) {
     const caughtBtn = e.target.closest(".caught-btn");
     if (caughtBtn) {
       e.stopPropagation();
-      const pokeId = caughtBtn.dataset.id;
-      const isCaught = localStorage.getItem(`caught_${pokeId}`) === "true";
-      localStorage.setItem(`caught_${pokeId}`, (!isCaught).toString());
-      caughtBtn.classList.toggle("active", !isCaught);
-      caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
-      showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+      const pokeId = Number(caughtBtn.dataset.id);
+      const isCaught = togglePokemonCaught(pokeId);
+      caughtBtn.classList.toggle("active", isCaught);
+      caughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      showTeamToast(isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
       return;
     }
 
@@ -1125,16 +1113,15 @@ if (gridContainer) {
     const favBtn = e.target.closest(".fav-btn");
     if (favBtn) {
       e.stopPropagation();
-      const pokeId = favBtn.dataset.id;
-      const isFav = localStorage.getItem(`fav_${pokeId}`) === "true";
-      localStorage.setItem(`fav_${pokeId}`, (!isFav).toString());
-      favBtn.classList.toggle("active", !isFav);
-      favBtn.title = !isFav ? "Favorited" : "Favorite";
+      const pokeId = Number(favBtn.dataset.id);
+      const isFav = togglePokemonFavorite(pokeId);
+      favBtn.classList.toggle("active", isFav);
+      favBtn.title = isFav ? "Favorited" : "Favorite";
       const icon = favBtn.querySelector("i");
       if (icon) {
-        icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        icon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
       }
-      showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+      showTeamToast(isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
       return;
     }
 
@@ -1197,28 +1184,38 @@ if (modalContent) {
     // 2. Fixed Bottom Action Bar: Favorite Toggle
     const favBtn = e.target.closest("#modal-fav-action");
     if (favBtn) {
-      const id = favBtn.dataset.id;
-      const isFav = localStorage.getItem(`fav_${id}`) === "true";
-      localStorage.setItem(`fav_${id}`, (!isFav).toString());
-      favBtn.classList.toggle("active", !isFav);
-      favBtn.title = !isFav ? "Favorited" : "Favorite";
+      const id = Number(favBtn.dataset.id);
+      const isFav = togglePokemonFavorite(id);
+      favBtn.classList.toggle("active", isFav);
+      favBtn.title = isFav ? "Favorited" : "Favorite";
       const icon = favBtn.querySelector("i");
       if (icon) {
-        icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        icon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
       }
-      showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+      const gridCardFavBtn = document.querySelector(`.pokemon-card[data-id="${id}"] .fav-btn`);
+      if (gridCardFavBtn) {
+        gridCardFavBtn.classList.toggle("active", isFav);
+        gridCardFavBtn.title = isFav ? "Favorited" : "Favorite";
+        const gridIcon = gridCardFavBtn.querySelector("i");
+        if (gridIcon) gridIcon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      }
+      showTeamToast(isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
       return;
     }
 
     // 3. Fixed Bottom Action Bar: Caught Toggle
     const caughtBtn = e.target.closest("#modal-caught-action");
     if (caughtBtn) {
-      const id = caughtBtn.dataset.id;
-      const isCaught = localStorage.getItem(`caught_${id}`) === "true";
-      localStorage.setItem(`caught_${id}`, (!isCaught).toString());
-      caughtBtn.classList.toggle("active", !isCaught);
-      caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
-      showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+      const id = Number(caughtBtn.dataset.id);
+      const isCaught = togglePokemonCaught(id);
+      caughtBtn.classList.toggle("active", isCaught);
+      caughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      const gridCardCaughtBtn = document.querySelector(`.pokemon-card[data-id="${id}"] .caught-btn`);
+      if (gridCardCaughtBtn) {
+        gridCardCaughtBtn.classList.toggle("active", isCaught);
+        gridCardCaughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      }
+      showTeamToast(isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
       return;
     }
 
@@ -1363,9 +1360,10 @@ if (favoritesGrid) {
   favoritesGrid.addEventListener("click", (e) => {
     const unfavBtn = e.target.closest(".fav-unfavorite-btn");
     if (!unfavBtn) return;
-    const pokeId = unfavBtn.dataset.id;
-    localStorage.setItem(`fav_${pokeId}`, "false");
+    const pokeId = Number(unfavBtn.dataset.id);
+    setPokemonFavorite(pokeId, false);
     renderFavoritesModal();
+    reRenderGrid();
     showTeamToast("Removed from Favorites");
   });
 }
@@ -1448,7 +1446,7 @@ if (pcUnmarkBtn) {
     const id = activeSelectedBoxPokemon.id;
     const name = activeSelectedBoxPokemon.name;
 
-    localStorage.setItem(`caught_${id}`, "false");
+    setPokemonCaught(id, false);
     showTeamToast(`Released ${name.toUpperCase()} from Caught list!`);
 
     closePCDrawer();
@@ -1524,9 +1522,7 @@ if (confirmCancelRelease && releaseConfirmDialog) {
 
 if (confirmAcceptRelease && releaseConfirmDialog) {
   confirmAcceptRelease.addEventListener("click", () => {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("caught_"))
-      .forEach((k) => localStorage.removeItem(k));
+    clearAllCaught();
     releaseConfirmDialog.classList.add("hidden");
     closePCDrawer();
     renderPCStorageBox();

@@ -5,6 +5,7 @@
 
 import { getTypeMatchups, formatPokemonName, fixSpriteUrl } from "./api.js";
 import { getTeam } from "./team.js";
+import { isPokemonCaught, isPokemonFavorite } from "./storage.js";
 
 export const GAME_VERSIONS = [
   {
@@ -102,8 +103,8 @@ export function createPokemonCard(pokemon, spriteMode = "artwork") {
     .map((a) => a.name)
     .join(", ") || "None";
 
-  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
-  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const isCaught = isPokemonCaught(pokemon.id);
+  const isFav = isPokemonFavorite(pokemon.id);
 
   return `
     <article class="pokemon-card type-glow-${primaryType}" data-id="${pokemon.id}">
@@ -622,8 +623,8 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     `
   ).join("");
 
-  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
-  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const isCaught = isPokemonCaught(pokemon.id);
+  const isFav = isPokemonFavorite(pokemon.id);
   const isInTeam = getTeam().some((p) => p.id === pokemon.id);
 
   const normalImg = pokemon.officialArtwork || pokemon.image;

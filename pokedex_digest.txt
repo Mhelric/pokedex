@@ -12,6 +12,7 @@ pokedex/
 │   ├── app.js
 │   ├── minigame.js
 │   ├── scanner.js
+│   ├── storage.js
 │   ├── team.js
 │   ├── ui.js
 │   └── utils.js
@@ -772,7 +773,7 @@ File: favicon.svg
 File: sw.js
 ================================================
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v4";
+const SHELL_CACHE = "pokedex-shell-v5";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -788,6 +789,7 @@ const STATIC_ASSETS = [
   "./js/api.js",
   "./js/ui.js",
   "./js/team.js",
+  "./js/storage.js",
   "./js/minigame.js",
   "./js/scanner.js",
   "./js/utils.js",
@@ -1090,6 +1092,232 @@ export function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+================================================
+File: js/storage.js
+================================================
+// ==========================================
+// STORAGE MODULE
+// Unified LocalStorage management for Caught & Favorite Pokémon collections
+// ==========================================
+
+const CAUGHT_STORAGE_KEY = "pokedex_caught";
+const FAV_STORAGE_KEY = "pokedex_favorites";
+
+// In-memory sets for O(1) membership lookups
+let caughtSet = new Set();
+let favSet = new Set();
+
+/**
+ * Migrates legacy individual localStorage keys (e.g., "caught_25", "fav_1")
+ * into unified JSON arrays under "pokedex_caught" and "pokedex_favorites".
+ */
+function initializeAndMigrateStorage() {
+  try {
+    // 1. Load existing unified storage if present
+    const savedCaught = localStorage.getItem(CAUGHT_STORAGE_KEY);
+    if (savedCaught) {
+      try {
+        const parsed = JSON.parse(savedCaught);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id) => {
+            const num = Number(id);
+            if (!isNaN(num) && num > 0) caughtSet.add(num);
+          });
+        }
+      } catch (err) {
+        console.warn("Error parsing unified caught storage:", err);
+      }
+    }
+
+    const savedFav = localStorage.getItem(FAV_STORAGE_KEY);
+    if (savedFav) {
+      try {
+        const parsed = JSON.parse(savedFav);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id) => {
+            const num = Number(id);
+            if (!isNaN(num) && num > 0) favSet.add(num);
+          });
+        }
+      } catch (err) {
+        console.warn("Error parsing unified favorites storage:", err);
+      }
+    }
+
+    // 2. Scan for and migrate legacy individual keys
+    const legacyKeysToRemove = [];
+    let hadLegacyCaught = false;
+    let hadLegacyFav = false;
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+
+      if (key.startsWith("caught_")) {
+        legacyKeysToRemove.push(key);
+        if (localStorage.getItem(key) === "true") {
+          const id = Number(key.slice(7));
+          if (!isNaN(id) && id > 0) {
+            caughtSet.add(id);
+            hadLegacyCaught = true;
+          }
+        }
+      } else if (key.startsWith("fav_")) {
+        legacyKeysToRemove.push(key);
+        if (localStorage.getItem(key) === "true") {
+          const id = Number(key.slice(4));
+          if (!isNaN(id) && id > 0) {
+            favSet.add(id);
+            hadLegacyFav = true;
+          }
+        }
+      }
+    }
+
+    // 3. Clean up legacy keys
+    if (legacyKeysToRemove.length > 0) {
+      legacyKeysToRemove.forEach((key) => localStorage.removeItem(key));
+    }
+
+    // 4. Persist unified representations if migrations took place
+    if (hadLegacyCaught || (!savedCaught && caughtSet.size > 0)) {
+      persistCaught();
+    }
+    if (hadLegacyFav || (!savedFav && favSet.size > 0)) {
+      persistFavorites();
+    }
+  } catch (err) {
+    console.error("Storage initialization error:", err);
+  }
+}
+
+function persistCaught() {
+  try {
+    const list = Array.from(caughtSet).sort((a, b) => a - b);
+    localStorage.setItem(CAUGHT_STORAGE_KEY, JSON.stringify(list));
+  } catch (err) {
+    console.error("Failed to persist caught Pokémon to localStorage:", err);
+  }
+}
+
+function persistFavorites() {
+  try {
+    const list = Array.from(favSet).sort((a, b) => a - b);
+    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(list));
+  } catch (err) {
+    console.error("Failed to persist favorite Pokémon to localStorage:", err);
+  }
+}
+
+// Run initial migration and load immediately on module evaluation
+initializeAndMigrateStorage();
+
+// ==========================================
+// CAUGHT POKÉMON API
+// ==========================================
+
+export function isPokemonCaught(id) {
+  const num = Number(id);
+  return !isNaN(num) && caughtSet.has(num);
+}
+
+export function setPokemonCaught(id, isCaught) {
+  const num = Number(id);
+  if (isNaN(num) || num <= 0) return false;
+
+  if (isCaught) {
+    caughtSet.add(num);
+  } else {
+    caughtSet.delete(num);
+  }
+  persistCaught();
+  return isCaught;
+}
+
+export function togglePokemonCaught(id) {
+  const num = Number(id);
+  if (isNaN(num) || num <= 0) return false;
+
+  const newState = !caughtSet.has(num);
+  if (newState) {
+    caughtSet.add(num);
+  } else {
+    caughtSet.delete(num);
+  }
+  persistCaught();
+  return newState;
+}
+
+export function getCaughtIds() {
+  return Array.from(caughtSet).sort((a, b) => a - b);
+}
+
+export function getCaughtCount() {
+  return caughtSet.size;
+}
+
+export function clearAllCaught() {
+  caughtSet.clear();
+  try {
+    localStorage.setItem(CAUGHT_STORAGE_KEY, JSON.stringify([]));
+  } catch (err) {
+    console.error("Failed to clear caught storage:", err);
+  }
+}
+
+// ==========================================
+// FAVORITE POKÉMON API
+// ==========================================
+
+export function isPokemonFavorite(id) {
+  const num = Number(id);
+  return !isNaN(num) && favSet.has(num);
+}
+
+export function setPokemonFavorite(id, isFav) {
+  const num = Number(id);
+  if (isNaN(num) || num <= 0) return false;
+
+  if (isFav) {
+    favSet.add(num);
+  } else {
+    favSet.delete(num);
+  }
+  persistFavorites();
+  return isFav;
+}
+
+export function togglePokemonFavorite(id) {
+  const num = Number(id);
+  if (isNaN(num) || num <= 0) return false;
+
+  const newState = !favSet.has(num);
+  if (newState) {
+    favSet.add(num);
+  } else {
+    favSet.delete(num);
+  }
+  persistFavorites();
+  return newState;
+}
+
+export function getFavoriteIds() {
+  return Array.from(favSet).sort((a, b) => a - b);
+}
+
+export function getFavoriteCount() {
+  return favSet.size;
+}
+
+export function clearAllFavorites() {
+  favSet.clear();
+  try {
+    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify([]));
+  } catch (err) {
+    console.error("Failed to clear favorites storage:", err);
+  }
 }
 
 ================================================
@@ -3063,6 +3291,7 @@ File: js/ui.js
 
 import { getTypeMatchups, formatPokemonName, fixSpriteUrl } from "./api.js";
 import { getTeam } from "./team.js";
+import { isPokemonCaught, isPokemonFavorite } from "./storage.js";
 
 export const GAME_VERSIONS = [
   {
@@ -3160,8 +3389,8 @@ export function createPokemonCard(pokemon, spriteMode = "artwork") {
     .map((a) => a.name)
     .join(", ") || "None";
 
-  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
-  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const isCaught = isPokemonCaught(pokemon.id);
+  const isFav = isPokemonFavorite(pokemon.id);
 
   return `
     <article class="pokemon-card type-glow-${primaryType}" data-id="${pokemon.id}">
@@ -3680,8 +3909,8 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     `
   ).join("");
 
-  const isCaught = localStorage.getItem(`caught_${pokemon.id}`) === "true";
-  const isFav = localStorage.getItem(`fav_${pokemon.id}`) === "true";
+  const isCaught = isPokemonCaught(pokemon.id);
+  const isFav = isPokemonFavorite(pokemon.id);
   const isInTeam = getTeam().some((p) => p.id === pokemon.id);
 
   const normalImg = pokemon.officialArtwork || pokemon.image;
@@ -4038,6 +4267,20 @@ import {
 import { getTeam, addToTeam, removeFromTeam, clearTeam, hydrateTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
 import { escapeHtml } from "./utils.js";
+import {
+  isPokemonCaught,
+  setPokemonCaught,
+  togglePokemonCaught,
+  getCaughtIds,
+  getCaughtCount,
+  clearAllCaught,
+  isPokemonFavorite,
+  setPokemonFavorite,
+  togglePokemonFavorite,
+  getFavoriteIds,
+  getFavoriteCount,
+  clearAllFavorites,
+} from "./storage.js";
 
 
 // ==========================================
@@ -4784,16 +5027,7 @@ async function renderFavoritesModal() {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const favIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("fav_") && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace("fav_", ""));
-      if (!isNaN(id)) favIds.push(id);
-    }
-  }
-
-  favIds.sort((a, b) => a - b);
+  const favIds = getFavoriteIds();
   if (favoritesCount) favoritesCount.textContent = favIds.length;
 
   if (favIds.length === 0) {
@@ -4819,16 +5053,7 @@ async function renderCollectionModal(prefix, container, countElem) {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const targetIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith(`${prefix}_`) && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace(`${prefix}_`, ""));
-      if (!isNaN(id)) targetIds.push(id);
-    }
-  }
-
-  targetIds.sort((a, b) => a - b);
+  const targetIds = prefix === "caught" ? getCaughtIds() : (prefix === "fav" ? getFavoriteIds() : []);
   if (countElem) countElem.textContent = targetIds.length;
 
   if (targetIds.length === 0) {
@@ -4940,14 +5165,7 @@ async function renderPCStorageBox() {
   abortBackgroundOperations();
   const signal = createBackgroundSignal();
 
-  const caughtIds = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("caught_") && localStorage.getItem(key) === "true") {
-      const id = Number(key.replace("caught_", ""));
-      if (!isNaN(id)) caughtIds.push(id);
-    }
-  }
+  const caughtIds = getCaughtIds();
 
   if (caughtCount) caughtCount.textContent = caughtIds.length;
   updateCaughtProgress(caughtIds.length);
@@ -5118,12 +5336,11 @@ if (gridContainer) {
     const caughtBtn = e.target.closest(".caught-btn");
     if (caughtBtn) {
       e.stopPropagation();
-      const pokeId = caughtBtn.dataset.id;
-      const isCaught = localStorage.getItem(`caught_${pokeId}`) === "true";
-      localStorage.setItem(`caught_${pokeId}`, (!isCaught).toString());
-      caughtBtn.classList.toggle("active", !isCaught);
-      caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
-      showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+      const pokeId = Number(caughtBtn.dataset.id);
+      const isCaught = togglePokemonCaught(pokeId);
+      caughtBtn.classList.toggle("active", isCaught);
+      caughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      showTeamToast(isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
       return;
     }
 
@@ -5131,16 +5348,15 @@ if (gridContainer) {
     const favBtn = e.target.closest(".fav-btn");
     if (favBtn) {
       e.stopPropagation();
-      const pokeId = favBtn.dataset.id;
-      const isFav = localStorage.getItem(`fav_${pokeId}`) === "true";
-      localStorage.setItem(`fav_${pokeId}`, (!isFav).toString());
-      favBtn.classList.toggle("active", !isFav);
-      favBtn.title = !isFav ? "Favorited" : "Favorite";
+      const pokeId = Number(favBtn.dataset.id);
+      const isFav = togglePokemonFavorite(pokeId);
+      favBtn.classList.toggle("active", isFav);
+      favBtn.title = isFav ? "Favorited" : "Favorite";
       const icon = favBtn.querySelector("i");
       if (icon) {
-        icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        icon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
       }
-      showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+      showTeamToast(isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
       return;
     }
 
@@ -5203,28 +5419,38 @@ if (modalContent) {
     // 2. Fixed Bottom Action Bar: Favorite Toggle
     const favBtn = e.target.closest("#modal-fav-action");
     if (favBtn) {
-      const id = favBtn.dataset.id;
-      const isFav = localStorage.getItem(`fav_${id}`) === "true";
-      localStorage.setItem(`fav_${id}`, (!isFav).toString());
-      favBtn.classList.toggle("active", !isFav);
-      favBtn.title = !isFav ? "Favorited" : "Favorite";
+      const id = Number(favBtn.dataset.id);
+      const isFav = togglePokemonFavorite(id);
+      favBtn.classList.toggle("active", isFav);
+      favBtn.title = isFav ? "Favorited" : "Favorite";
       const icon = favBtn.querySelector("i");
       if (icon) {
-        icon.className = !isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        icon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
       }
-      showTeamToast(!isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
+      const gridCardFavBtn = document.querySelector(`.pokemon-card[data-id="${id}"] .fav-btn`);
+      if (gridCardFavBtn) {
+        gridCardFavBtn.classList.toggle("active", isFav);
+        gridCardFavBtn.title = isFav ? "Favorited" : "Favorite";
+        const gridIcon = gridCardFavBtn.querySelector("i");
+        if (gridIcon) gridIcon.className = isFav ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      }
+      showTeamToast(isFav ? "Added to Favorites! ❤️" : "Removed from Favorites");
       return;
     }
 
     // 3. Fixed Bottom Action Bar: Caught Toggle
     const caughtBtn = e.target.closest("#modal-caught-action");
     if (caughtBtn) {
-      const id = caughtBtn.dataset.id;
-      const isCaught = localStorage.getItem(`caught_${id}`) === "true";
-      localStorage.setItem(`caught_${id}`, (!isCaught).toString());
-      caughtBtn.classList.toggle("active", !isCaught);
-      caughtBtn.title = !isCaught ? "Identified / Caught" : "Mark Caught";
-      showTeamToast(!isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
+      const id = Number(caughtBtn.dataset.id);
+      const isCaught = togglePokemonCaught(id);
+      caughtBtn.classList.toggle("active", isCaught);
+      caughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      const gridCardCaughtBtn = document.querySelector(`.pokemon-card[data-id="${id}"] .caught-btn`);
+      if (gridCardCaughtBtn) {
+        gridCardCaughtBtn.classList.toggle("active", isCaught);
+        gridCardCaughtBtn.title = isCaught ? "Identified / Caught" : "Mark Caught";
+      }
+      showTeamToast(isCaught ? "Marked as Caught! 🎯" : "Removed from Caught list");
       return;
     }
 
@@ -5369,9 +5595,10 @@ if (favoritesGrid) {
   favoritesGrid.addEventListener("click", (e) => {
     const unfavBtn = e.target.closest(".fav-unfavorite-btn");
     if (!unfavBtn) return;
-    const pokeId = unfavBtn.dataset.id;
-    localStorage.setItem(`fav_${pokeId}`, "false");
+    const pokeId = Number(unfavBtn.dataset.id);
+    setPokemonFavorite(pokeId, false);
     renderFavoritesModal();
+    reRenderGrid();
     showTeamToast("Removed from Favorites");
   });
 }
@@ -5454,7 +5681,7 @@ if (pcUnmarkBtn) {
     const id = activeSelectedBoxPokemon.id;
     const name = activeSelectedBoxPokemon.name;
 
-    localStorage.setItem(`caught_${id}`, "false");
+    setPokemonCaught(id, false);
     showTeamToast(`Released ${name.toUpperCase()} from Caught list!`);
 
     closePCDrawer();
@@ -5530,9 +5757,7 @@ if (confirmCancelRelease && releaseConfirmDialog) {
 
 if (confirmAcceptRelease && releaseConfirmDialog) {
   confirmAcceptRelease.addEventListener("click", () => {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("caught_"))
-      .forEach((k) => localStorage.removeItem(k));
+    clearAllCaught();
     releaseConfirmDialog.classList.add("hidden");
     closePCDrawer();
     renderPCStorageBox();
