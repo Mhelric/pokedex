@@ -741,7 +741,7 @@ File: index.html
         </div>
     </nav>
 
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/app.js?v=2"></script>
     <!-- Before </body> -->
     <script>
     if ('serviceWorker' in navigator) {
@@ -776,7 +776,7 @@ File: favicon.svg
 File: sw.js
 ================================================
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v7";
+const SHELL_CACHE = "pokedex-shell-v8";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -12385,19 +12385,29 @@ body {
   overflow: hidden;
 }
 
-.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171) !important; }
-.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c) !important; }
-.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15) !important; }
-.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa) !important; }
-.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399) !important; }
-.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6) !important; }
-
 .stat-meter-bar {
   height: 100%;
-  background: #cbd5e1;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 4px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.stat-calc-row:nth-child(1) .stat-meter-bar,
+.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171) !important; }
+.stat-calc-row:nth-child(2) .stat-meter-bar,
+.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c) !important; }
+
+.stat-calc-row:nth-child(3) .stat-meter-bar,
+.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15) !important; }
+
+.stat-calc-row:nth-child(4) .stat-meter-bar,
+.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa) !important; }
+
+.stat-calc-row:nth-child(5) .stat-meter-bar,
+.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399) !important; }
+
+.stat-calc-row:nth-child(6) .stat-meter-bar,
+.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6) !important; }
+
 
 .stat-bound {
   text-align: right;
