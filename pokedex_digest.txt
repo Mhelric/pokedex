@@ -279,10 +279,10 @@ File: index.html
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pokédex</title>
-    <link rel="stylesheet" href="styles/main.css" />
-    <link rel="stylesheet" href="styles/retro-ui.css" />
-    <link rel="stylesheet" href="styles/themes.css" />
-    <link rel="stylesheet" href="styles/animations.css" />
+    <link rel="stylesheet" href="styles/main.css?v=2" />
+    <link rel="stylesheet" href="styles/retro-ui.css?v=2" />
+    <link rel="stylesheet" href="styles/themes.css?v=2" />
+    <link rel="stylesheet" href="styles/animations.css?v=2" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -389,11 +389,10 @@ File: index.html
                 <input 
                     type="text" 
                     id="search-input" 
-                    placeholder="Search Pokémon by name or ID... (/)" 
+                    placeholder="Search Pokémon by name or ID..." 
                     aria-label="Search Pokémon by name or ID" 
                     autocomplete="off" 
                 />
-                <kbd class="search-shortcut-badge" title="Press / to focus search">/</kbd>
                 <button type="button" id="filter-expand-btn" class="filter-toggle-btn" aria-label="Toggle Filters" title="Filter Pokémon">
                     <i class="fa-solid fa-sliders"></i>
                     <span class="filter-badge hidden" id="active-filter-indicator"></span>
@@ -777,7 +776,7 @@ File: favicon.svg
 File: sw.js
 ================================================
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v6";
+const SHELL_CACHE = "pokedex-shell-v7";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -4982,12 +4981,12 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     .join("");
 
   const statRowsHtml = [
-    { label: "HP", key: "hp", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
-    { label: "Attack", key: "atk", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
-    { label: "Defense", key: "def", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
-    { label: "Sp. Atk", key: "spatk", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
-    { label: "Sp. Def", key: "spdef", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
-    { label: "Speed", key: "spd", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
+    { label: "HP", key: "hp", gradient: "linear-gradient(90deg, #ef4444, #f87171)", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
+    { label: "Attack", key: "atk", gradient: "linear-gradient(90deg, #f97316, #fb923c)", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
+    { label: "Defense", key: "def", gradient: "linear-gradient(90deg, #eab308, #facc15)", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
+    { label: "Sp. Atk", key: "spatk", gradient: "linear-gradient(90deg, #3b82f6, #60a5fa)", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
+    { label: "Sp. Def", key: "spdef", gradient: "linear-gradient(90deg, #10b981, #34d399)", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
+    { label: "Speed", key: "spd", gradient: "linear-gradient(90deg, #ec4899, #f472b6)", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
   ]
     .map((s) => {
       const pct = Math.min(100, Math.round((s.val / 255) * 100));
@@ -4996,7 +4995,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <span class="stat-name">${s.label}</span>
         <strong class="stat-val">${s.val}</strong>
         <div class="stat-meter-track">
-          <div class="stat-meter-bar stat-${s.key}" style="width: ${pct}%"></div>
+          <div class="stat-meter-bar stat-${s.key}" style="width: ${pct}%; background: ${s.gradient};"></div>
         </div>
         <span class="stat-bound min">${s.bounds.min}</span>
         <span class="stat-bound max">${s.bounds.max}</span>
@@ -11310,37 +11309,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-.search-shortcut-badge {
-  position: absolute;
-  right: 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #94a3b8;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  padding: 1px 5px;
-  line-height: 1;
-  pointer-events: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-}
-
-.search-box-wrapper:focus-within .search-shortcut-badge {
-  opacity: 0;
-  visibility: hidden;
-}
-
-@media (max-width: 640px) {
-  .search-shortcut-badge {
-    display: none;
-  }
-}
-
 .filter-toggle-btn {
   position: absolute;
   right: 6px;
@@ -12417,16 +12385,17 @@ body {
   overflow: hidden;
 }
 
-.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171); }
-.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c); }
-.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15); }
-.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399); }
-.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6); }
+.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171) !important; }
+.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c) !important; }
+.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15) !important; }
+.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa) !important; }
+.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399) !important; }
+.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6) !important; }
 
 .stat-meter-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: #cbd5e1;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 4px;
 }
 

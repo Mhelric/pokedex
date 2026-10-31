@@ -330,37 +330,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-.search-shortcut-badge {
-  position: absolute;
-  right: 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #94a3b8;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  padding: 1px 5px;
-  line-height: 1;
-  pointer-events: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-}
-
-.search-box-wrapper:focus-within .search-shortcut-badge {
-  opacity: 0;
-  visibility: hidden;
-}
-
-@media (max-width: 640px) {
-  .search-shortcut-badge {
-    display: none;
-  }
-}
-
 .filter-toggle-btn {
   position: absolute;
   right: 6px;
@@ -1437,16 +1406,17 @@ body {
   overflow: hidden;
 }
 
-.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171); }
-.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c); }
-.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15); }
-.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399); }
-.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6); }
+.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171) !important; }
+.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c) !important; }
+.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15) !important; }
+.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa) !important; }
+.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399) !important; }
+.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6) !important; }
 
 .stat-meter-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: #cbd5e1;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 4px;
 }
 
