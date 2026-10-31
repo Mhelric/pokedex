@@ -1,21 +1,79 @@
 // api/scan.js
 
+import { CANONICAL_SPECIES } from "./_species.js";
+
 let speciesCache = null;
 const ipHits = new Map(); // In-memory rate limiting stub. In production, use Upstash / Vercel KV.
 
+// Species aliases for common abbreviations, punctuation differences, or gender distinctions
+const SPECIES_ALIASES = {
+  "nidoran": "nidoran-m",
+  "nidoran-f": "nidoran-f",
+  "nidoran-m": "nidoran-m",
+  "nidoran-female": "nidoran-f",
+  "nidoran-male": "nidoran-m",
+  "farfetchd": "farfetchd",
+  "sirfetchd": "sirfetchd",
+  "mr-mime": "mr-mime",
+  "mime-jr": "mime-jr",
+  "mr-rime": "mr-rime",
+  "great-tusk": "great-tusk",
+  "scream-tail": "scream-tail",
+  "brute-bonnet": "brute-bonnet",
+  "flutter-mane": "flutter-mane",
+  "slither-wing": "slither-wing",
+  "sandy-shocks": "sandy-shocks",
+  "iron-treads": "iron-treads",
+  "iron-bundle": "iron-bundle",
+  "iron-hands": "iron-hands",
+  "iron-jugulis": "iron-jugulis",
+  "iron-moth": "iron-moth",
+  "iron-thorns": "iron-thorns",
+  "roaring-moon": "roaring-moon",
+  "iron-valiant": "iron-valiant",
+  "walking-wake": "walking-wake",
+  "iron-leaves": "iron-leaves",
+  "gouging-fire": "gouging-fire",
+  "raging-bolt": "raging-bolt",
+  "iron-boulder": "iron-boulder",
+  "iron-crown": "iron-crown",
+  "wo-chien": "wo-chien",
+  "chien-pao": "chien-pao",
+  "ting-lu": "ting-lu",
+  "chi-yu": "chi-yu",
+  "type-null": "type-null",
+  "tapu-koko": "tapu-koko",
+  "tapu-lele": "tapu-lele",
+  "tapu-bulu": "tapu-bulu",
+  "tapu-fini": "tapu-fini"
+};
+
+/**
+ * Returns known Pokémon species names.
+ * Immediately uses CANONICAL_SPECIES without cold-start blocking.
+ * Lazily refreshes speciesCache in the background if newer species exist.
+ */
 async function getSpeciesNames() {
-  if (speciesCache) return speciesCache;
-  try {
-    const res = await fetch("https://pokeapi.co/api/v2/pokemon-species?limit=2000");
-    if (res.ok) {
-      const data = await res.json();
-      speciesCache = new Set(data.results.map((r) => r.name.toLowerCase()));
-      return speciesCache;
-    }
-  } catch (err) {
-    console.warn("Failed to precache species list:", err);
-  }
-  return new Set();
+  if (speciesCache && speciesCache.size > 0) return speciesCache;
+
+  // Use the canonical offline set immediately
+  speciesCache = new Set(CANONICAL_SPECIES);
+
+  // Background non-blocking fetch to catch any future PokeAPI updates
+  fetch("https://pokeapi.co/api/v2/pokemon-species?limit=2000")
+    .then(async (res) => {
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.results)) {
+          data.results.forEach((r) => speciesCache.add(r.name.toLowerCase()));
+        }
+      }
+    })
+    .catch(() => {
+      // Offline or network error: silently ignored since canonical set is already populated
+    });
+
+  return speciesCache;
 }
 
 export default async function handler(req, res) {
@@ -27,17 +85,57 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Security check: Origin / Referer
+  // Security check: Origin / Referer validation
   const origin = req.headers.origin || req.headers.referer || "";
   const host = req.headers.host || "";
-  if (origin && host && !origin.includes(host) && !origin.includes("localhost")) {
-    return res.status(403).json({ error: "Forbidden origin" });
+  const isDev =
+    process.env.NODE_ENV !== "production" ||
+    host.includes("localhost") ||
+    host.includes("127.0.0.1") ||
+    host.includes("0.0.0.0");
+
+  if (!isDev) {
+    if (!origin) {
+      return res.status(403).json({ error: "Forbidden: Origin or Referer header required" });
+    }
+    const originHost = (origin.replace(/^https?:\/\//, "").split("/")[0] || "").split(":")[0];
+    const expectedHost = host.split(":")[0];
+    if (originHost !== expectedHost && !originHost.endsWith(".vercel.app")) {
+      return res.status(403).json({ error: "Forbidden origin" });
+    }
+  } else {
+    // In local dev, allow localhost/127.0.0.1, but reject external mismatches if an origin is provided
+    if (
+      origin &&
+      host &&
+      !origin.includes("localhost") &&
+      !origin.includes("127.0.0.1") &&
+      !origin.includes(host)
+    ) {
+      return res.status(403).json({ error: "Forbidden origin" });
+    }
   }
 
   // Rate limiting (max 15 scans per minute per IP)
-  const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "local";
+  const clientIp =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.socket?.remoteAddress ||
+    "local";
   const now = Date.now();
   const windowMs = 60 * 1000;
+
+  // Prune expired IPs if cache grows large to prevent memory leaks
+  if (ipHits.size > 500) {
+    for (const [ip, timestamps] of ipHits.entries()) {
+      const active = timestamps.filter((t) => now - t < windowMs);
+      if (active.length === 0) {
+        ipHits.delete(ip);
+      } else {
+        ipHits.set(ip, active);
+      }
+    }
+  }
+
   const history = (ipHits.get(clientIp) || []).filter((time) => now - time < windowMs);
   if (history.length >= 15) {
     return res.status(429).json({ error: "Scan limit exceeded. Please wait a minute." });
@@ -116,7 +214,8 @@ export default async function handler(req, res) {
     const stopWords = new Set([
       "pokemon", "the", "card", "plush", "plushie", "figure", "toy", "gx", "ex",
       "vmax", "vstar", "tcg", "holo", "rare", "ultra", "shiny", "edition", "series",
-      "nintendo", "game", "freak", "scarlet", "violet", "sword", "shield"
+      "nintendo", "game", "freak", "scarlet", "violet", "sword", "shield", "pocket",
+      "monsters", "japan", "japanese", "english", "mint", "graded", "promo"
     ]);
 
     let detectedPokemon = null;
@@ -125,6 +224,8 @@ export default async function handler(req, res) {
     for (const text of candidateTexts) {
       const words = text
         .toLowerCase()
+        .replace(/♀/g, " female")
+        .replace(/♂/g, " male")
         .replace(/[^a-z0-9\s-]/g, "")
         .split(/\s+/)
         .filter((w) => w && !stopWords.has(w) && !/^\d+$/.test(w)); // Ignore purely numeric tokens
@@ -132,8 +233,9 @@ export default async function handler(req, res) {
       // 2-word n-grams
       for (let i = 0; i < words.length - 1; i++) {
         const biGram = `${words[i]}-${words[i + 1]}`;
-        if (knownSpecies.has(biGram)) {
-          detectedPokemon = biGram;
+        const matched = SPECIES_ALIASES[biGram] || (knownSpecies.has(biGram) ? biGram : null);
+        if (matched) {
+          detectedPokemon = matched;
           break;
         }
       }
@@ -141,9 +243,12 @@ export default async function handler(req, res) {
 
       // 1-word tokens
       for (const word of words) {
-        if (word.length > 2 && knownSpecies.has(word)) {
-          detectedPokemon = word;
-          break;
+        if (word.length > 2) {
+          const matched = SPECIES_ALIASES[word] || (knownSpecies.has(word) ? word : null);
+          if (matched) {
+            detectedPokemon = matched;
+            break;
+          }
         }
       }
       if (detectedPokemon) break;
