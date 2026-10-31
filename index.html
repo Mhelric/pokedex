@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Pokédex</title>
-    <link rel="stylesheet" href="styles/main.css?v=2" />
-    <link rel="stylesheet" href="styles/retro-ui.css?v=2" />
-    <link rel="stylesheet" href="styles/themes.css?v=2" />
-    <link rel="stylesheet" href="styles/animations.css?v=2" />
+    <link rel="stylesheet" href="styles/main.css?v=3" />
+    <link rel="stylesheet" href="styles/retro-ui.css?v=3" />
+    <link rel="stylesheet" href="styles/themes.css?v=3" />
+    <link rel="stylesheet" href="styles/animations.css?v=3" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +15,7 @@
 
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#ef5350" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -56,11 +57,11 @@
 
     <main id="app">
         <!-- Settings Modal -->
-        <div id="settings-modal" class="modal-overlay hidden">
+        <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
             <div class="modal-card settings-modal-card">
                 <button id="settings-close-btn" class="modal-close" type="button" aria-label="Close Settings">&times;</button>
                 <div class="modal-settings-header">
-                    <h2>Settings</h2>
+                    <h2 id="settings-modal-title">Settings</h2>
                 </div>
 
                 <!-- Application Install Section -->
@@ -222,11 +223,11 @@
         </section>
 
         <!-- Team Builder Modal -->
-        <div id="team-modal" class="modal-overlay hidden">
+        <div id="team-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
             <div class="modal-card">
                 <button id="team-close-btn" class="modal-close" type="button" aria-label="Close Team Modal">&times;</button>
                 <div class="team-header">
-                    <h2>My Team (<span id="team-count">0</span>/6)</h2>
+                    <h2 id="team-modal-title">My Team (<span id="team-count">0</span>/6)</h2>
                     <button id="clear-team-btn" class="btn-secondary" type="button">Clear team</button>
                 </div>
                 <div id="team-grid" class="team-grid"></div>
@@ -234,25 +235,25 @@
         </div>
 
         <!-- Favorites Modal -->
-        <div id="favorites-modal" class="modal-overlay hidden">
+        <div id="favorites-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="favorites-modal-title">
             <div class="modal-card">
                 <button id="favorites-close-btn" class="modal-close" type="button" aria-label="Close Favorites Modal">&times;</button>
                 <div class="team-header">
-                    <h2>Favorite Pokémon (<span id="favorites-count">0</span>)</h2>
+                    <h2 id="favorites-modal-title">Favorite Pokémon (<span id="favorites-count">0</span>)</h2>
                 </div>
                 <div id="favorites-grid" class="pokemon-grid modal-item-grid"></div>
             </div>
         </div>
 
         <!-- Pokémon Caught Storage Modal -->
-        <div id="caught-modal" class="modal-overlay hidden">
+        <div id="caught-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="caught-modal-title">
             <div class="modal-card pc-box-modal-card">
                 <button id="caught-close-btn" class="modal-close" type="button" aria-label="Close Caught Modal">&times;</button>
                 
                 <div class="pc-box-header">
                     <div class="pc-box-title-wrap">
                         <span class="pc-status-dot"></span>
-                        <h2>Caught Pokémon</h2>
+                        <h2 id="caught-modal-title">Caught Pokémon</h2>
                     </div>
                     <div class="pc-box-actions">
                         <button id="clear-caught-btn" class="btn-pc-clear" type="button">Release All</button>
@@ -366,12 +367,12 @@
                 </div>
 
                 <!-- Styled Release All Confirmation Dialog -->
-                <div id="release-confirm-dialog" class="confirm-modal-overlay hidden">
+                <div id="release-confirm-dialog" class="confirm-modal-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="release-confirm-title">
                     <div class="confirm-dialog-card">
                         <div class="confirm-icon-wrap">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h3>Release All Pokémon?</h3>
+                        <h3 id="release-confirm-title">Release All Pokémon?</h3>
                         <p>This action will unmark all caught Pokémon from your storage. This cannot be undone.</p>
                         <div class="confirm-dialog-actions">
                             <button type="button" id="confirm-cancel-release" class="btn-confirm-cancel">Cancel</button>
@@ -383,11 +384,11 @@
         </div>
 
         <!-- "Who's That Pokémon?" Mini-Game Modal -->
-        <div id="game-modal" class="modal-overlay hidden">
+        <div id="game-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
             <div class="modal-card">
                 <button id="game-close-btn" class="modal-close" type="button" aria-label="Close Game Modal">&times;</button>
                 <div class="game-header">
-                    <h2>Who's That Pokémon?</h2>
+                    <h2 id="game-modal-title">Who's That Pokémon?</h2>
                     <div class="game-score">
                         <span>Streak: <strong id="streak-count">0</strong></span> |
                         <span>Best: <strong id="highscore-count">0</strong></span>
@@ -414,7 +415,7 @@
         </div>
 
         <!-- Pokémon Detail Modal -->
-        <div id="pokemon-modal" class="modal-overlay hidden">
+        <div id="pokemon-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pokemon-modal-title">
             <div class="modal-card">
                 <button id="modal-close-btn" class="modal-close" type="button" aria-label="Close Info Modal">&times;</button>
                 <div id="modal-content" class="modal-body"></div>
@@ -422,10 +423,10 @@
         </div>
 
         <!-- Camera Scanner Modal -->
-        <div id="scanner-modal" class="modal-overlay hidden">
+        <div id="scanner-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="scanner-modal-title">
             <div class="scanner-card">
                 <button id="scanner-close-btn" class="modal-close" type="button" aria-label="Close Scanner Modal">&times;</button>
-                <h2>Pokédex Camera Scanner</h2>
+                <h2 id="scanner-modal-title">Pokédex Camera Scanner</h2>
                 <p id="scanner-status" class="scanner-status">Initializing camera feed...</p>
                 
                 <div class="viewfinder-container">
@@ -446,7 +447,7 @@
     </main>
 
     <!-- Glassmorphic Fixed Bottom Action Bar with 5 Navigation Items -->
-    <nav class="bottom-action-bar">
+    <nav class="bottom-action-bar" aria-label="Main Navigation">
         <div class="bottom-nav-inner">
             <button type="button" id="nav-team-btn" class="bottom-nav-item" title="Team Builder" aria-label="Team Builder">
                 <i class="fa-solid fa-users"></i>
@@ -466,7 +467,7 @@
         </div>
     </nav>
 
-    <script type="module" src="js/app.js?v=2"></script>
+    <script type="module" src="js/app.js?v=3"></script>
     <!-- Before </body> -->
     <script>
     if ('serviceWorker' in navigator) {

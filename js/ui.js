@@ -658,7 +658,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
       <div class="modal-header-info">
         <span class="modal-card-id">${formattedId}</span>
         <div class="modal-title-row">
-          <h2 class="modal-title">${pokemon.name}</h2>
+          <h2 class="modal-title" id="pokemon-modal-title">${pokemon.name}</h2>
           ${pokemon.cry ? `<button class="modal-cry-btn" id="modal-play-cry" title="Play Cry" type="button"><i class="fa-solid fa-volume-high"></i></button>` : ""}
         </div>
         <p class="pokemon-genus">${pokemon.genus}</p>

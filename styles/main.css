@@ -9,7 +9,7 @@ body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #f8fafc;
   margin: 0;
-  padding: 0 0 68px 0;
+  padding: 0 0 calc(68px + env(safe-area-inset-bottom, 0px)) 0;
   color: #1e293b;
   height: 100dvh;
   display: flex;
@@ -2846,13 +2846,13 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   pointer-events: none;
-  padding-bottom: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
 }
 
 .bottom-nav-inner {
