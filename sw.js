@@ -1,5 +1,5 @@
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v5";
+const SHELL_CACHE = "pokedex-shell-v6";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 

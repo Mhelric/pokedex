@@ -114,9 +114,11 @@
                 <input 
                     type="text" 
                     id="search-input" 
-                    placeholder="Search Pokémon by name or ID..." 
+                    placeholder="Search Pokémon by name or ID... (/)" 
+                    aria-label="Search Pokémon by name or ID" 
                     autocomplete="off" 
                 />
+                <kbd class="search-shortcut-badge" title="Press / to focus search">/</kbd>
                 <button type="button" id="filter-expand-btn" class="filter-toggle-btn" aria-label="Toggle Filters" title="Filter Pokémon">
                     <i class="fa-solid fa-sliders"></i>
                     <span class="filter-badge hidden" id="active-filter-indicator"></span>
@@ -215,6 +217,7 @@
         </section>
 
         <!-- Dynamic Pokémon Grid -->
+        <div id="search-status-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         <section id="pokemon-grid" class="pokemon-grid">
             <!-- Dynamic cards rendered here -->
         </section>

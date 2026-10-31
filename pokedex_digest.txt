@@ -389,9 +389,11 @@ File: index.html
                 <input 
                     type="text" 
                     id="search-input" 
-                    placeholder="Search Pokémon by name or ID..." 
+                    placeholder="Search Pokémon by name or ID... (/)" 
+                    aria-label="Search Pokémon by name or ID" 
                     autocomplete="off" 
                 />
+                <kbd class="search-shortcut-badge" title="Press / to focus search">/</kbd>
                 <button type="button" id="filter-expand-btn" class="filter-toggle-btn" aria-label="Toggle Filters" title="Filter Pokémon">
                     <i class="fa-solid fa-sliders"></i>
                     <span class="filter-badge hidden" id="active-filter-indicator"></span>
@@ -490,6 +492,7 @@ File: index.html
         </section>
 
         <!-- Dynamic Pokémon Grid -->
+        <div id="search-status-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         <section id="pokemon-grid" class="pokemon-grid">
             <!-- Dynamic cards rendered here -->
         </section>
@@ -774,7 +777,7 @@ File: favicon.svg
 File: sw.js
 ================================================
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v5";
+const SHELL_CACHE = "pokedex-shell-v6";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -4927,7 +4930,7 @@ export function renderMoveTableRows(moves, category) {
         <tr class="move-row">
           <td class="move-level">${levelText}</td>
           <td class="move-name">${m.name}</td>
-          <td class="move-type"><span class="badge-subtle">${formatMethodLabel(m.method)}</span></td>
+          <td class="move-type"><span class="badge-subtle badge-method-${m.method}">${formatMethodLabel(m.method)}</span></td>
         </tr>
       `;
     })
@@ -4979,12 +4982,12 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     .join("");
 
   const statRowsHtml = [
-    { label: "HP", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
-    { label: "Attack", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
-    { label: "Defense", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
-    { label: "Sp. Atk", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
-    { label: "Sp. Def", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
-    { label: "Speed", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
+    { label: "HP", key: "hp", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
+    { label: "Attack", key: "atk", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
+    { label: "Defense", key: "def", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
+    { label: "Sp. Atk", key: "spatk", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
+    { label: "Sp. Def", key: "spdef", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
+    { label: "Speed", key: "spd", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
   ]
     .map((s) => {
       const pct = Math.min(100, Math.round((s.val / 255) * 100));
@@ -4993,7 +4996,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <span class="stat-name">${s.label}</span>
         <strong class="stat-val">${s.val}</strong>
         <div class="stat-meter-track">
-          <div class="stat-meter-bar" style="width: ${pct}%"></div>
+          <div class="stat-meter-bar stat-${s.key}" style="width: ${pct}%"></div>
         </div>
         <span class="stat-bound min">${s.bounds.min}</span>
         <span class="stat-bound max">${s.bounds.max}</span>
@@ -5433,6 +5436,7 @@ const filterExpandBtn = document.getElementById("filter-expand-btn");
 const filterDrawer = document.getElementById("filter-drawer");
 const activeFilterIndicator = document.getElementById("active-filter-indicator");
 const gridContainer = document.getElementById("pokemon-grid");
+const searchStatusLive = document.getElementById("search-status-live");
 
 // --- Settings Modal ---
 const settingsOpenBtn = document.getElementById("settings-open-btn");
@@ -6083,6 +6087,11 @@ async function applyCombinedFilters() {
       gridContainer.innerHTML = filterState.query
         ? `<p class="status-message">No Pokémon found matching "${safeQuery}".</p>`
         : `<p class="status-message">No matching Pokémon found.</p>`;
+      if (searchStatusLive) {
+        searchStatusLive.textContent = filterState.query
+          ? `No Pokémon found matching "${filterState.query}".`
+          : "No matching Pokémon found.";
+      }
       return;
     }
 
@@ -6104,6 +6113,10 @@ async function applyCombinedFilters() {
       loading: false,
       hasMore: true,
     };
+
+    if (searchStatusLive) {
+      searchStatusLive.textContent = `Showing ${uniqueIdentifiers.length} Pokémon`;
+    }
 
     gridContainer.innerHTML = "";
     await loadScrollBatch(true);
@@ -7093,6 +7106,104 @@ function applyTheme(themeName) {
     themeSelector.value = themeName || "default";
   }
 }
+
+// ==========================================
+// KEYBOARD SHORTCUTS & ACCESSIBILITY
+// ==========================================
+window.addEventListener("keydown", (e) => {
+  // 1. "/" shortcut to focus search input (when not already typing)
+  if (e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const activeEl = document.activeElement;
+    const isTyping =
+      activeEl &&
+      (activeEl.tagName === "INPUT" ||
+        activeEl.tagName === "TEXTAREA" ||
+        activeEl.isContentEditable);
+
+    if (!isTyping && searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    return;
+  }
+
+  // 2. "Escape" shortcut to dismiss topmost modal, dialog, drawer, or dropdown
+  if (e.key === "Escape") {
+    // Release confirmation dialog
+    if (releaseConfirmDialog && !releaseConfirmDialog.classList.contains("hidden")) {
+      releaseConfirmDialog.classList.add("hidden");
+      return;
+    }
+
+    // PC Drawer
+    if (pcDrawerBackdrop && !pcDrawerBackdrop.classList.contains("hidden")) {
+      closePCDrawer();
+      return;
+    }
+
+    // PC Filter / Gen Menus
+    if (pcGenMenu && !pcGenMenu.classList.contains("collapsed")) {
+      pcGenMenu.classList.add("collapsed");
+      return;
+    }
+    if (pcFilterMenu && !pcFilterMenu.classList.contains("collapsed")) {
+      pcFilterMenu.classList.add("collapsed");
+      return;
+    }
+
+    // Main Filter Drawer
+    if (filterDrawer && !filterDrawer.classList.contains("collapsed")) {
+      filterDrawer.classList.add("collapsed");
+      return;
+    }
+
+    // Pokémon Detail Modal
+    if (modalOverlay && !modalOverlay.classList.contains("hidden")) {
+      stopPokedexAudio();
+      if (modalContent) modalContent.scrollTop = 0;
+      modalOverlay.classList.add("hidden");
+      return;
+    }
+
+    // Scanner Modal
+    if (scannerModal && !scannerModal.classList.contains("hidden")) {
+      closeScanner();
+      return;
+    }
+
+    // Caught / PC Box Modal
+    if (caughtModal && !caughtModal.classList.contains("hidden")) {
+      closePCDrawer();
+      caughtModal.classList.add("hidden");
+      return;
+    }
+
+    // Favorites Modal
+    if (favoritesModal && !favoritesModal.classList.contains("hidden")) {
+      favoritesModal.classList.add("hidden");
+      return;
+    }
+
+    // Team Modal
+    if (teamModal && !teamModal.classList.contains("hidden")) {
+      teamModal.classList.add("hidden");
+      return;
+    }
+
+    // Minigame Modal
+    if (gameModal && !gameModal.classList.contains("hidden")) {
+      gameModal.classList.add("hidden");
+      return;
+    }
+
+    // Settings Modal
+    if (settingsModal && !settingsModal.classList.contains("hidden")) {
+      settingsModal.classList.add("hidden");
+      return;
+    }
+  }
+});
 
 ================================================
 File: styles/animations.css
@@ -10897,6 +11008,18 @@ body {
   overflow: hidden;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .moving-bg {
   position: fixed;
   top: 0;
@@ -11185,6 +11308,37 @@ body {
 
 @keyframes spinInput {
   to { transform: rotate(360deg); }
+}
+
+.search-shortcut-badge {
+  position: absolute;
+  right: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.search-box-wrapper:focus-within .search-shortcut-badge {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (max-width: 640px) {
+  .search-shortcut-badge {
+    display: none;
+  }
 }
 
 .filter-toggle-btn {
@@ -12263,6 +12417,13 @@ body {
   overflow: hidden;
 }
 
+.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171); }
+.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c); }
+.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15); }
+.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399); }
+.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6); }
+
 .stat-meter-bar {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #10b981);
@@ -12665,6 +12826,11 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
 }
+
+.badge-subtle.badge-method-level-up { background: #e0f2fe; color: #0369a1; }
+.badge-subtle.badge-method-machine { background: #fef3c7; color: #92400e; }
+.badge-subtle.badge-method-egg { background: #fce7f3; color: #9d174d; }
+.badge-subtle.badge-method-tutor { background: #ede9fe; color: #6d28d9; }
 
 .game-selector-bottom-card {
   background: #f8fafc;

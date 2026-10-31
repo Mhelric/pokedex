@@ -28,6 +28,18 @@ body {
   overflow: hidden;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .moving-bg {
   position: fixed;
   top: 0;
@@ -316,6 +328,37 @@ body {
 
 @keyframes spinInput {
   to { transform: rotate(360deg); }
+}
+
+.search-shortcut-badge {
+  position: absolute;
+  right: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.search-box-wrapper:focus-within .search-shortcut-badge {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (max-width: 640px) {
+  .search-shortcut-badge {
+    display: none;
+  }
 }
 
 .filter-toggle-btn {
@@ -1394,6 +1437,13 @@ body {
   overflow: hidden;
 }
 
+.stat-meter-bar.stat-hp { background: linear-gradient(90deg, #ef4444, #f87171); }
+.stat-meter-bar.stat-atk { background: linear-gradient(90deg, #f97316, #fb923c); }
+.stat-meter-bar.stat-def { background: linear-gradient(90deg, #eab308, #facc15); }
+.stat-meter-bar.stat-spatk { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-meter-bar.stat-spdef { background: linear-gradient(90deg, #10b981, #34d399); }
+.stat-meter-bar.stat-spd { background: linear-gradient(90deg, #ec4899, #f472b6); }
+
 .stat-meter-bar {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #10b981);
@@ -1796,6 +1846,11 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
 }
+
+.badge-subtle.badge-method-level-up { background: #e0f2fe; color: #0369a1; }
+.badge-subtle.badge-method-machine { background: #fef3c7; color: #92400e; }
+.badge-subtle.badge-method-egg { background: #fce7f3; color: #9d174d; }
+.badge-subtle.badge-method-tutor { background: #ede9fe; color: #6d28d9; }
 
 .game-selector-bottom-card {
   background: #f8fafc;

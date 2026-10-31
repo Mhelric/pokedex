@@ -501,7 +501,7 @@ export function renderMoveTableRows(moves, category) {
         <tr class="move-row">
           <td class="move-level">${levelText}</td>
           <td class="move-name">${m.name}</td>
-          <td class="move-type"><span class="badge-subtle">${formatMethodLabel(m.method)}</span></td>
+          <td class="move-type"><span class="badge-subtle badge-method-${m.method}">${formatMethodLabel(m.method)}</span></td>
         </tr>
       `;
     })
@@ -553,12 +553,12 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
     .join("");
 
   const statRowsHtml = [
-    { label: "HP", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
-    { label: "Attack", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
-    { label: "Defense", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
-    { label: "Sp. Atk", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
-    { label: "Sp. Def", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
-    { label: "Speed", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
+    { label: "HP", key: "hp", val: pokemon.stats.hp, bounds: pokemon.statBounds.hp },
+    { label: "Attack", key: "atk", val: pokemon.stats.attack, bounds: pokemon.statBounds.attack },
+    { label: "Defense", key: "def", val: pokemon.stats.defense, bounds: pokemon.statBounds.defense },
+    { label: "Sp. Atk", key: "spatk", val: pokemon.stats.spAtk, bounds: pokemon.statBounds.spAtk },
+    { label: "Sp. Def", key: "spdef", val: pokemon.stats.spDef, bounds: pokemon.statBounds.spDef },
+    { label: "Speed", key: "spd", val: pokemon.stats.speed, bounds: pokemon.statBounds.speed },
   ]
     .map((s) => {
       const pct = Math.min(100, Math.round((s.val / 255) * 100));
@@ -567,7 +567,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
         <span class="stat-name">${s.label}</span>
         <strong class="stat-val">${s.val}</strong>
         <div class="stat-meter-track">
-          <div class="stat-meter-bar" style="width: ${pct}%"></div>
+          <div class="stat-meter-bar stat-${s.key}" style="width: ${pct}%"></div>
         </div>
         <span class="stat-bound min">${s.bounds.min}</span>
         <span class="stat-bound max">${s.bounds.max}</span>

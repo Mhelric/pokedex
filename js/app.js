@@ -58,6 +58,7 @@ const filterExpandBtn = document.getElementById("filter-expand-btn");
 const filterDrawer = document.getElementById("filter-drawer");
 const activeFilterIndicator = document.getElementById("active-filter-indicator");
 const gridContainer = document.getElementById("pokemon-grid");
+const searchStatusLive = document.getElementById("search-status-live");
 
 // --- Settings Modal ---
 const settingsOpenBtn = document.getElementById("settings-open-btn");
@@ -708,6 +709,11 @@ async function applyCombinedFilters() {
       gridContainer.innerHTML = filterState.query
         ? `<p class="status-message">No Pokémon found matching "${safeQuery}".</p>`
         : `<p class="status-message">No matching Pokémon found.</p>`;
+      if (searchStatusLive) {
+        searchStatusLive.textContent = filterState.query
+          ? `No Pokémon found matching "${filterState.query}".`
+          : "No matching Pokémon found.";
+      }
       return;
     }
 
@@ -729,6 +735,10 @@ async function applyCombinedFilters() {
       loading: false,
       hasMore: true,
     };
+
+    if (searchStatusLive) {
+      searchStatusLive.textContent = `Showing ${uniqueIdentifiers.length} Pokémon`;
+    }
 
     gridContainer.innerHTML = "";
     await loadScrollBatch(true);
@@ -1718,3 +1728,101 @@ function applyTheme(themeName) {
     themeSelector.value = themeName || "default";
   }
 }
+
+// ==========================================
+// KEYBOARD SHORTCUTS & ACCESSIBILITY
+// ==========================================
+window.addEventListener("keydown", (e) => {
+  // 1. "/" shortcut to focus search input (when not already typing)
+  if (e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const activeEl = document.activeElement;
+    const isTyping =
+      activeEl &&
+      (activeEl.tagName === "INPUT" ||
+        activeEl.tagName === "TEXTAREA" ||
+        activeEl.isContentEditable);
+
+    if (!isTyping && searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    return;
+  }
+
+  // 2. "Escape" shortcut to dismiss topmost modal, dialog, drawer, or dropdown
+  if (e.key === "Escape") {
+    // Release confirmation dialog
+    if (releaseConfirmDialog && !releaseConfirmDialog.classList.contains("hidden")) {
+      releaseConfirmDialog.classList.add("hidden");
+      return;
+    }
+
+    // PC Drawer
+    if (pcDrawerBackdrop && !pcDrawerBackdrop.classList.contains("hidden")) {
+      closePCDrawer();
+      return;
+    }
+
+    // PC Filter / Gen Menus
+    if (pcGenMenu && !pcGenMenu.classList.contains("collapsed")) {
+      pcGenMenu.classList.add("collapsed");
+      return;
+    }
+    if (pcFilterMenu && !pcFilterMenu.classList.contains("collapsed")) {
+      pcFilterMenu.classList.add("collapsed");
+      return;
+    }
+
+    // Main Filter Drawer
+    if (filterDrawer && !filterDrawer.classList.contains("collapsed")) {
+      filterDrawer.classList.add("collapsed");
+      return;
+    }
+
+    // Pokémon Detail Modal
+    if (modalOverlay && !modalOverlay.classList.contains("hidden")) {
+      stopPokedexAudio();
+      if (modalContent) modalContent.scrollTop = 0;
+      modalOverlay.classList.add("hidden");
+      return;
+    }
+
+    // Scanner Modal
+    if (scannerModal && !scannerModal.classList.contains("hidden")) {
+      closeScanner();
+      return;
+    }
+
+    // Caught / PC Box Modal
+    if (caughtModal && !caughtModal.classList.contains("hidden")) {
+      closePCDrawer();
+      caughtModal.classList.add("hidden");
+      return;
+    }
+
+    // Favorites Modal
+    if (favoritesModal && !favoritesModal.classList.contains("hidden")) {
+      favoritesModal.classList.add("hidden");
+      return;
+    }
+
+    // Team Modal
+    if (teamModal && !teamModal.classList.contains("hidden")) {
+      teamModal.classList.add("hidden");
+      return;
+    }
+
+    // Minigame Modal
+    if (gameModal && !gameModal.classList.contains("hidden")) {
+      gameModal.classList.add("hidden");
+      return;
+    }
+
+    // Settings Modal
+    if (settingsModal && !settingsModal.classList.contains("hidden")) {
+      settingsModal.classList.add("hidden");
+      return;
+    }
+  }
+});
