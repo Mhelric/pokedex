@@ -3,12 +3,15 @@
 // ==========================================
 
 import {
-  fetchPokemon,
+  fetchedCache,
+  fetchPokemonDetail,
   getPokemonListByType,
   fetchPokemonBatch,
   fetchFullPokedexDirectory,
   GEN_RANGES,
   isItemInGenRange,
+  getAllSecondaryTypeIds,
+  normalizeSearchString,
 } from "./api.js";
 import {
   startCameraStream,
@@ -24,12 +27,11 @@ import {
   getFilteredMoves,
   getPokemonFlavorText,
   renderError,
+  renderMoveTableRows,
 } from "./ui.js";
-import { getTeam, addToTeam, removeFromTeam, clearTeam } from "./team.js";
+import { getTeam, addToTeam, removeFromTeam, clearTeam, hydrateTeam } from "./team.js";
 import { startNewRound, handleGuess } from "./minigame.js";
 import { escapeHtml } from "./utils.js";
-import { renderMoveTableRows } from "./ui.js";
-import { getAllSecondaryTypeIds } from "./api.js";
 
 
 // ==========================================
@@ -146,7 +148,6 @@ const filterState = {
 // GLOBAL STATE
 // ==========================================
 
-const fetchedCache = new Map();
 let currentActivePokemon = null;
 let activeSelectedBoxPokemon = null;
 
@@ -164,9 +165,6 @@ let pokedexDirectory = [];
 let searchDebounceTimer = null;
 let backgroundAbortController = null;
 
-let activeType = "all";
-let activeType2 = "all";
-let activeGen = "all";
 
 let scrollState = {
   active: false,
@@ -393,13 +391,25 @@ function playPokemonCryAndSpeak(pokemon, explicitDescription = null) {
 // GRID, TEAM & FILTER CONTROLLERS
 // ==========================================
 
-function updateTeamUI() {
-  renderTeamGrid(getTeam(), teamGrid, teamCount);
+async function updateTeamUI() {
+  try {
+    const teamList = await hydrateTeam();
+    renderTeamGrid(teamList, teamGrid, teamCount);
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      renderTeamGrid(getTeam(), teamGrid, teamCount);
+    }
+  }
 }
 
 function refreshFilterIndicator() {
   if (activeFilterIndicator) {
-    if (activeType !== "all" || activeType2 !== "all" || activeGen !== "all") {
+    const hasActiveFilters =
+      filterState.type1 !== "all" ||
+      filterState.type2 !== "all" ||
+      filterState.gen !== "all";
+
+    if (hasActiveFilters) {
       activeFilterIndicator.classList.remove("hidden");
     } else {
       activeFilterIndicator.classList.add("hidden");
@@ -453,6 +463,58 @@ function setupCustomDropdown(dropdownId, onSelectCallback) {
   });
 }
 
+function renderBatchRetryBanner(failedItems) {
+  const existing = document.getElementById("batch-retry-banner");
+  if (existing) existing.remove();
+
+  if (!failedItems || failedItems.length === 0 || !gridContainer) return;
+
+  const banner = document.createElement("div");
+  banner.id = "batch-retry-banner";
+  banner.className = "status-message";
+  banner.innerHTML = `
+    <span>⚠️ ${failedItems.length} Pokémon failed to load — </span>
+    <button type="button" id="batch-retry-btn" class="btn-secondary" style="margin-left: 8px; cursor: pointer;">Retry</button>
+  `;
+
+  const sentinel = gridContainer.querySelector("#grid-sentinel");
+  if (sentinel) {
+    sentinel.insertAdjacentElement("beforebegin", banner);
+  } else {
+    gridContainer.appendChild(banner);
+  }
+
+  const retryBtn = banner.querySelector("#batch-retry-btn");
+  if (retryBtn) {
+    retryBtn.addEventListener("click", async () => {
+      banner.textContent = "Retrying failed Pokémon...";
+      const signal = createBackgroundSignal();
+      try {
+        const { pokemonList, failed } = await fetchPokemonBatch(
+          failedItems,
+          0,
+          failedItems.length,
+          signal
+        );
+        if (signal.aborted) return;
+        banner.remove();
+        if (pokemonList.length > 0) {
+          currentDisplayedPokemon = [...currentDisplayedPokemon, ...pokemonList];
+          renderPokemonGrid(pokemonList, gridContainer, spriteDisplayMode, true);
+          ensureGridSentinel();
+        }
+        if (failed.length > 0) {
+          renderBatchRetryBanner(failed);
+        }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          renderBatchRetryBanner(failedItems);
+        }
+      }
+    });
+  }
+}
+
 async function loadScrollBatch(isFirstBatch = false) {
   if (!scrollState.active || scrollState.loading || !scrollState.hasMore) return;
 
@@ -471,7 +533,7 @@ async function loadScrollBatch(isFirstBatch = false) {
   }
 
   try {
-    const { pokemonList, nextIndex, hasMore } = await fetchPokemonBatch(
+    const { pokemonList, failed, nextIndex, hasMore } = await fetchPokemonBatch(
       scrollState.fullList,
       scrollState.currentIndex,
       10,
@@ -481,8 +543,6 @@ async function loadScrollBatch(isFirstBatch = false) {
     // If aborted while fetching, do not touch state or DOM
     if (signal.aborted) return;
 
-    pokemonList.forEach((p) => fetchedCache.set(p.id, p));
-
     if (isFirstBatch) {
       currentDisplayedPokemon = [...pokemonList];
     } else {
@@ -490,6 +550,9 @@ async function loadScrollBatch(isFirstBatch = false) {
     }
 
     renderPokemonGrid(pokemonList, gridContainer, spriteDisplayMode, !isFirstBatch);
+    if (failed && failed.length > 0) {
+      renderBatchRetryBanner(failed);
+    }
     ensureGridSentinel();
 
     scrollState.currentIndex = nextIndex;
@@ -529,6 +592,7 @@ function ensureGridSentinel() {
 
 async function applyCombinedFilters() {
   abortBackgroundOperations();
+  const signal = createBackgroundSignal();
   refreshFilterIndicator();
   scrollState.active = false;
   gridContainer.innerHTML = `
@@ -540,21 +604,26 @@ async function applyCombinedFilters() {
 
   try {
     let candidateList = [];
-    const hasQuery = Boolean(filterState.query.trim());
+    const rawQuery = filterState.query.trim();
+    const normQuery = normalizeSearchString(rawQuery);
+    const hasQuery = Boolean(normQuery);
 
     if (hasQuery) {
       if (pokedexDirectory.length === 0) {
-        pokedexDirectory = await fetchFullPokedexDirectory();
+        pokedexDirectory = await fetchFullPokedexDirectory(signal);
       }
-      const q = filterState.query.toLowerCase().trim();
 
       const seenNames = new Set();
       candidateList = pokedexDirectory.filter((item) => {
-        const idMatch = String(item.id) === q;
-        const formMatch = item.forms && item.forms.some((tag) => tag.includes(q));
-        const nameMatch = item.name.toLowerCase().includes(q);
-        const displayMatch = item.displayName.toLowerCase().includes(q);
-        const baseMatch = item.baseSpecies && item.baseSpecies.toLowerCase().includes(q);
+        const idMatch = String(item.id) === rawQuery || String(item.id) === normQuery;
+        const formMatch =
+          item.forms &&
+          item.forms.some((tag) => normalizeSearchString(tag).includes(normQuery));
+        const nameMatch = normalizeSearchString(item.name).includes(normQuery);
+        const displayMatch = normalizeSearchString(item.displayName).includes(normQuery);
+        const baseMatch =
+          item.baseSpecies &&
+          normalizeSearchString(item.baseSpecies).includes(normQuery);
         const matches = idMatch || formMatch || nameMatch || displayMatch || baseMatch;
 
         if (matches && !seenNames.has(item.name.toLowerCase())) {
@@ -569,39 +638,39 @@ async function applyCombinedFilters() {
       }
 
       if (filterState.type1 !== "all") {
-        const type1List = await getPokemonListByType(filterState.type1, 1, false);
+        const type1List = await getPokemonListByType(filterState.type1, 1, false, signal);
         const type1Names = new Set(type1List.map((p) => p.name.toLowerCase()));
         candidateList = candidateList.filter((item) => type1Names.has(item.name.toLowerCase()));
       }
 
       if (filterState.type2 === "none") {
-        const secondaryIds = await getAllSecondaryTypeIds();
+        const secondaryIds = await getAllSecondaryTypeIds(signal);
         candidateList = candidateList.filter((item) => !secondaryIds.has(item.id));
       } else if (filterState.type2 !== "all") {
-        const type2List = await getPokemonListByType(filterState.type2, 2, false);
+        const type2List = await getPokemonListByType(filterState.type2, 2, false, signal);
         const type2Names = new Set(type2List.map((p) => p.name.toLowerCase()));
         candidateList = candidateList.filter((item) => type2Names.has(item.name.toLowerCase()));
       }
     } else {
       if (filterState.type1 !== "all") {
-        candidateList = await getPokemonListByType(filterState.type1, 1, true);
+        candidateList = await getPokemonListByType(filterState.type1, 1, true, signal);
 
         if (filterState.type2 === "none") {
-          const secondaryIds = await getAllSecondaryTypeIds();
+          const secondaryIds = await getAllSecondaryTypeIds(signal);
           candidateList = candidateList.filter((p) => !secondaryIds.has(p.id));
         } else if (filterState.type2 !== "all") {
-          const slot2List = await getPokemonListByType(filterState.type2, 2, true);
+          const slot2List = await getPokemonListByType(filterState.type2, 2, true, signal);
           const slot2Ids = new Set(slot2List.map((p) => p.id));
           candidateList = candidateList.filter((p) => slot2Ids.has(p.id));
         }
       } else if (filterState.type2 === "none") {
-        const secondaryIds = await getAllSecondaryTypeIds();
+        const secondaryIds = await getAllSecondaryTypeIds(signal);
         candidateList = [];
         for (let id = 1; id <= 1025; id++) {
           if (!secondaryIds.has(id)) candidateList.push({ id });
         }
       } else if (filterState.type2 !== "all") {
-        candidateList = await getPokemonListByType(filterState.type2, 2, true);
+        candidateList = await getPokemonListByType(filterState.type2, 2, true, signal);
       } else {
         const range = GEN_RANGES[filterState.gen] || GEN_RANGES.all;
         candidateList = [];
@@ -610,13 +679,15 @@ async function applyCombinedFilters() {
         }
       }
 
-      if (filterState.gen !== "all" && filterState.type1 !== "all") {
+      if (filterState.gen !== "all" && (filterState.type1 !== "all" || filterState.type2 !== "all")) {
         candidateList = candidateList.filter((item) => {
           const pokeItem = typeof item === "object" ? { ...item, id: Number(item.id) } : Number(item);
           return isItemInGenRange(pokeItem, filterState.gen);
         });
       }
     }
+
+    if (signal.aborted) return;
 
     if (candidateList.length === 0) {
       const safeQuery = escapeHtml(filterState.query);
@@ -626,7 +697,7 @@ async function applyCombinedFilters() {
       return;
     }
 
-    // Deduplicate candidate identifiers strictly by name
+    // Deduplicate candidate identifiers strictly by name/id
     const uniqueIdentifiers = [];
     const seenFinalNames = new Set();
     for (const item of candidateList) {
@@ -648,8 +719,10 @@ async function applyCombinedFilters() {
     gridContainer.innerHTML = "";
     await loadScrollBatch(true);
   } catch (error) {
-    if (error.name === "AbortError") return;
+    if (error.name === "AbortError" || signal.aborted) return;
     gridContainer.innerHTML = `<p class="error-msg">❌ ${escapeHtml(error.message)}</p>`;
+  } finally {
+    setSearchLoading(false);
   }
 }
 
@@ -667,16 +740,7 @@ async function openPokemonModal(identifier) {
   modalOverlay.classList.remove("hidden");
 
   try {
-    const numId = Number(identifier);
-    let fullPokemon =
-      (!isNaN(numId) && fetchedCache.get(numId)) ||
-      fetchedCache.get(String(identifier).toLowerCase());
-
-    if (!fullPokemon) {
-      fullPokemon = await fetchPokemon(identifier);
-      fetchedCache.set(fullPokemon.id, fullPokemon);
-      fetchedCache.set(fullPokemon.rawName.toLowerCase(), fullPokemon);
-    }
+    const fullPokemon = await fetchPokemonDetail(identifier);
 
     // Discard stale responses or if modal was closed while fetching
     if (thisRequestToken !== modalRequestToken || modalOverlay.classList.contains("hidden")) {
@@ -813,12 +877,12 @@ function openPCDrawer(pokemon) {
   const artworkSrc =
     pokemon.officialArtwork ||
     pokemon.image ||
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+    `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
   if (pcMonArtwork) pcMonArtwork.src = artworkSrc;
 
   const spriteSrc =
     pokemon.sprite ||
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+    `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${pokemon.id}.png`;
   if (pcMonSprite) pcMonSprite.src = spriteSrc;
 
   if (pcMonTypes) {
@@ -906,7 +970,7 @@ async function renderPCStorageBox() {
       .map((p) => {
         const sprite =
           p.sprite ||
-          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+          `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${p.id}.png`;
         return `
           <div class="pc-box-slot" data-id="${p.id}" title="${p.name} (#${p.id})">
             <img src="${sprite}" alt="${p.name}" class="pc-pixel-sprite" loading="lazy" />

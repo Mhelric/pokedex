@@ -3,7 +3,7 @@
 // Generates dynamic HTML components for cards, grids, modal, and team synergy
 // ==========================================
 
-import { getTypeMatchups, formatPokemonName } from "./api.js";
+import { getTypeMatchups, formatPokemonName, fixSpriteUrl } from "./api.js";
 import { getTeam } from "./team.js";
 
 export const GAME_VERSIONS = [
@@ -93,8 +93,9 @@ export function createPokemonCard(pokemon, spriteMode = "artwork") {
   if (spriteMode === "animated") {
     displayImage = pokemon.animatedImage || pokemon.officialArtwork || pokemon.image;
   } else if (spriteMode === "pixel") {
-    displayImage = pokemon.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+    displayImage = pokemon.sprite || `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${pokemon.id}.png`;
   }
+  displayImage = fixSpriteUrl(displayImage);
 
   const abilitiesText = (pokemon.abilities || [])
     .slice(0, 2)
@@ -232,7 +233,7 @@ function getArtworkForEvoNode(evoNode) {
   const numericId = idParts.length > 0 ? idParts[idParts.length - 1] : null;
 
   if (numericId && !isNaN(Number(numericId))) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${numericId}.png`;
+    return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/${numericId}.png`;
   }
   return `https://play.pokemonshowdown.com/sprites/gen5/${evoNode.speciesName.toLowerCase().replace(/[^a-z0-9]/g, "")}.png`;
 }
@@ -283,11 +284,11 @@ function getBattleFormImageSrc(form) {
   }
 
   if (form.id && !isNaN(Number(form.id))) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${form.id}.png`;
+    return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/${form.id}.png`;
   }
 
   const cleanName = (form.name || "").toLowerCase().trim();
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${cleanName}.png`;
+  return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/${cleanName}.png`;
 }
 
 function getBaseArtworkFallback(form) {
@@ -347,7 +348,7 @@ export function buildEvolutionTreeHtml(evoNode, currentRawName, varieties = []) 
           displayName: "Alolan Sandslash",
           speciesName: "sandslash-alola",
           evolutionRequirement: "Use Ice Stone",
-          customImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10102.png"
+          customImage: "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/10102.png"
         }
       ];
     }
@@ -626,8 +627,15 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
   const isInTeam = getTeam().some((p) => p.id === pokemon.id);
 
   const normalImg = pokemon.officialArtwork || pokemon.image;
-  const shinyFallback = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+  const shinyFallback = `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
   const shinyImg = pokemon.shinyArtwork || shinyFallback;
+
+  const heldItemsText =
+    pokemon.heldItems && pokemon.heldItems.length > 0
+      ? pokemon.heldItems
+          .map((h) => (h.rarity !== null && h.rarity !== undefined ? `${h.name} (${h.rarity}%)` : h.name))
+          .join(", ")
+      : "None";
 
   containerElement.innerHTML = `
     <div class="modal-top-layout">
@@ -732,9 +740,7 @@ export function renderPokemonModal(pokemon, containerElement, selectedGame = "sc
             <li><span>Growth Rate:</span> <strong>${pokemon.growthRate}</strong></li>
             <li>
               <span>Held Items:</span> 
-              <strong>
-                ${pokemon.heldItems.length > 0 ? pokemon.heldItems.map((h) => `${h.name} (${h.rarity}%)`).join(", ") : "None"}
-              </strong>
+              <strong>${heldItemsText}</strong>
             </li>
           </ul>
         </section>

@@ -2,7 +2,7 @@
 // MINI-GAME ENGINE ("Who's That Pokémon?")
 // ==========================================
 
-import { fetchPokemon } from "./api.js";
+import { fetchPokemonMinigame } from "./api.js";
 
 let currentTarget = null;
 let currentStreak = 0;
@@ -14,6 +14,18 @@ let minigameRoundToken = 0;
  */
 function getRandomId(min = 1, max = 1025) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Unbiased in-place Fisher–Yates shuffle (returns a new shuffled copy).
+ */
+export function fisherYatesShuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
 /**
@@ -63,7 +75,9 @@ export async function startNewRound(
       ids.add(getRandomId(1, 1025));
     }
 
-    const pokemonList = await Promise.all(Array.from(ids).map((id) => fetchPokemon(id)));
+    const pokemonList = await Promise.all(
+      Array.from(ids).map((id) => fetchPokemonMinigame(id))
+    );
 
     // Abort if stale or modal was closed
     if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
@@ -71,7 +85,7 @@ export async function startNewRound(
     }
 
     currentTarget = pokemonList[0];
-    const choices = [...pokemonList].sort(() => Math.random() - 0.5);
+    const choices = fisherYatesShuffle(pokemonList);
     const targetSrc = currentTarget.officialArtwork || currentTarget.image;
 
     // 4. Preload artwork buffer before lifting shutter

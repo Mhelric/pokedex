@@ -2,7 +2,7 @@
 // CAMERA POKÉDEX SCANNER MODULE (GOOGLE LENS VIA SERPAPI)
 // ==========================================
 
-import { fetchPokemon } from "./api.js";
+import { fetchPokemonSummary } from "./api.js";
 
 let mediaStream = null;
 
@@ -108,7 +108,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     }
 
     statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()}! Fetching Dex Entry...`;
-    return await fetchPokemon(pokemonName);
+    return await fetchPokemonSummary(pokemonName);
   } catch (err) {
     console.error("Scanner Error:", err);
     statusElement.textContent = `❌ Scan failed: ${err.message}`;

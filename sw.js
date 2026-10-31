@@ -1,5 +1,5 @@
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v3";
+const SHELL_CACHE = "pokedex-shell-v4";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -67,6 +67,18 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+
+  // Bypass service worker for external CDN image and asset domains so browser fetches directly
+  if (
+    url.origin.includes("jsdelivr.net") ||
+    url.origin.includes("githubusercontent.com") ||
+    url.origin.includes("pokemonshowdown.com") ||
+    url.origin.includes("cloudflare.com") ||
+    url.origin.includes("googleapis.com") ||
+    url.origin.includes("gstatic.com")
+  ) {
+    return;
+  }
 
   // 1. Cross-origin PokéAPI cache
   if (url.origin.includes("pokeapi.co")) {
