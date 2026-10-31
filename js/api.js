@@ -1390,7 +1390,14 @@ export function deriveFormTagsFromName(rawName, baseSpecies = "") {
   return Array.from(tags);
 }
 
+let inMemoryDirectory = null;
+
 export async function fetchFullPokedexDirectory(signal = null) {
+  // 1. In-memory cache hit
+  if (Array.isArray(inMemoryDirectory) && inMemoryDirectory.length > 0) {
+    return inMemoryDirectory;
+  }
+
   // 1. Check versioned localStorage cache with TTL
   try {
     const rawCache = localStorage.getItem(DIRECTORY_CACHE_KEY);
@@ -1403,13 +1410,38 @@ export async function fetchFullPokedexDirectory(signal = null) {
         Array.isArray(parsed.data) &&
         parsed.data.length > 0
       ) {
-        return parsed.data;
+        inMemoryDirectory = parsed.data;
+        return inMemoryDirectory;
       }
     }
   } catch (e) {
     console.warn("Could not read directory cache from localStorage:", e);
   }
 
+  // 3. Fast offline-ready fallback: load bundled static directory JSON
+  try {
+    const staticRes = await fetch("./data/pokedex_directory.json", { signal });
+    if (staticRes.ok) {
+      const bundledData = await staticRes.json();
+      if (Array.isArray(bundledData) && bundledData.length > 0) {
+        inMemoryDirectory = bundledData;
+        try {
+          localStorage.setItem(
+            DIRECTORY_CACHE_KEY,
+            JSON.stringify({ timestamp: Date.now(), data: bundledData })
+          );
+        } catch (e) {
+          console.warn("Could not write directory cache to localStorage:", e);
+        }
+        return inMemoryDirectory;
+      }
+    }
+  } catch (staticErr) {
+    if (staticErr.name === "AbortError") throw staticErr;
+    console.warn("Bundled directory fetch failed, falling back to PokéAPI:", staticErr);
+  }
+
+  // 4. Remote PokéAPI fallback
   try {
     const data = await getJSON(`${BASE_URL}?limit=100000`, signal);
 
@@ -1468,6 +1500,7 @@ export async function fetchFullPokedexDirectory(signal = null) {
       console.warn("Could not write directory cache to localStorage:", e);
     }
 
+    inMemoryDirectory = directory;
     return directory;
   } catch (err) {
     if (err.name === "AbortError") throw err;

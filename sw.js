@@ -1,5 +1,5 @@
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v9";
+const SHELL_CACHE = "pokedex-shell-v10";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -19,6 +19,7 @@ const STATIC_ASSETS = [
   "./js/minigame.js",
   "./js/scanner.js",
   "./js/utils.js",
+  "./data/pokedex_directory.json",
   "./icons/pokedex-icon-192.png",
   "./icons/pokedex-icon-512.png"
 ];
