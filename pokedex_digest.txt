@@ -272,10 +272,10 @@ File: index.html
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Pokédex</title>
-    <link rel="stylesheet" href="styles/main.css?v=3" />
-    <link rel="stylesheet" href="styles/retro-ui.css?v=3" />
-    <link rel="stylesheet" href="styles/themes.css?v=3" />
-    <link rel="stylesheet" href="styles/animations.css?v=3" />
+    <link rel="stylesheet" href="styles/main.css?v=4" />
+    <link rel="stylesheet" href="styles/retro-ui.css?v=4" />
+    <link rel="stylesheet" href="styles/themes.css?v=4" />
+    <link rel="stylesheet" href="styles/animations.css?v=4" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -735,7 +735,7 @@ File: index.html
         </div>
     </nav>
 
-    <script type="module" src="js/app.js?v=3"></script>
+    <script type="module" src="js/app.js?v=4"></script>
     <!-- Before </body> -->
     <script>
     if ('serviceWorker' in navigator) {
@@ -781,7 +781,7 @@ File: manifest.json
 File: sw.js
 ================================================
 // sw.js
-const SHELL_CACHE = "pokedex-shell-v10";
+const SHELL_CACHE = "pokedex-shell-v11";
 const API_CACHE = "pokedex-api-v1";
 const MAX_API_ENTRIES = 120;
 
@@ -14136,6 +14136,7 @@ import {
 import {
   startCameraStream,
   stopCameraStream,
+  stopScanner,
   captureAndScanFrame,
   scanUploadedFile,
 } from "./scanner.js";
@@ -14150,7 +14151,7 @@ import {
   renderMoveTableRows,
 } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam, hydrateTeam } from "./team.js";
-import { startNewRound, handleGuess } from "./minigame.js";
+import { startNewRound, handleGuess, stopMinigame } from "./minigame.js";
 import { escapeHtml } from "./utils.js";
 import {
   isPokemonCaught,
@@ -15109,8 +15110,13 @@ async function renderPCStorageBox() {
 // ==========================================
 
 function closeScanner() {
-  stopCameraStream();
+  stopScanner();
   if (scannerModal) scannerModal.classList.add("hidden");
+}
+
+function closeGameModal() {
+  stopMinigame();
+  if (gameModal) gameModal.classList.add("hidden");
 }
 
 // ==========================================
@@ -15696,6 +15702,7 @@ if (captureScanBtn) {
 
     if (scannedPokemon) {
       setTimeout(() => {
+        if (scannerModal && scannerModal.classList.contains("hidden")) return;
         closeScanner();
         openPokemonModal(scannedPokemon.id);
       }, 1000);
@@ -15715,6 +15722,7 @@ if (imageUploadInput) {
 
     if (scannedPokemon) {
       setTimeout(() => {
+        if (scannerModal && scannerModal.classList.contains("hidden")) return;
         closeScanner();
         openPokemonModal(scannedPokemon.id);
       }, 1000);
@@ -15743,8 +15751,8 @@ if (modalOverlay) {
 if (teamCloseBtn) teamCloseBtn.addEventListener("click", () => teamModal.classList.add("hidden"));
 if (teamModal) teamModal.addEventListener("click", (e) => { if (e.target === teamModal) teamModal.classList.add("hidden"); });
 
-if (gameCloseBtn) gameCloseBtn.addEventListener("click", () => gameModal.classList.add("hidden"));
-if (gameModal) gameModal.addEventListener("click", (e) => { if (e.target === gameModal) gameModal.classList.add("hidden"); });
+if (gameCloseBtn) gameCloseBtn.addEventListener("click", closeGameModal);
+if (gameModal) gameModal.addEventListener("click", (e) => { if (e.target === gameModal) closeGameModal(); });
 
 if (favoritesCloseBtn) favoritesCloseBtn.addEventListener("click", () => favoritesModal.classList.add("hidden"));
 if (favoritesModal) {
@@ -15935,7 +15943,7 @@ window.addEventListener("keydown", (e) => {
 
     // Minigame Modal
     if (gameModal && !gameModal.classList.contains("hidden")) {
-      gameModal.classList.add("hidden");
+      closeGameModal();
       return;
     }
 
@@ -15961,6 +15969,20 @@ let currentTarget = null;
 let currentStreak = 0;
 let highScore = Number(localStorage.getItem("minigame_highscore")) || 0;
 let minigameRoundToken = 0;
+let activeMinigameController = null;
+let activeCryAudio = null;
+
+export function stopMinigame() {
+  if (activeMinigameController) {
+    activeMinigameController.abort();
+    activeMinigameController = null;
+  }
+  if (activeCryAudio) {
+    activeCryAudio.pause();
+    activeCryAudio.src = "";
+    activeCryAudio = null;
+  }
+}
 
 /**
  * Generates a random National Pokédex ID.
@@ -15991,6 +16013,10 @@ export async function startNewRound(
   streakElem,
   highScoreElem
 ) {
+  stopMinigame();
+  activeMinigameController = new AbortController();
+  const signal = activeMinigameController.signal;
+
   const roundToken = ++minigameRoundToken;
   const gameModal = document.getElementById("game-modal");
   const shutter = document.getElementById("game-shutter");
@@ -16029,11 +16055,11 @@ export async function startNewRound(
     }
 
     const pokemonList = await Promise.all(
-      Array.from(ids).map((id) => fetchPokemonMinigame(id))
+      Array.from(ids).map((id) => fetchPokemonMinigame(id, signal))
     );
 
     // Abort if stale or modal was closed
-    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+    if (signal.aborted || roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
       return;
     }
 
@@ -16043,13 +16069,15 @@ export async function startNewRound(
 
     // 4. Preload artwork buffer before lifting shutter
     await new Promise((resolve) => {
+      if (signal.aborted) return resolve();
       const preloader = new Image();
       preloader.src = targetSrc;
       preloader.onload = resolve;
       preloader.onerror = resolve;
+      signal.addEventListener("abort", resolve, { once: true });
     });
 
-    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+    if (signal.aborted || roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
       return;
     }
 
@@ -16073,12 +16101,19 @@ export async function startNewRound(
       )
       .join("");
   } catch (error) {
+    if (signal.aborted || error.name === "AbortError") {
+      return;
+    }
     if (roundToken === minigameRoundToken && !gameModal?.classList.contains("hidden")) {
       feedbackElement.textContent = "Failed to load mini-game round. Try again!";
       if (shutter) {
         shutter.classList.remove("instant-close");
         shutter.classList.add("open");
       }
+    }
+  } finally {
+    if (activeMinigameController?.signal === signal) {
+      activeMinigameController = null;
     }
   }
 }
@@ -16101,9 +16136,13 @@ export function handleGuess(
   imgElement.classList.add("revealed");
 
   if (currentTarget?.cry) {
-    const audio = new Audio(currentTarget.cry);
-    audio.volume = 0.6;
-    audio.play().catch((err) => console.error("Audio playback error:", err));
+    if (activeCryAudio) {
+      activeCryAudio.pause();
+      activeCryAudio.src = "";
+    }
+    activeCryAudio = new Audio(currentTarget.cry);
+    activeCryAudio.volume = 0.6;
+    activeCryAudio.play().catch((err) => console.error("Audio playback error:", err));
   }
 
   const buttons = optionsContainer.querySelectorAll(".option-btn");
@@ -16146,6 +16185,19 @@ File: js/scanner.js
 import { fetchPokemonSummary } from "./api.js";
 
 let mediaStream = null;
+let activeScanController = null;
+
+export function abortActiveScan() {
+  if (activeScanController) {
+    activeScanController.abort();
+    activeScanController = null;
+  }
+}
+
+export function stopScanner() {
+  stopCameraStream();
+  abortActiveScan();
+}
 
 export async function checkScannerAvailability() {
   const scanBtn = document.getElementById("nav-scan-btn");
@@ -16223,6 +16275,10 @@ function downscaleCanvasToDataUrl(source, naturalWidth, naturalHeight, maxDim = 
 }
 
 async function classifyWithGoogleLens(base64Image, statusElement) {
+  abortActiveScan();
+  activeScanController = new AbortController();
+  const signal = activeScanController.signal;
+
   const scanBtn = document.getElementById("capture-scan-btn");
   if (scanBtn) scanBtn.disabled = true;
 
@@ -16233,6 +16289,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: base64Image }),
+      signal,
     });
 
     if (!response.ok) {
@@ -16241,6 +16298,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     }
 
     const data = await response.json();
+    signal.throwIfAborted?.();
     const pokemonName = data.pokemon;
 
     if (!pokemonName || pokemonName === "none") {
@@ -16249,13 +16307,19 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     }
 
     statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()}! Fetching Dex Entry...`;
-    return await fetchPokemonSummary(pokemonName);
+    return await fetchPokemonSummary(pokemonName, signal);
   } catch (err) {
+    if (signal.aborted || err.name === "AbortError") {
+      return null;
+    }
     console.error("Scanner Error:", err);
     statusElement.textContent = `❌ Scan failed: ${err.message}`;
     return null;
   } finally {
     if (scanBtn) scanBtn.disabled = false;
+    if (activeScanController?.signal === signal) {
+      activeScanController = null;
+    }
   }
 }
 
@@ -16278,10 +16342,20 @@ export async function captureAndScanFrame(videoElement, canvasElement, statusEle
 
 export async function scanUploadedFile(fileObject, statusElement) {
   return new Promise((resolve) => {
+    const scannerModal = document.getElementById("scanner-modal");
+    if (!scannerModal || scannerModal.classList.contains("hidden")) {
+      return resolve(null);
+    }
     const reader = new FileReader();
     reader.onload = () => {
+      if (!scannerModal || scannerModal.classList.contains("hidden")) {
+        return resolve(null);
+      }
       const img = new Image();
       img.onload = async () => {
+        if (!scannerModal || scannerModal.classList.contains("hidden")) {
+          return resolve(null);
+        }
         const downscaledBase64 = downscaleCanvasToDataUrl(img, img.naturalWidth, img.naturalHeight, 800, 0.7);
         const scannedPokemon = await classifyWithGoogleLens(downscaledBase64, statusElement);
         resolve(scannedPokemon);

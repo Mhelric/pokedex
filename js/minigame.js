@@ -8,6 +8,20 @@ let currentTarget = null;
 let currentStreak = 0;
 let highScore = Number(localStorage.getItem("minigame_highscore")) || 0;
 let minigameRoundToken = 0;
+let activeMinigameController = null;
+let activeCryAudio = null;
+
+export function stopMinigame() {
+  if (activeMinigameController) {
+    activeMinigameController.abort();
+    activeMinigameController = null;
+  }
+  if (activeCryAudio) {
+    activeCryAudio.pause();
+    activeCryAudio.src = "";
+    activeCryAudio = null;
+  }
+}
 
 /**
  * Generates a random National Pokédex ID.
@@ -38,6 +52,10 @@ export async function startNewRound(
   streakElem,
   highScoreElem
 ) {
+  stopMinigame();
+  activeMinigameController = new AbortController();
+  const signal = activeMinigameController.signal;
+
   const roundToken = ++minigameRoundToken;
   const gameModal = document.getElementById("game-modal");
   const shutter = document.getElementById("game-shutter");
@@ -76,11 +94,11 @@ export async function startNewRound(
     }
 
     const pokemonList = await Promise.all(
-      Array.from(ids).map((id) => fetchPokemonMinigame(id))
+      Array.from(ids).map((id) => fetchPokemonMinigame(id, signal))
     );
 
     // Abort if stale or modal was closed
-    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+    if (signal.aborted || roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
       return;
     }
 
@@ -90,13 +108,15 @@ export async function startNewRound(
 
     // 4. Preload artwork buffer before lifting shutter
     await new Promise((resolve) => {
+      if (signal.aborted) return resolve();
       const preloader = new Image();
       preloader.src = targetSrc;
       preloader.onload = resolve;
       preloader.onerror = resolve;
+      signal.addEventListener("abort", resolve, { once: true });
     });
 
-    if (roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
+    if (signal.aborted || roundToken !== minigameRoundToken || gameModal?.classList.contains("hidden")) {
       return;
     }
 
@@ -120,12 +140,19 @@ export async function startNewRound(
       )
       .join("");
   } catch (error) {
+    if (signal.aborted || error.name === "AbortError") {
+      return;
+    }
     if (roundToken === minigameRoundToken && !gameModal?.classList.contains("hidden")) {
       feedbackElement.textContent = "Failed to load mini-game round. Try again!";
       if (shutter) {
         shutter.classList.remove("instant-close");
         shutter.classList.add("open");
       }
+    }
+  } finally {
+    if (activeMinigameController?.signal === signal) {
+      activeMinigameController = null;
     }
   }
 }
@@ -148,9 +175,13 @@ export function handleGuess(
   imgElement.classList.add("revealed");
 
   if (currentTarget?.cry) {
-    const audio = new Audio(currentTarget.cry);
-    audio.volume = 0.6;
-    audio.play().catch((err) => console.error("Audio playback error:", err));
+    if (activeCryAudio) {
+      activeCryAudio.pause();
+      activeCryAudio.src = "";
+    }
+    activeCryAudio = new Audio(currentTarget.cry);
+    activeCryAudio.volume = 0.6;
+    activeCryAudio.play().catch((err) => console.error("Audio playback error:", err));
   }
 
   const buttons = optionsContainer.querySelectorAll(".option-btn");

@@ -16,6 +16,7 @@ import {
 import {
   startCameraStream,
   stopCameraStream,
+  stopScanner,
   captureAndScanFrame,
   scanUploadedFile,
 } from "./scanner.js";
@@ -30,7 +31,7 @@ import {
   renderMoveTableRows,
 } from "./ui.js";
 import { getTeam, addToTeam, removeFromTeam, clearTeam, hydrateTeam } from "./team.js";
-import { startNewRound, handleGuess } from "./minigame.js";
+import { startNewRound, handleGuess, stopMinigame } from "./minigame.js";
 import { escapeHtml } from "./utils.js";
 import {
   isPokemonCaught,
@@ -989,8 +990,13 @@ async function renderPCStorageBox() {
 // ==========================================
 
 function closeScanner() {
-  stopCameraStream();
+  stopScanner();
   if (scannerModal) scannerModal.classList.add("hidden");
+}
+
+function closeGameModal() {
+  stopMinigame();
+  if (gameModal) gameModal.classList.add("hidden");
 }
 
 // ==========================================
@@ -1576,6 +1582,7 @@ if (captureScanBtn) {
 
     if (scannedPokemon) {
       setTimeout(() => {
+        if (scannerModal && scannerModal.classList.contains("hidden")) return;
         closeScanner();
         openPokemonModal(scannedPokemon.id);
       }, 1000);
@@ -1595,6 +1602,7 @@ if (imageUploadInput) {
 
     if (scannedPokemon) {
       setTimeout(() => {
+        if (scannerModal && scannerModal.classList.contains("hidden")) return;
         closeScanner();
         openPokemonModal(scannedPokemon.id);
       }, 1000);
@@ -1623,8 +1631,8 @@ if (modalOverlay) {
 if (teamCloseBtn) teamCloseBtn.addEventListener("click", () => teamModal.classList.add("hidden"));
 if (teamModal) teamModal.addEventListener("click", (e) => { if (e.target === teamModal) teamModal.classList.add("hidden"); });
 
-if (gameCloseBtn) gameCloseBtn.addEventListener("click", () => gameModal.classList.add("hidden"));
-if (gameModal) gameModal.addEventListener("click", (e) => { if (e.target === gameModal) gameModal.classList.add("hidden"); });
+if (gameCloseBtn) gameCloseBtn.addEventListener("click", closeGameModal);
+if (gameModal) gameModal.addEventListener("click", (e) => { if (e.target === gameModal) closeGameModal(); });
 
 if (favoritesCloseBtn) favoritesCloseBtn.addEventListener("click", () => favoritesModal.classList.add("hidden"));
 if (favoritesModal) {
@@ -1815,7 +1823,7 @@ window.addEventListener("keydown", (e) => {
 
     // Minigame Modal
     if (gameModal && !gameModal.classList.contains("hidden")) {
-      gameModal.classList.add("hidden");
+      closeGameModal();
       return;
     }
 

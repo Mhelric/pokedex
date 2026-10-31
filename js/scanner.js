@@ -5,6 +5,19 @@
 import { fetchPokemonSummary } from "./api.js";
 
 let mediaStream = null;
+let activeScanController = null;
+
+export function abortActiveScan() {
+  if (activeScanController) {
+    activeScanController.abort();
+    activeScanController = null;
+  }
+}
+
+export function stopScanner() {
+  stopCameraStream();
+  abortActiveScan();
+}
 
 export async function checkScannerAvailability() {
   const scanBtn = document.getElementById("nav-scan-btn");
@@ -82,6 +95,10 @@ function downscaleCanvasToDataUrl(source, naturalWidth, naturalHeight, maxDim = 
 }
 
 async function classifyWithGoogleLens(base64Image, statusElement) {
+  abortActiveScan();
+  activeScanController = new AbortController();
+  const signal = activeScanController.signal;
+
   const scanBtn = document.getElementById("capture-scan-btn");
   if (scanBtn) scanBtn.disabled = true;
 
@@ -92,6 +109,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: base64Image }),
+      signal,
     });
 
     if (!response.ok) {
@@ -100,6 +118,7 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     }
 
     const data = await response.json();
+    signal.throwIfAborted?.();
     const pokemonName = data.pokemon;
 
     if (!pokemonName || pokemonName === "none") {
@@ -108,13 +127,19 @@ async function classifyWithGoogleLens(base64Image, statusElement) {
     }
 
     statusElement.textContent = `🎯 Identified: ${pokemonName.toUpperCase()}! Fetching Dex Entry...`;
-    return await fetchPokemonSummary(pokemonName);
+    return await fetchPokemonSummary(pokemonName, signal);
   } catch (err) {
+    if (signal.aborted || err.name === "AbortError") {
+      return null;
+    }
     console.error("Scanner Error:", err);
     statusElement.textContent = `❌ Scan failed: ${err.message}`;
     return null;
   } finally {
     if (scanBtn) scanBtn.disabled = false;
+    if (activeScanController?.signal === signal) {
+      activeScanController = null;
+    }
   }
 }
 
@@ -137,10 +162,20 @@ export async function captureAndScanFrame(videoElement, canvasElement, statusEle
 
 export async function scanUploadedFile(fileObject, statusElement) {
   return new Promise((resolve) => {
+    const scannerModal = document.getElementById("scanner-modal");
+    if (!scannerModal || scannerModal.classList.contains("hidden")) {
+      return resolve(null);
+    }
     const reader = new FileReader();
     reader.onload = () => {
+      if (!scannerModal || scannerModal.classList.contains("hidden")) {
+        return resolve(null);
+      }
       const img = new Image();
       img.onload = async () => {
+        if (!scannerModal || scannerModal.classList.contains("hidden")) {
+          return resolve(null);
+        }
         const downscaledBase64 = downscaleCanvasToDataUrl(img, img.naturalWidth, img.naturalHeight, 800, 0.7);
         const scannedPokemon = await classifyWithGoogleLens(downscaledBase64, statusElement);
         resolve(scannedPokemon);
